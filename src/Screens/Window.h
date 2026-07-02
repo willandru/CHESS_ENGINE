@@ -12,10 +12,16 @@ public:
     bool shouldClose() const;
 
     float getTime() const;
+
     void shutdown();
 
     GLFWwindow* getNative() const;
 
+    void setFullscreen(bool fullscreen);
+
 private:
     GLFWwindow* window = nullptr;
+
+    int width = 0;
+    int height = 0;
 };

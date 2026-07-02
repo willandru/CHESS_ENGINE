@@ -1,31 +1,37 @@
 #pragma once
 
 #include <memory>
-#include "Screen.h"
-#include "GameTime.h"
 
-enum class ScreenType {
+class Screen;
+class GameTime;
+
+enum class ScreenType
+{
     Splash,
     MainMenu,
     Game
 };
 
-class ScreenManager {
+class ScreenManager
+{
 public:
-    ScreenManager() = default;
+    ScreenManager();
     ~ScreenManager();
 
     void init();
+
     void setScreen(ScreenType type);
 
     void update(GameTime& time);
     void render();
 
+    ScreenType getActiveScreen() const;
+
 private:
-    std::unique_ptr<Screen> current;
+    std::unique_ptr<Screen> current = nullptr;
 
     ScreenType activeType = ScreenType::Splash;
 
     float splashTimer = 0.0f;
-    const float splashDuration = 1.0f;
+    static constexpr float splashDuration = 3.0f;
 };

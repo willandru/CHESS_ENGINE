@@ -8,7 +8,4 @@ public:
     void update(float dt) override;
     void render() override;
     void onExit() override;
-
-private:
-    float t = 0.0f;
 };
