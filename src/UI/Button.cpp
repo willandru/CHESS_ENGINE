@@ -1,24 +1,74 @@
 #include "Button.h"
+
 #include "Renderer.h"
 
 Button::Button()
-    : x(0), y(0), width(0), height(0), text(""), hover(false)
-{}
+{
+}
 
-Button::Button(float x, float y, float width, float height, const char* text)
-    : x(x), y(y), width(width), height(height), text(text), hover(false)
-{}
+Button::Button(float x,
+               float y,
+               float width,
+               float height,
+               const char* text)
+{
+    setPosition(x, y);
+    setSize(width, height);
+
+    this->text = text;
+}
+
+void Button::setPosition(float x, float y)
+{
+    this->x = x;
+    this->y = y;
+}
+
+void Button::setSize(float width, float height)
+{
+    this->width = width;
+    this->height = height;
+}
+
+float Button::getX() const
+{
+    return x;
+}
+
+float Button::getY() const
+{
+    return y;
+}
+
+float Button::getWidth() const
+{
+    return width;
+}
+
+float Button::getHeight() const
+{
+    return height;
+}
 
 void Button::setOnClick(std::function<void()> fn)
 {
-    onClick = fn;
+    onClick = std::move(fn);
 }
 
-void Button::update(float mx, float my, bool clicked)
+bool Button::contains(float px, float py) const
 {
-    hover =
-        mx >= x && mx <= x + width &&
-        my >= y && my <= y + height;
+    return
+        px >= x &&
+        px <= x + width &&
+        py >= y &&
+        py <= y + height;
+}
+
+void Button::update(float mouseX,
+                    float mouseY,
+                    bool clicked)
+{
+    hover = contains(mouseX, mouseY);
 
     if (hover && clicked && onClick)
     {
@@ -28,7 +78,16 @@ void Button::update(float mx, float my, bool clicked)
 
 void Button::render(Shader& shader)
 {
-    float c = hover ? 0.35f : 0.20f;
+    float color = hover ? 0.35f : 0.20f;
 
-    Renderer::drawRect(x, y, width, height, c, c, c, shader);
+    Renderer::drawRect(
+        x,
+        y,
+        width,
+        height,
+        color,
+        color,
+        color,
+        shader
+    );
 }

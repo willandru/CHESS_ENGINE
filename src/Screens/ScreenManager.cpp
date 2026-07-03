@@ -5,6 +5,11 @@
 #include "MainMenuScreen.h"
 #include "GameScreen.h"
 #include "GameTime.h"
+#include "Window.h"
+
+#include <memory>
+
+extern Window gWindow;
 
 ScreenManager::ScreenManager() = default;
 
@@ -31,20 +36,29 @@ void ScreenManager::setScreen(ScreenType type)
     switch (type)
     {
         case ScreenType::Splash:
+        {
             current = std::make_unique<SplashScreen>();
             splashTimer = 0.0f;
             break;
+        }
 
         case ScreenType::MainMenu:
+        {
             current = std::make_unique<MainMenuScreen>();
             break;
+        }
 
         case ScreenType::Game:
+        {
             current = std::make_unique<GameScreen>();
             break;
+        }
     }
 
-    current->onEnter();
+    if (current)
+    {
+        current->onEnter();
+    }
 }
 
 void ScreenManager::update(GameTime& time)
@@ -60,6 +74,10 @@ void ScreenManager::update(GameTime& time)
 
         if (splashTimer >= splashDuration)
         {
+            // Cambiar primero el modo de la ventana.
+            gWindow.setFullscreen(true);
+
+            // Luego crear el menú principal.
             setScreen(ScreenType::MainMenu);
             return;
         }
@@ -71,7 +89,9 @@ void ScreenManager::update(GameTime& time)
 void ScreenManager::render()
 {
     if (current)
+    {
         current->render();
+    }
 }
 
 ScreenType ScreenManager::getActiveScreen() const

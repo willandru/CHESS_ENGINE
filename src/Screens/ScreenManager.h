@@ -33,5 +33,6 @@ private:
     ScreenType activeType = ScreenType::Splash;
 
     float splashTimer = 0.0f;
+
     static constexpr float splashDuration = 3.0f;
 };

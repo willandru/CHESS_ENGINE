@@ -15,20 +15,26 @@ GameTime gTime;
 int main()
 {
     // =========================
+    // CONFIG
+    // =========================
+    constexpr int WindowWidth  = 640;
+    constexpr int WindowHeight = 360;
+
+    // =========================
     // WINDOW
     // =========================
-    if (!gWindow.init(640, 360, "CHESS ENGINE", false))
+    if (!gWindow.init(WindowWidth, WindowHeight, "CHESS ENGINE", false))
         return -1;
 
-    // centrar ventana (evita splash desplazado visualmente)
+    // Centrar ventana inicial
     {
-        GLFWmonitor* m = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(m);
+        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
 
         glfwSetWindowPos(
             gWindow.getNative(),
-            (mode->width - 640) / 2,
-            (mode->height - 360) / 2
+            (mode->width - WindowWidth) / 2,
+            (mode->height - WindowHeight) / 2
         );
     }
 
@@ -58,59 +64,45 @@ int main()
     gScreenManager.init();
     gScreenManager.setScreen(ScreenType::Splash);
 
-    ScreenType previousScreen = gScreenManager.getActiveScreen();
-
     // =========================
     // MAIN LOOP
     // =========================
     while (!gWindow.shouldClose())
     {
-        // TIME
-        gTime.update(gWindow.getTime());
-
-        // EVENTS
+        // Eventos
         gWindow.pollEvents();
 
-        // 🔥 CRÍTICO: sincronización framebuffer/UI
-        glViewport(0, 0, gWindow.getWidth(), gWindow.getHeight());
+        // Tiempo
+        gTime.update(gWindow.getTime());
 
-        // INPUT
+        // Input
         InputKeyboard::update();
         InputMouse::update();
 
-        // EXIT SHORTCUT
+        // Salir con ESC
         if (InputKeyboard::isKeyPressed(GLFW_KEY_ESCAPE))
+        {
             gWindow.setShouldClose(true);
+        }
 
-        // FRAME START
+        // Inicio del frame
         Renderer::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Renderer::beginFrame();
 
-        // UPDATE
+        // Actualización
         gScreenManager.update(gTime);
 
-        // SCREEN TRANSITION
-        ScreenType current = gScreenManager.getActiveScreen();
-
-        if (previousScreen == ScreenType::Splash &&
-            current == ScreenType::MainMenu)
-        {
-            gWindow.setFullscreen(true);
-
-            glViewport(0, 0, gWindow.getWidth(), gWindow.getHeight());
-        }
-
-        previousScreen = current;
-
-        // RENDER
+        // Render
         gScreenManager.render();
 
-        // FRAME END
+        // Fin del frame
         Renderer::endFrame();
         gWindow.swapBuffers();
     }
 
+    // =========================
     // CLEANUP
+    // =========================
     Renderer::shutdown();
     gWindow.shutdown();
 
