@@ -3,13 +3,13 @@ cmake_minimum_required(VERSION 3.16)
 project(CHESS_ENGINE)
 
 # ==========================================
-# C++
+# C++ STANDARD
 # ==========================================
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # ==========================================
-# Include directories
+# INCLUDE DIRECTORIES
 # ==========================================
 include_directories(
     src
@@ -21,6 +21,7 @@ include_directories(
     externals/glad/include
     externals/glfw-3.4/include
     externals/glm
+    externals/stb
 )
 
 # ==========================================
@@ -36,14 +37,14 @@ add_library(glad
 add_subdirectory(externals/glfw-3.4)
 
 # ==========================================
-# Source files
+# SOURCE FILES
 # ==========================================
 file(GLOB_RECURSE SOURCES
     src/*.cpp
 )
 
 # ==========================================
-# Executable
+# EXECUTABLE
 # ==========================================
 add_executable(chess_engine
     main.cpp
@@ -51,7 +52,7 @@ add_executable(chess_engine
 )
 
 # ==========================================
-# Link libraries
+# LINK LIBRARIES
 # ==========================================
 target_link_libraries(chess_engine
     PRIVATE
@@ -61,16 +62,24 @@ target_link_libraries(chess_engine
 )
 
 # ==========================================
-# Visual Studio
+# VISUAL STUDIO WORKING DIR
 # ==========================================
 set_target_properties(chess_engine PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
 # ==========================================
-# Copy shaders to build/Shaders
+# SHADERS COPY
 # ==========================================
 file(COPY
     "${CMAKE_SOURCE_DIR}/src/Graphics/Shaders"
+    DESTINATION "${CMAKE_BINARY_DIR}"
+)
+
+# ==========================================
+# ASSETS COPY (CRÍTICO)
+# ==========================================
+file(COPY
+    "${CMAKE_SOURCE_DIR}/src/Assets"
     DESTINATION "${CMAKE_BINARY_DIR}"
 )

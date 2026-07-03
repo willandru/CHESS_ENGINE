@@ -15,6 +15,8 @@ public:
 private:
     Shader shader;
 
-    Button play;
+    Button btn2D;
+    Button btn25D;
+    Button btn3D;
     Button exitBtn;
 };

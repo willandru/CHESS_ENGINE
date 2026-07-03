@@ -14,9 +14,6 @@ GameTime gTime;
 
 int main()
 {
-    // =========================
-    // CONFIG
-    // =========================
     constexpr int WindowWidth  = 640;
     constexpr int WindowHeight = 360;
 
@@ -26,7 +23,6 @@ int main()
     if (!gWindow.init(WindowWidth, WindowHeight, "CHESS ENGINE", false))
         return -1;
 
-    // Centrar ventana inicial
     {
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
@@ -69,34 +65,29 @@ int main()
     // =========================
     while (!gWindow.shouldClose())
     {
-        // Eventos
+        // 1. eventos OS
         gWindow.pollEvents();
 
-        // Tiempo
-        gTime.update(gWindow.getTime());
-
-        // Input
+        // 2. input update (orden crítico)
         InputKeyboard::update();
         InputMouse::update();
 
-        // Salir con ESC
-        if (InputKeyboard::isKeyPressed(GLFW_KEY_ESCAPE))
-        {
-            gWindow.setShouldClose(true);
-        }
+        // 3. timing
+        gTime.update(gWindow.getTime());
 
-        // Inicio del frame
+        // 4. ESC
+        if (InputKeyboard::isKeyPressed(GLFW_KEY_ESCAPE))
+            gWindow.setShouldClose(true);
+
+        // 5. render setup
         Renderer::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Renderer::beginFrame();
 
-        // Actualización
+        // 6. update + render
         gScreenManager.update(gTime);
-
-        // Render
         gScreenManager.render();
 
-        // Fin del frame
-        Renderer::endFrame();
+        // 7. swap
         gWindow.swapBuffers();
     }
 
