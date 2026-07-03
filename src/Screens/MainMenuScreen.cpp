@@ -3,58 +3,57 @@
 #include "ScreenManager.h"
 #include "Window.h"
 #include "InputMouse.h"
-
-#include <GLFW/glfw3.h>
+#include "UIConstants.h"
 
 #include <iostream>
 
 extern ScreenManager gScreenManager;
 extern Window gWindow;
 
-
-
 void MainMenuScreen::onEnter()
 {
-
-    std::cout
-    << gWindow.getWindowWidth()
-    << " "
-    << gWindow.getWindowHeight()
-    << std::endl;
     shader.load("Shaders/basic.vert", "Shaders/basic.frag");
 
-    constexpr float buttonWidth = 220.0f;
-    constexpr float buttonHeight = 55.0f;
-    constexpr float spacing = 20.0f;
-
-    float screenWidth = static_cast<float>(gWindow.getWindowWidth());
+    // =========================
+    // SCREEN SIZE (DINÁMICO)
+    // =========================
+    float screenWidth  = static_cast<float>(gWindow.getWindowWidth());
     float screenHeight = static_cast<float>(gWindow.getWindowHeight());
 
-    float x = (screenWidth - buttonWidth) * 0.5f;
-
+    // =========================
+    // LAYOUT CALCULATION
+    // =========================
     float totalHeight =
-        buttonHeight +
-        spacing +
-        buttonHeight;
+        UI::ButtonHeight +
+        UI::ButtonSpacing +
+        UI::ButtonHeight;
+
+    float x = (screenWidth - UI::ButtonWidth) * 0.5f;
 
     float y = (screenHeight - totalHeight) * 0.5f;
 
+    // =========================
+    // BUTTONS
+    // =========================
     play = Button(
         x,
         y,
-        buttonWidth,
-        buttonHeight,
+        UI::ButtonWidth,
+        UI::ButtonHeight,
         "PLAY"
     );
 
     exitBtn = Button(
         x,
-        y + buttonHeight + spacing,
-        buttonWidth,
-        buttonHeight,
+        y + UI::ButtonHeight + UI::ButtonSpacing,
+        UI::ButtonWidth,
+        UI::ButtonHeight,
         "EXIT"
     );
 
+    // =========================
+    // EVENTS
+    // =========================
     play.setOnClick([]()
     {
         gScreenManager.setScreen(ScreenType::Game);
@@ -73,7 +72,7 @@ void MainMenuScreen::update(float dt)
     float mx, my;
     InputMouse::getUIPosition(mx, my);
 
-    bool clicked = InputMouse::isButtonPressed(GLFW_MOUSE_BUTTON_LEFT);
+    bool clicked = InputMouse::isButtonPressed(0);
 
     play.update(mx, my, clicked);
     exitBtn.update(mx, my, clicked);
