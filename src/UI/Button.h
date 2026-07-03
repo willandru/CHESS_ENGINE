@@ -2,18 +2,38 @@
 
 #include <functional>
 
-class Button {
-public:
-    Button();
-    Button(float x, float y, float w, float h, const char* text);
+class Shader;
 
-    void setOnClick(std::function<void()> fn);
-    void update(float mx, float my, bool clicked);
-    void render();
+class Button
+{
+public:
+
+    Button();
+
+    Button(float x,
+           float y,
+           float width,
+           float height,
+           const char* text);
+
+    void setOnClick(std::function<void()> callback);
+
+    void update(float mouseX,
+                float mouseY,
+                bool clicked);
+
+    void render(Shader& shader);
 
 private:
-    float x, y, w, h;
+
+    float x;
+    float y;
+    float width;
+    float height;
+
     const char* text;
+
     bool hover;
+
     std::function<void()> onClick;
 };

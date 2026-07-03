@@ -9,33 +9,48 @@ GameTime gTime;
 
 int main()
 {
-    // Ventana inicial del Splash
+    // Crear ventana y contexto OpenGL
     if (!gWindow.init(640, 360, "CHESS ENGINE", false))
         return -1;
 
-    // Tiempo
+    // Inicializar renderer
+    if (!Renderer::init())
+    {
+        gWindow.shutdown();
+        return -1;
+    }
+
+    // Inicializar tiempo
     gTime.init(gWindow.getTime());
 
-    // Pantallas
+    // Inicializar gestor de pantallas
     gScreenManager.init();
     gScreenManager.setScreen(ScreenType::Splash);
 
-    // Para detectar el cambio Splash -> MainMenu
+    // Detectar transición Splash -> MainMenu
     ScreenType previousScreen = gScreenManager.getActiveScreen();
 
     while (!gWindow.shouldClose())
     {
+        // Actualizar tiempo
         gTime.update(gWindow.getTime());
 
+        // Eventos
         gWindow.pollEvents();
 
-        Renderer::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        // Comenzar frame
+        Renderer::setClearColor(
+            0.0f,
+            0.0f,
+            0.0f,
+            1.0f);
+
         Renderer::beginFrame();
 
+        // Actualizar pantalla activa
         gScreenManager.update(gTime);
 
-        // Si acabamos de salir del Splash,
-        // cambiar la ventana a pantalla completa.
+        // Cambiar a pantalla completa al salir del Splash
         if (previousScreen == ScreenType::Splash &&
             gScreenManager.getActiveScreen() == ScreenType::MainMenu)
         {
@@ -44,13 +59,18 @@ int main()
 
         previousScreen = gScreenManager.getActiveScreen();
 
+        // Dibujar pantalla activa
         gScreenManager.render();
 
+        // Finalizar frame
         Renderer::endFrame();
 
+        // Presentar imagen
         gWindow.swapBuffers();
     }
 
+    // Liberar recursos
+    Renderer::shutdown();
     gWindow.shutdown();
 
     return 0;
