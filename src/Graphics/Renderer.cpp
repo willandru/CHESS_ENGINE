@@ -1,16 +1,20 @@
 #include "Renderer.h"
 #include "Shader.h"
+#include "Window.h"
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+extern Window gWindow;
 
 unsigned int Renderer::vao = 0;
 unsigned int Renderer::vbo = 0;
 
 bool Renderer::init()
 {
-    const float vertices[] =
+    // Quad unitario (0..1)
+    float vertices[] =
     {
-        // x    y
         0.0f, 0.0f,
         1.0f, 0.0f,
         1.0f, 1.0f,
@@ -26,12 +30,7 @@ bool Renderer::init()
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(vertices),
-        vertices,
-        GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(
         0,
@@ -39,7 +38,8 @@ bool Renderer::init()
         GL_FLOAT,
         GL_FALSE,
         2 * sizeof(float),
-        (void*)0);
+        (void*)0
+    );
 
     glEnableVertexAttribArray(0);
 
@@ -51,23 +51,20 @@ bool Renderer::init()
 
 void Renderer::shutdown()
 {
-    if (vbo != 0)
+    if (vbo)
     {
         glDeleteBuffers(1, &vbo);
         vbo = 0;
     }
 
-    if (vao != 0)
+    if (vao)
     {
         glDeleteVertexArrays(1, &vao);
         vao = 0;
     }
 }
 
-void Renderer::setClearColor(float r,
-                             float g,
-                             float b,
-                             float a)
+void Renderer::setClearColor(float r, float g, float b, float a)
 {
     glClearColor(r, g, b, a);
 }
@@ -93,26 +90,21 @@ void Renderer::drawRect(float x,
 {
     shader.bind();
 
-    shader.setVec4(
-        "uRect",
-        x,
-        y,
-        width,
-        height);
+    // Rectángulo en coordenadas de ventana (UI)
+    shader.setVec4("uRect", x, y, width, height);
 
-    shader.setVec3(
-        "uColor",
-        r,
-        g,
-        b);
+    // La UI trabaja en coordenadas de ventana,
+    // no en coordenadas del framebuffer.
+    shader.setVec2(
+        "uScreenSize",
+        static_cast<float>(gWindow.getWindowWidth()),
+        static_cast<float>(gWindow.getWindowHeight())
+    );
+
+    shader.setVec3("uColor", r, g, b);
 
     glBindVertexArray(vao);
-
-    glDrawArrays(
-        GL_TRIANGLES,
-        0,
-        6);
-
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     glBindVertexArray(0);
 
     shader.unbind();

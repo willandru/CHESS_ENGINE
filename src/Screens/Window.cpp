@@ -2,77 +2,75 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
 #include <iostream>
+
+static void framebufferSizeCallback(GLFWwindow* win, int w, int h)
+{
+    glViewport(0, 0, w, h);
+}
 
 bool Window::init(int w, int h, const char* title, bool fullscreen)
 {
     if (!glfwInit())
-    {
-        std::cout << "GLFW init failed\n";
         return false;
-    }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
-    width  = w;
+    width = w;
     height = h;
 
-    GLFWmonitor* monitor = nullptr;
+    windowedWidth = w;
+    windowedHeight = h;
 
-    if(fullscreen)
-    {
-        monitor = glfwGetPrimaryMonitor();
-    }
-    else
-    {
-        // Splash
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    }
+    isFullscreen = fullscreen;
 
-    window = glfwCreateWindow(width,height,title,monitor,nullptr);
+    GLFWmonitor* monitor = fullscreen ? glfwGetPrimaryMonitor() : nullptr;
 
-    if(!window)
+    window = glfwCreateWindow(width, height, title, monitor, nullptr);
+
+    if (!window)
     {
         glfwTerminate();
         return false;
     }
 
-    if(!fullscreen)
-    {
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        int x = (mode->width  - width ) / 2;
-        int y = (mode->height - height) / 2;
-
-        glfwSetWindowPos(window, x, y);
-    }
-
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
 
-    if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "GLAD failed\n";
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         return false;
-    }
 
-    glViewport(0,0,width,height);
+    glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
+
+    updateViewport();
 
     return true;
 }
 
+void Window::updateViewport()
+{
+    glfwGetFramebufferSize(window, &framebufferWidth, &framebufferHeight);
+    glViewport(0, 0, framebufferWidth, framebufferHeight);
+}
+
 void Window::setFullscreen(bool fullscreen)
 {
-    if(fullscreen)
+    if (!window || isFullscreen == fullscreen)
+        return;
+
+    isFullscreen = fullscreen;
+
+    if (fullscreen)
     {
+        // Guardar tamaño y posición actuales
+        glfwGetWindowPos(window, &windowedPosX, &windowedPosY);
+        glfwGetWindowSize(window, &windowedWidth, &windowedHeight);
+
         GLFWmonitor* monitor = glfwGetPrimaryMonitor();
         const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
 
         glfwSetWindowMonitor(
             window,
@@ -84,32 +82,26 @@ void Window::setFullscreen(bool fullscreen)
             mode->refreshRate
         );
 
-        glViewport(0,0,mode->width,mode->height);
+        width = mode->width;
+        height = mode->height;
     }
     else
     {
         glfwSetWindowMonitor(
             window,
             nullptr,
-            100,
-            100,
-            width,
-            height,
+            windowedPosX,
+            windowedPosY,
+            windowedWidth,
+            windowedHeight,
             0
         );
 
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-
-        GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-        const GLFWvidmode* mode = glfwGetVideoMode(monitor);
-
-        int x = (mode->width  - width ) / 2;
-        int y = (mode->height - height) / 2;
-
-        glfwSetWindowPos(window,x,y);
-
-        glViewport(0,0,width,height);
+        width = windowedWidth;
+        height = windowedHeight;
     }
+
+    updateViewport();
 }
 
 void Window::pollEvents()
@@ -124,17 +116,17 @@ void Window::swapBuffers()
 
 bool Window::shouldClose() const
 {
-    return glfwWindowShouldClose(window);
+    return window && glfwWindowShouldClose(window);
 }
 
 float Window::getTime() const
 {
-    return (float)glfwGetTime();
+    return static_cast<float>(glfwGetTime());
 }
 
 void Window::shutdown()
 {
-    if(window)
+    if (window)
     {
         glfwDestroyWindow(window);
         window = nullptr;
@@ -146,4 +138,30 @@ void Window::shutdown()
 GLFWwindow* Window::getNative() const
 {
     return window;
+}
+
+void Window::setShouldClose(bool value)
+{
+    if (window)
+        glfwSetWindowShouldClose(window, value);
+}
+
+int Window::getWidth() const
+{
+    return framebufferWidth;
+}
+
+int Window::getHeight() const
+{
+    return framebufferHeight;
+}
+
+int Window::getWindowWidth() const
+{
+    return width;
+}
+
+int Window::getWindowHeight() const
+{
+    return height;
 }

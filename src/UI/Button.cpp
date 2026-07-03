@@ -1,46 +1,24 @@
 #include "Button.h"
-
 #include "Renderer.h"
-#include "Shader.h"
 
 Button::Button()
-    : x(0.0f),
-      y(0.0f),
-      width(0.0f),
-      height(0.0f),
-      text(""),
-      hover(false)
+    : x(0), y(0), width(0), height(0), text(""), hover(false)
+{}
+
+Button::Button(float x, float y, float width, float height, const char* text)
+    : x(x), y(y), width(width), height(height), text(text), hover(false)
+{}
+
+void Button::setOnClick(std::function<void()> fn)
 {
+    onClick = fn;
 }
 
-Button::Button(float x,
-               float y,
-               float width,
-               float height,
-               const char* text)
-    : x(x),
-      y(y),
-      width(width),
-      height(height),
-      text(text),
-      hover(false)
-{
-}
-
-void Button::setOnClick(std::function<void()> callback)
-{
-    onClick = callback;
-}
-
-void Button::update(float mouseX,
-                    float mouseY,
-                    bool clicked)
+void Button::update(float mx, float my, bool clicked)
 {
     hover =
-        mouseX >= x &&
-        mouseX <= x + width &&
-        mouseY >= y &&
-        mouseY <= y + height;
+        mx >= x && mx <= x + width &&
+        my >= y && my <= y + height;
 
     if (hover && clicked && onClick)
     {
@@ -50,30 +28,7 @@ void Button::update(float mouseX,
 
 void Button::render(Shader& shader)
 {
-    if (hover)
-    {
-        Renderer::drawRect(
-            x,
-            y,
-            width,
-            height,
-            0.35f,
-            0.35f,
-            0.35f,
-            shader);
-    }
-    else
-    {
-        Renderer::drawRect(
-            x,
-            y,
-            width,
-            height,
-            0.20f,
-            0.20f,
-            0.20f,
-            shader);
-    }
+    float c = hover ? 0.35f : 0.20f;
 
-    // El renderizado del texto se implementará más adelante.
+    Renderer::drawRect(x, y, width, height, c, c, c, shader);
 }

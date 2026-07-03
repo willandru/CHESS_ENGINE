@@ -3,73 +3,114 @@
 #include "ScreenManager.h"
 #include "GameTime.h"
 
+#include "InputKeyboard.h"
+#include "InputMouse.h"
+
+#include <GLFW/glfw3.h>
+
 Window gWindow;
 ScreenManager gScreenManager;
 GameTime gTime;
 
 int main()
 {
-    // Crear ventana y contexto OpenGL
+    // =========================
+    // WINDOW
+    // =========================
     if (!gWindow.init(640, 360, "CHESS ENGINE", false))
         return -1;
 
-    // Inicializar renderer
+    // centrar ventana (evita splash desplazado visualmente)
+    {
+        GLFWmonitor* m = glfwGetPrimaryMonitor();
+        const GLFWvidmode* mode = glfwGetVideoMode(m);
+
+        glfwSetWindowPos(
+            gWindow.getNative(),
+            (mode->width - 640) / 2,
+            (mode->height - 360) / 2
+        );
+    }
+
+    // =========================
+    // RENDERER
+    // =========================
     if (!Renderer::init())
     {
         gWindow.shutdown();
         return -1;
     }
 
-    // Inicializar tiempo
+    // =========================
+    // INPUT
+    // =========================
+    InputKeyboard::init(gWindow.getNative());
+    InputMouse::init(gWindow.getNative());
+
+    // =========================
+    // TIME
+    // =========================
     gTime.init(gWindow.getTime());
 
-    // Inicializar gestor de pantallas
+    // =========================
+    // SCREENS
+    // =========================
     gScreenManager.init();
     gScreenManager.setScreen(ScreenType::Splash);
 
-    // Detectar transición Splash -> MainMenu
     ScreenType previousScreen = gScreenManager.getActiveScreen();
 
+    // =========================
+    // MAIN LOOP
+    // =========================
     while (!gWindow.shouldClose())
     {
-        // Actualizar tiempo
+        // TIME
         gTime.update(gWindow.getTime());
 
-        // Eventos
+        // EVENTS
         gWindow.pollEvents();
 
-        // Comenzar frame
-        Renderer::setClearColor(
-            0.0f,
-            0.0f,
-            0.0f,
-            1.0f);
+        // 🔥 CRÍTICO: sincronización framebuffer/UI
+        glViewport(0, 0, gWindow.getWidth(), gWindow.getHeight());
 
+        // INPUT
+        InputKeyboard::update();
+        InputMouse::update();
+
+        // EXIT SHORTCUT
+        if (InputKeyboard::isKeyPressed(GLFW_KEY_ESCAPE))
+            gWindow.setShouldClose(true);
+
+        // FRAME START
+        Renderer::setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         Renderer::beginFrame();
 
-        // Actualizar pantalla activa
+        // UPDATE
         gScreenManager.update(gTime);
 
-        // Cambiar a pantalla completa al salir del Splash
+        // SCREEN TRANSITION
+        ScreenType current = gScreenManager.getActiveScreen();
+
         if (previousScreen == ScreenType::Splash &&
-            gScreenManager.getActiveScreen() == ScreenType::MainMenu)
+            current == ScreenType::MainMenu)
         {
             gWindow.setFullscreen(true);
+
+            glViewport(0, 0, gWindow.getWidth(), gWindow.getHeight());
         }
 
-        previousScreen = gScreenManager.getActiveScreen();
+        previousScreen = current;
 
-        // Dibujar pantalla activa
+        // RENDER
         gScreenManager.render();
 
-        // Finalizar frame
+        // FRAME END
         Renderer::endFrame();
-
-        // Presentar imagen
         gWindow.swapBuffers();
     }
 
-    // Liberar recursos
+    // CLEANUP
     Renderer::shutdown();
     gWindow.shutdown();
 

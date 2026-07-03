@@ -2,38 +2,26 @@
 
 #include "ScreenManager.h"
 #include "Window.h"
+#include "InputMouse.h"
 
 extern ScreenManager gScreenManager;
 extern Window gWindow;
 
 void MainMenuScreen::onEnter()
 {
-    shader.load(
-        "Shaders/basic.vert",
-        "Shaders/basic.frag");
+    shader.load("Shaders/basic.vert", "Shaders/basic.frag");
 
-    play = Button(
-        100,
-        100,
-        200,
-        50,
-        "PLAY");
-
-    exit = Button(
-        100,
-        200,
-        200,
-        50,
-        "EXIT");
+    play = Button(100, 100, 200, 50, "PLAY");
+    exitBtn = Button(100, 200, 200, 50, "EXIT");
 
     play.setOnClick([]()
     {
         gScreenManager.setScreen(ScreenType::Game);
     });
 
-    exit.setOnClick([]()
+    exitBtn.setOnClick([]()
     {
-        gWindow.shutdown();
+        gWindow.setShouldClose(true);
     });
 }
 
@@ -41,23 +29,19 @@ void MainMenuScreen::update(float dt)
 {
     (void)dt;
 
-    // Temporal.
-    // Más adelante se reemplazará por el sistema Input.
-    play.update(
-        150,
-        120,
-        false);
+    float mx, my;
+    InputMouse::getUIPosition(mx, my);  // ✔ NORMALIZADO EN INPUT
 
-    exit.update(
-        150,
-        220,
-        false);
+    bool clicked = InputMouse::isButtonPressed(0);
+
+    play.update(mx, my, clicked);
+    exitBtn.update(mx, my, clicked);
 }
 
 void MainMenuScreen::render()
 {
     play.render(shader);
-    exit.render(shader);
+    exitBtn.render(shader);
 }
 
 void MainMenuScreen::onExit()

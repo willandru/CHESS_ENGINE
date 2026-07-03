@@ -5,7 +5,6 @@ class Shader;
 class Renderer
 {
 public:
-
     static bool init();
     static void shutdown();
 
@@ -27,7 +26,6 @@ public:
                          Shader& shader);
 
 private:
-
     static unsigned int vao;
     static unsigned int vbo;
 };
