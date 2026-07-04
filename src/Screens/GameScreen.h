@@ -13,10 +13,11 @@ public:
     void onExit() override;
 
 private:
-    // UI (botones con texturas)
+
+    // Texturas (botones y piezas)
     Shader shader;
 
-    // Tablero (colores sólidos)
+    // Colores (tablero y highlights)
     Shader boardShader;
 
     Button back;

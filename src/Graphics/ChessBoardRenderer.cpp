@@ -6,28 +6,33 @@
 
 extern Window gWindow;
 
+BoardLayout ChessBoardRenderer::getLayout()
+{
+    BoardLayout layout;
+
+    const float screenWidth =
+        static_cast<float>(gWindow.getWindowWidth());
+
+    const float screenHeight =
+        static_cast<float>(gWindow.getWindowHeight());
+
+    layout.boardSize = screenHeight * 0.85f;
+
+    layout.squareSize =
+        layout.boardSize / 8.0f;
+
+    layout.x =
+        (screenWidth - layout.boardSize) * 0.5f;
+
+    layout.y =
+        (screenHeight - layout.boardSize) * 0.5f;
+
+    return layout;
+}
+
 void ChessBoardRenderer::render(Shader& shader)
 {
-    const float screenWidth  = static_cast<float>(gWindow.getWindowWidth());
-    const float screenHeight = static_cast<float>(gWindow.getWindowHeight());
-
-    // =====================================================
-    // BOARD SIZE
-    // =====================================================
-
-    const float boardSize = screenHeight * 0.85f;
-    const float squareSize = boardSize / 8.0f;
-
-    // =====================================================
-    // POSITION
-    // =====================================================
-
-    const float boardX = (screenWidth - boardSize) * 0.5f;
-    const float boardY = (screenHeight - boardSize) * 0.5f;
-
-    // =====================================================
-    // COLORS
-    // =====================================================
+    const BoardLayout layout = getLayout();
 
     constexpr float lightR = 0.93f;
     constexpr float lightG = 0.87f;
@@ -37,26 +42,26 @@ void ChessBoardRenderer::render(Shader& shader)
     constexpr float darkG = 0.59f;
     constexpr float darkB = 0.34f;
 
-    // =====================================================
-    // DRAW
-    // =====================================================
-
     for (int row = 0; row < 8; ++row)
     {
         for (int col = 0; col < 8; ++col)
         {
-            const float x = boardX + col * squareSize;
-            const float y = boardY + row * squareSize;
+            const float x =
+                layout.x + col * layout.squareSize;
 
-            const bool lightSquare = ((row + col) % 2 == 0);
+            const float y =
+                layout.y + row * layout.squareSize;
+
+            const bool lightSquare =
+                ((row + col) % 2 == 0);
 
             if (lightSquare)
             {
                 Renderer::drawRect(
                     x,
                     y,
-                    squareSize,
-                    squareSize,
+                    layout.squareSize,
+                    layout.squareSize,
                     lightR,
                     lightG,
                     lightB,
@@ -68,8 +73,8 @@ void ChessBoardRenderer::render(Shader& shader)
                 Renderer::drawRect(
                     x,
                     y,
-                    squareSize,
-                    squareSize,
+                    layout.squareSize,
+                    layout.squareSize,
                     darkR,
                     darkG,
                     darkB,
