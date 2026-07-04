@@ -1,6 +1,9 @@
 #include "GameState.h"
-
 #include "InitialPosition.h"
+
+//====================================================
+// INIT
+//====================================================
 
 GameState::GameState()
 {
@@ -8,7 +11,7 @@ GameState::GameState()
 }
 
 //====================================================
-// STATE
+// STATE RESET
 //====================================================
 
 void GameState::clear()
@@ -17,16 +20,15 @@ void GameState::clear()
         board[i] = EMPTY;
 
     turn = PlayerSide::White;
+
+    enPassantSquare = 255;
 }
 
 void GameState::reset()
 {
     clear();
 
-    //------------------------------------------------
-    // BLACK PIECES
-    //------------------------------------------------
-
+    //================ BLACK =================
     board[InitialPosition::BLACK_ROOK_QUEENSIDE]   = BLACK_ROOK;
     board[InitialPosition::BLACK_KNIGHT_QUEENSIDE] = BLACK_KNIGHT;
     board[InitialPosition::BLACK_BISHOP_QUEENSIDE] = BLACK_BISHOP;
@@ -36,19 +38,12 @@ void GameState::reset()
     board[InitialPosition::BLACK_KNIGHT_KINGSIDE]  = BLACK_KNIGHT;
     board[InitialPosition::BLACK_ROOK_KINGSIDE]    = BLACK_ROOK;
 
-    for (uint8_t col = 0; col < 8; ++col)
-    {
-        board[getSquare(InitialPosition::BLACK_PAWN_ROW, col)] = BLACK_PAWN;
-    }
+    for (uint8_t c = 0; c < 8; ++c)
+        board[getSquare(1, c)] = BLACK_PAWN;
 
-    //------------------------------------------------
-    // WHITE PIECES
-    //------------------------------------------------
-
-    for (uint8_t col = 0; col < 8; ++col)
-    {
-        board[getSquare(InitialPosition::WHITE_PAWN_ROW, col)] = WHITE_PAWN;
-    }
+    //================ WHITE =================
+    for (uint8_t c = 0; c < 8; ++c)
+        board[getSquare(6, c)] = WHITE_PAWN;
 
     board[InitialPosition::WHITE_ROOK_QUEENSIDE]   = WHITE_ROOK;
     board[InitialPosition::WHITE_KNIGHT_QUEENSIDE] = WHITE_KNIGHT;
@@ -60,6 +55,8 @@ void GameState::reset()
     board[InitialPosition::WHITE_ROOK_KINGSIDE]    = WHITE_ROOK;
 
     turn = PlayerSide::White;
+
+    enPassantSquare = 255;
 }
 
 //====================================================
@@ -74,11 +71,6 @@ Piece GameState::getPiece(uint8_t square) const
 void GameState::setPiece(uint8_t square, Piece piece)
 {
     board[square] = piece;
-}
-
-const Piece* GameState::getBoard() const
-{
-    return board;
 }
 
 //====================================================
@@ -100,6 +92,25 @@ void GameState::switchTurn()
     turn = (turn == PlayerSide::White)
         ? PlayerSide::Black
         : PlayerSide::White;
+}
+
+//====================================================
+// EN PASSANT
+//====================================================
+
+uint8_t GameState::getEnPassantSquare() const
+{
+    return enPassantSquare;
+}
+
+void GameState::setEnPassantSquare(uint8_t square)
+{
+    enPassantSquare = square;
+}
+
+void GameState::clearEnPassant()
+{
+    enPassantSquare = 255;
 }
 
 //====================================================
@@ -135,4 +146,9 @@ uint8_t GameState::findKing(PlayerSide side) const
     }
 
     return 255;
+}
+
+const Piece* GameState::getBoard() const
+{
+    return board;
 }

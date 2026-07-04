@@ -298,7 +298,6 @@ void MoveGenerator::generateQueen(
 //====================================================
 // PAWN
 //====================================================
-
 void MoveGenerator::generatePawn(
     const GameState& state,
     uint8_t square,
@@ -310,21 +309,42 @@ void MoveGenerator::generatePawn(
     if (dir == 0)
         return;
 
+    int row = square >> 3;
+    int col = square & 7;
+
+    int startRow = (p == WHITE_PAWN) ? 6 : 1;
+
+    //====================================================
+    // SINGLE PUSH
+    //====================================================
     int forward = square + (8 * dir);
 
-    // avance simple
     if (isInsideBoard(forward) &&
         state.getPiece(forward) == EMPTY)
     {
         moves.emplace_back(square, forward);
+
+        //================================================
+        // DOUBLE PUSH
+        //================================================
+        int forward2 = square + (16 * dir);
+
+        if (row == startRow &&
+            state.getPiece(forward2) == EMPTY &&
+            state.getPiece(forward) == EMPTY)
+        {
+            Move m2(square, forward2);
+            moves.push_back(m2);
+        }
     }
 
-    // capturas
+    //====================================================
+    // NORMAL CAPTURES
+    //====================================================
     int left  = square + (8 * dir) - 1;
     int right = square + (8 * dir) + 1;
 
-    if (isInsideBoard(left) &&
-        isValidPawnCapture(square, left))
+    if (isInsideBoard(left) && isValidPawnCapture(square, left))
     {
         Piece t = state.getPiece(left);
         if (isEnemy(p, t))
@@ -335,8 +355,7 @@ void MoveGenerator::generatePawn(
         }
     }
 
-    if (isInsideBoard(right) &&
-        isValidPawnCapture(square, right))
+    if (isInsideBoard(right) && isValidPawnCapture(square, right))
     {
         Piece t = state.getPiece(right);
         if (isEnemy(p, t))
@@ -346,7 +365,32 @@ void MoveGenerator::generatePawn(
             moves.push_back(m);
         }
     }
+
+    //====================================================
+    // EN PASSANT (FIXED LOGIC)
+    //====================================================
+    int epSquare = state.getEnPassantSquare();
+
+    if (epSquare != 255)
+    {
+        int epRow = epSquare >> 3;
+        int epCol = epSquare & 7;
+
+        // el peón atacante debe estar en la fila correcta
+        bool validRank = (row == (p == WHITE_PAWN ? 3 : 4));
+
+        if (validRank)
+        {
+            if (col - 1 == epCol || col + 1 == epCol)
+            {
+                Move m(square, epSquare);
+                m.setFlag(Move::EN_PASSANT);
+                moves.push_back(m);
+            }
+        }
+    }
 }
+
 
 bool MoveGenerator::crossedEdge(int from, int to, int dir)
 {

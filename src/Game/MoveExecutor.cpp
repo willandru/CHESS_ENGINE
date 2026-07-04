@@ -16,14 +16,36 @@ bool MoveExecutor::execute(GameState& state, const Move& move)
     Piece target = state.getPiece(move.to);
 
     //================================================
-    // APPLY MOVE (BASE)
+    // RESET EN PASSANT BY DEFAULT
+    //================================================
+    state.setEnPassantSquare(255);
+
+    //================================================
+    // DETECT DOUBLE PAWN PUSH (IMPORTANT)
+    //================================================
+    if (piece == WHITE_PAWN || piece == BLACK_PAWN)
+    {
+        int fr = GameState::getRow(move.from);
+        int tr = GameState::getRow(move.to);
+
+        if (abs(tr - fr) == 2)
+        {
+            // square intermedio
+            uint8_t epSquare = GameState::getSquare(
+                (fr + tr) / 2,
+                GameState::getCol(move.from)
+            );
+
+            state.setEnPassantSquare(epSquare);
+        }
+    }
+
+    //================================================
+    // APPLY MOVE
     //================================================
     state.setPiece(move.to, piece);
     state.setPiece(move.from, EMPTY);
 
-    //================================================
-    // STORE CAPTURE
-    //================================================
     const_cast<Move&>(move).captured = target;
 
     //================================================
@@ -35,7 +57,7 @@ bool MoveExecutor::execute(GameState& state, const Move& move)
     }
 
     //================================================
-    // EN PASSANT
+    // EN PASSANT CAPTURE
     //================================================
     if (move.isEnPassant())
     {
@@ -51,21 +73,20 @@ bool MoveExecutor::execute(GameState& state, const Move& move)
     }
 
     //================================================
-    // CASTLING (placeholder)
+    // CASTLING (unchanged)
     //================================================
     if (move.isCastling())
     {
-        // TODO: mover torre cuando lo implementes
+        // TODO
     }
 
     //================================================
-    // SWITCH TURN (CRITICAL)
+    // SWITCH TURN
     //================================================
     state.switchTurn();
 
     return true;
 }
-
 //====================================================
 // UNDO MOVE
 //====================================================
