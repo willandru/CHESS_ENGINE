@@ -110,23 +110,16 @@ void GameScreen::update(float dt)
 {
     (void)dt;
 
+    game.update(dt);   // 👈 ESTE ES EL FIX CRÍTICO
+
     float mx, my;
-
     InputMouse::getUIPosition(mx, my);
-    
-    bool clicked = InputMouse::isButtonPressed(0);
 
-    //-----------------------------------------
-    // BUTTONS
-    //-----------------------------------------
+    bool clicked = InputMouse::isButtonPressed(0);
 
     back.update(mx, my, clicked);
     stop.update(mx, my, clicked);
     start.update(mx, my, clicked);
-
-    //-----------------------------------------
-    // BOARD CLICK
-    //-----------------------------------------
 
     if (!clicked)
         return;
@@ -140,18 +133,12 @@ void GameScreen::update(float dt)
         mx >= view.x + view.size ||
         my < view.y ||
         my >= view.y + view.size)
-    {
         return;
-    }
 
-    uint8_t col =
-        static_cast<uint8_t>((mx - view.x) / view.squareSize);
+    uint8_t col = (uint8_t)((mx - view.x) / view.squareSize);
+    uint8_t row = (uint8_t)((my - view.y) / view.squareSize);
 
-    uint8_t row =
-        static_cast<uint8_t>((my - view.y) / view.squareSize);
-
-    uint8_t square =
-        GameState::getSquare(row, col);
+    uint8_t square = GameState::getSquare(row, col);
 
     game.onSquareClicked(square);
 }

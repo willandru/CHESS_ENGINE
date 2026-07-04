@@ -4,11 +4,8 @@
 #include <cstdint>
 
 #include "GameState.h"
-#include "HumanAgent.h"
 #include "RandomAI.h"
-#include "MoveGenerator.h"
-#include "MoveExecutor.h"
-#include "MoveFilter.h"
+#include "CaptureAI.h"
 #include "Move.h"
 
 class ChessGame
@@ -17,28 +14,26 @@ public:
     ChessGame();
 
     void reset();
-    void onSquareClicked(uint8_t square);
+    void update(float dt);   // <-- IMPORTANTE
 
     const GameState& getGameState() const;
 
     bool hasSelection() const;
     uint8_t getSelectedSquare() const;
-
     const std::vector<Move>& getMoves() const;
 
-    bool isCheck() const { return inCheck; }
-    bool isCheckmate() const { return inCheckmate; }
-    bool isStalemate() const { return inStalemate; }
+    bool isCheck() const;
+    bool isCheckmate() const;
+    bool isStalemate() const;
+
+    void onSquareClicked(uint8_t square);
 
 private:
 
     GameState state;
 
-    HumanAgent whitePlayer;
-    RandomAI blackAI;
-
-    bool waitingDestination = false;
-    uint8_t sourceSquare = 0;
+    RandomAI whiteAI;
+    CaptureAI blackAI;
 
     std::vector<Move> moves;
 
@@ -47,5 +42,9 @@ private:
     bool inStalemate = false;
 
     void updateGameStatus();
-    void playBlackTurnIfNeeded();
+    void playAITurn();
+
+    // ===== TIMER CONTROL =====
+    float aiTimer = 0.0f;
+    const float aiDelay = 0.3f;
 };
