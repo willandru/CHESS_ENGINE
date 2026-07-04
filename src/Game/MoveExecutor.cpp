@@ -1,79 +1,82 @@
 #include "MoveExecutor.h"
-
-#include "ChessTypes.h"
+#include "ChessRules.h"
 #include <iostream>
 
-void MoveExecutor::execute(
-    GameState& state,
-    const Move& move)
+//====================================================
+// EXECUTE MOVE
+//====================================================
+
+bool MoveExecutor::execute(GameState& state, const Move& move)
 {
     Piece piece = state.getPiece(move.from);
 
     if (piece == EMPTY)
-        return;
+        return false;
 
-    //=========================================
-    // GUARDAR PIEZA CAPTURADA
-    //=========================================
-    Piece captured = state.getPiece(move.to);
+    Piece target = state.getPiece(move.to);
 
-    // IMPORTANTE: guardar para undo / IA
-    const_cast<Move&>(move).captured = captured;
-
-    //=========================================
-    // MOVIMIENTO BASE
-    //=========================================
+    //================================================
+    // APPLY MOVE (BASE)
+    //================================================
     state.setPiece(move.to, piece);
     state.setPiece(move.from, EMPTY);
 
-    //=========================================
-    // PROMOCIÓN
-    //=========================================
+    //================================================
+    // STORE CAPTURE
+    //================================================
+    const_cast<Move&>(move).captured = target;
+
+    //================================================
+    // PROMOTION
+    //================================================
     if (move.isPromotion())
     {
         state.setPiece(move.to, move.promo);
     }
 
-    //=========================================
-    // EN PASSANT (placeholder)
-    //=========================================
+    //================================================
+    // EN PASSANT
+    //================================================
     if (move.isEnPassant())
     {
+        int dir = ChessRules::pawnDirection(piece);
+
         uint8_t capSquare =
-            (GameState::getRow(move.to) + (piece == WHITE_PAWN ? 1 : -1)) * 8
-            + GameState::getCol(move.to);
+            GameState::getSquare(
+                GameState::getRow(move.to) - dir,
+                GameState::getCol(move.to)
+            );
 
         state.setPiece(capSquare, EMPTY);
     }
 
-    //=========================================
+    //================================================
     // CASTLING (placeholder)
-    //=========================================
+    //================================================
     if (move.isCastling())
     {
-        // futuro: mover torre automáticamente
+        // TODO: mover torre cuando lo implementes
     }
 
-    //=========================================
-    // DEBUG
-    //=========================================
-    std::cout
-        << "Move executed: "
-        << (int)move.from
-        << " -> "
-        << (int)move.to
-        << "\n";
+    //================================================
+    // SWITCH TURN (CRITICAL)
+    //================================================
+    state.switchTurn();
+
+    return true;
 }
 
-void MoveExecutor::undo(
-    GameState& state,
-    const Move& move)
+//====================================================
+// UNDO MOVE
+//====================================================
+
+void MoveExecutor::undo(GameState& state, const Move& move)
 {
     Piece moved = state.getPiece(move.to);
 
     state.setPiece(move.from, moved);
     state.setPiece(move.to, move.captured);
 
-    std::cout
-        << "Undo move\n";
+    // revert turn
+    state.switchTurn();
 }

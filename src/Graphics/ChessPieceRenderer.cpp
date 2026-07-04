@@ -1,8 +1,7 @@
 #include "ChessPieceRenderer.h"
-
-#include "ChessBoardRenderer.h"
 #include "Renderer.h"
 #include "Shader.h"
+#include "BoardView.h"
 
 Texture ChessPieceRenderer::textures[12];
 
@@ -29,47 +28,32 @@ bool ChessPieceRenderer::init()
 
 void ChessPieceRenderer::shutdown()
 {
-    for (Texture& texture : textures)
-    {
-        texture.destroy();
-    }
+    for (auto& t : textures)
+        t.destroy();
 }
 
 void ChessPieceRenderer::render(
     Shader& shader,
     Piece piece,
-    uint8_t square)
+    uint8_t square,
+    const BoardView& view)
 {
     if (piece == EMPTY)
         return;
 
-    const BoardLayout layout =
-        ChessBoardRenderer::getLayout();
+    float x, y;
+    view.squareToXY(square, x, y);
 
-    const uint8_t row =
-        GameState::getRow(square);
-
-    const uint8_t col =
-        GameState::getCol(square);
-
-    const float x =
-        layout.x + col * layout.squareSize;
-
-    const float y =
-        layout.y + row * layout.squareSize;
-
-    const int textureIndex =
-        static_cast<int>(piece) - 1;
-
-    if (textureIndex < 0 || textureIndex >= 12)
+    int index = static_cast<int>(piece) - 1;
+    if (index < 0 || index >= 12)
         return;
 
     Renderer::drawTextureRect(
         x,
         y,
-        layout.squareSize,
-        layout.squareSize,
-        textures[textureIndex],
+        view.squareSize,
+        view.squareSize,
+        textures[index],
         shader
     );
 }

@@ -1,32 +1,51 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
-#include <vector>
 
-#include "GameState.h"
-#include "Move.h"
+//=====================================================
+// Pawn geometric moves
+//
+// Offsets are defined from White's perspective.
+// For Black pawns, MoveGenerator simply negates
+// the offset.
+//
+// These are ONLY geometric possibilities.
+// Legality is determined by MoveGenerator using
+// ChessRules and GameState.
+//=====================================================
+
+enum class PawnMoveType : uint8_t
+{
+    Forward1,
+    Forward2,
+
+    CaptureLeft,
+    CaptureRight,
+
+    EnPassantLeft,
+    EnPassantRight
+};
+
+struct PawnMove
+{
+    int8_t offset;
+    PawnMoveType type;
+};
 
 class PawnMoves
 {
 public:
 
-    static void generate(
-        const GameState& state,
-        uint8_t square,
-        std::vector<Move>& moves
-    );
+    static constexpr std::array<PawnMove, 6> moves =
+    {{
+        {  -8, PawnMoveType::Forward1      },
+        { -16, PawnMoveType::Forward2      },
 
-private:
+        {  -9, PawnMoveType::CaptureLeft   },
+        {  -7, PawnMoveType::CaptureRight  },
 
-    static void addMove(
-        const GameState& state,
-        uint8_t from,
-        uint8_t to,
-        std::vector<Move>& moves
-    );
-
-    static bool isEnemy(
-        Piece a,
-        Piece b
-    );
+        {  -9, PawnMoveType::EnPassantLeft },
+        {  -7, PawnMoveType::EnPassantRight}
+    }};
 };

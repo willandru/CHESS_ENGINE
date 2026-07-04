@@ -1,58 +1,70 @@
 #include "GameState.h"
 
-#include "ChessBoardRenderer.h"
-#include "MoveGenerator.h"
-#include "MoveExecutor.h"
-
-#include <iostream>
+#include "InitialPosition.h"
 
 GameState::GameState()
 {
     reset();
 }
 
-//==================================================
-// INIT BOARD
-//==================================================
+//====================================================
+// STATE
+//====================================================
 
-void GameState::reset()
+void GameState::clear()
 {
     for (int i = 0; i < 64; ++i)
         board[i] = EMPTY;
 
-    // BLACK
-    board[0] = BLACK_ROOK;
-    board[1] = BLACK_KNIGHT;
-    board[2] = BLACK_BISHOP;
-    board[3] = BLACK_QUEEN;
-    board[4] = BLACK_KING;
-    board[5] = BLACK_BISHOP;
-    board[6] = BLACK_KNIGHT;
-    board[7] = BLACK_ROOK;
-
-    for (int i = 8; i < 16; ++i)
-        board[i] = BLACK_PAWN;
-
-    // WHITE
-    board[56] = WHITE_ROOK;
-    board[57] = WHITE_KNIGHT;
-    board[58] = WHITE_BISHOP;
-    board[59] = WHITE_QUEEN;
-    board[60] = WHITE_KING;
-    board[61] = WHITE_BISHOP;
-    board[62] = WHITE_KNIGHT;
-    board[63] = WHITE_ROOK;
-
-    for (int i = 48; i < 56; ++i)
-        board[i] = WHITE_PAWN;
-
-    selected = false;
-    selectedSquare = 0;
+    turn = PlayerSide::White;
 }
 
-//==================================================
-// BOARD ACCESS
-//==================================================
+void GameState::reset()
+{
+    clear();
+
+    //------------------------------------------------
+    // BLACK PIECES
+    //------------------------------------------------
+
+    board[InitialPosition::BLACK_ROOK_QUEENSIDE]   = BLACK_ROOK;
+    board[InitialPosition::BLACK_KNIGHT_QUEENSIDE] = BLACK_KNIGHT;
+    board[InitialPosition::BLACK_BISHOP_QUEENSIDE] = BLACK_BISHOP;
+    board[InitialPosition::BLACK_QUEEN]            = BLACK_QUEEN;
+    board[InitialPosition::BLACK_KING]             = BLACK_KING;
+    board[InitialPosition::BLACK_BISHOP_KINGSIDE]  = BLACK_BISHOP;
+    board[InitialPosition::BLACK_KNIGHT_KINGSIDE]  = BLACK_KNIGHT;
+    board[InitialPosition::BLACK_ROOK_KINGSIDE]    = BLACK_ROOK;
+
+    for (uint8_t col = 0; col < 8; ++col)
+    {
+        board[getSquare(InitialPosition::BLACK_PAWN_ROW, col)] = BLACK_PAWN;
+    }
+
+    //------------------------------------------------
+    // WHITE PIECES
+    //------------------------------------------------
+
+    for (uint8_t col = 0; col < 8; ++col)
+    {
+        board[getSquare(InitialPosition::WHITE_PAWN_ROW, col)] = WHITE_PAWN;
+    }
+
+    board[InitialPosition::WHITE_ROOK_QUEENSIDE]   = WHITE_ROOK;
+    board[InitialPosition::WHITE_KNIGHT_QUEENSIDE] = WHITE_KNIGHT;
+    board[InitialPosition::WHITE_BISHOP_QUEENSIDE] = WHITE_BISHOP;
+    board[InitialPosition::WHITE_QUEEN]            = WHITE_QUEEN;
+    board[InitialPosition::WHITE_KING]             = WHITE_KING;
+    board[InitialPosition::WHITE_BISHOP_KINGSIDE]  = WHITE_BISHOP;
+    board[InitialPosition::WHITE_KNIGHT_KINGSIDE]  = WHITE_KNIGHT;
+    board[InitialPosition::WHITE_ROOK_KINGSIDE]    = WHITE_ROOK;
+
+    turn = PlayerSide::White;
+}
+
+//====================================================
+// BOARD
+//====================================================
 
 Piece GameState::getPiece(uint8_t square) const
 {
@@ -69,28 +81,30 @@ const Piece* GameState::getBoard() const
     return board;
 }
 
-//==================================================
-// SELECTION
-//==================================================
+//====================================================
+// TURN
+//====================================================
 
-bool GameState::hasSelection() const
+PlayerSide GameState::getTurn() const
 {
-    return selected;
+    return turn;
 }
 
-uint8_t GameState::getSelectedSquare() const
+void GameState::setTurn(PlayerSide side)
 {
-    return selectedSquare;
+    turn = side;
 }
 
-void GameState::clearSelection()
+void GameState::switchTurn()
 {
-    selected = false;
+    turn = (turn == PlayerSide::White)
+        ? PlayerSide::Black
+        : PlayerSide::White;
 }
 
-//==================================================
-// COORDS
-//==================================================
+//====================================================
+// COORDINATES
+//====================================================
 
 uint8_t GameState::getSquare(uint8_t row, uint8_t col)
 {
@@ -105,110 +119,4 @@ uint8_t GameState::getRow(uint8_t square)
 uint8_t GameState::getCol(uint8_t square)
 {
     return square % 8;
-}
-
-//==================================================
-// INPUT MAPPING
-//==================================================
-
-bool GameState::mouseToSquare(
-    float mouseX,
-    float mouseY,
-    uint8_t& row,
-    uint8_t& col,
-    uint8_t& square) const
-{
-    const BoardLayout layout = ChessBoardRenderer::getLayout();
-
-    if (mouseX < layout.x ||
-        mouseY < layout.y ||
-        mouseX >= layout.x + layout.boardSize ||
-        mouseY >= layout.y + layout.boardSize)
-        return false;
-
-    col = (mouseX - layout.x) / layout.squareSize;
-    row = (mouseY - layout.y) / layout.squareSize;
-
-    square = getSquare(row, col);
-    return true;
-}
-
-bool GameState::hasPiece(uint8_t square) const
-{
-    return board[square] != EMPTY;
-}
-
-//==================================================
-// MOVE VALIDATION (KEY INTEGRATION)
-//==================================================
-
-bool GameState::isLegalMove(uint8_t from, uint8_t to) const
-{
-    std::vector<Move> moves;
-    MoveGenerator::generatePieceMoves(*this, from, moves);
-
-    for (const Move& m : moves)
-        if (m.from == from && m.to == to)
-            return true;
-
-    return false;
-}
-
-//==================================================
-// SELECTION
-//==================================================
-
-void GameState::selectSquare(uint8_t square)
-{
-    selected = true;
-    selectedSquare = square;
-
-    std::cout << "Selected: " << (int)square << "\n";
-}
-
-//==================================================
-// MOVE EXECUTION
-//==================================================
-
-void GameState::movePiece(uint8_t destination)
-{
-    if (!isLegalMove(selectedSquare, destination))
-    {
-        std::cout << "Illegal move ignored\n";
-        return;
-    }
-
-    Move move;
-    move.from = selectedSquare;
-    move.to = destination;
-
-    MoveExecutor::execute(*this, move);
-
-    selected = false;
-}
-
-//==================================================
-// MAIN INPUT
-//==================================================
-
-void GameState::onMouseClick(float mouseX, float mouseY)
-{
-    uint8_t row, col, square;
-
-    if (!mouseToSquare(mouseX, mouseY, row, col, square))
-    {
-        std::cout << "Click outside board\n";
-        clearSelection();
-        return;
-    }
-
-    if (!selected)
-    {
-        if (hasPiece(square))
-            selectSquare(square);
-
-        return;
-    }
-
-    movePiece(square);
 }

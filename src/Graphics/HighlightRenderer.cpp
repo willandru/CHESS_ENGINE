@@ -1,9 +1,6 @@
 #include "HighlightRenderer.h"
-
-#include "ChessBoardRenderer.h"
-#include "GameState.h"
 #include "Renderer.h"
-#include "Shader.h"
+#include "BoardView.h"
 
 void HighlightRenderer::render(
     Shader& shader,
@@ -11,45 +8,19 @@ void HighlightRenderer::render(
     float r,
     float g,
     float b,
-    float alpha)
+    const BoardView& view)
 {
-    (void)alpha;
-
-    const BoardLayout layout =
-        ChessBoardRenderer::getLayout();
-
-    const uint8_t row =
-        GameState::getRow(square);
-
-    const uint8_t col =
-        GameState::getCol(square);
-
-    const float x =
-        layout.x + col * layout.squareSize;
-
-    const float y =
-        layout.y + row * layout.squareSize;
+    float x, y;
+    view.squareToXY(square, x, y);
 
     Renderer::drawRect(
         x,
         y,
-        layout.squareSize,
-        layout.squareSize,
+        view.squareSize,
+        view.squareSize,
         r,
         g,
         b,
         shader
-    );
-}
-
-void HighlightRenderer::renderDebug(Shader& shader)
-{
-    render(
-        shader,
-        GameState::getSquare(4, 4),
-        0.15f,
-        0.85f,
-        0.20f,
-        0.45f
     );
 }

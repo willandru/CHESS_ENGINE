@@ -5,18 +5,18 @@
 #include "InputMouse.h"
 #include "UIConstants.h"
 
-#include "ChessBoardRenderer.h"
+#include "BoardView.h"
+#include "ChessRenderer.h"
 #include "ChessPieceRenderer.h"
-#include "HighlightRenderer.h"
 
 extern ScreenManager gScreenManager;
 extern Window gWindow;
 
 void GameScreen::onEnter()
 {
-    //=========================================
+    //-----------------------------------------
     // SHADERS
-    //=========================================
+    //-----------------------------------------
 
     shader.load(
         "Shaders/texture.vert",
@@ -28,26 +28,27 @@ void GameScreen::onEnter()
         "Shaders/basic.frag"
     );
 
-    //=========================================
+    //-----------------------------------------
     // GAME
-    //=========================================
+    //-----------------------------------------
 
-    gameState.reset();
+    game.reset();
 
-    //=========================================
+    //-----------------------------------------
     // PIECES
-    //=========================================
+    //-----------------------------------------
 
     ChessPieceRenderer::init();
 
-    //=========================================
+    //-----------------------------------------
     // BUTTONS
-    //=========================================
+    //-----------------------------------------
 
     const float sw = (float)gWindow.getWindowWidth();
     const float sh = (float)gWindow.getWindowHeight();
 
-    const float smallWidth = UI::ButtonWidth * 0.5f;
+    const float smallWidth =
+        UI::ButtonWidth * 0.5f;
 
     const float y =
         sh - UI::ButtonHeight - UI::ButtonSpacing;
@@ -112,64 +113,56 @@ void GameScreen::update(float dt)
     float mx, my;
 
     InputMouse::getUIPosition(mx, my);
+    
+    bool clicked = InputMouse::isButtonPressed(0);
 
-    const bool clicked =
-        InputMouse::isButtonPressed(0);
+    //-----------------------------------------
+    // BUTTONS
+    //-----------------------------------------
 
     back.update(mx, my, clicked);
     stop.update(mx, my, clicked);
     start.update(mx, my, clicked);
 
-    if (clicked)
+    //-----------------------------------------
+    // BOARD CLICK
+    //-----------------------------------------
+
+    if (!clicked)
+        return;
+
+    BoardView view = BoardView::compute(
+        gWindow.getWindowWidth(),
+        gWindow.getWindowHeight()
+    );
+
+    if (mx < view.x ||
+        mx >= view.x + view.size ||
+        my < view.y ||
+        my >= view.y + view.size)
     {
-        gameState.onMouseClick(
-            mx,
-            my
-        );
+        return;
     }
+
+    uint8_t col =
+        static_cast<uint8_t>((mx - view.x) / view.squareSize);
+
+    uint8_t row =
+        static_cast<uint8_t>((my - view.y) / view.squareSize);
+
+    uint8_t square =
+        GameState::getSquare(row, col);
+
+    game.onSquareClicked(square);
 }
 
 void GameScreen::render()
 {
-    //=========================================
-    // TABLERO
-    //=========================================
-
-    ChessBoardRenderer::render(
-        boardShader
+    ChessRenderer::render(
+        boardShader,
+        shader,
+        game
     );
-
-    //=========================================
-    // HIGHLIGHT
-    //=========================================
-
-    if (gameState.hasSelection())
-    {
-        HighlightRenderer::render(
-            boardShader,
-            gameState.getSelectedSquare(),
-            0.15f,
-            0.85f,
-            0.20f
-        );
-    }
-
-    //=========================================
-    // PIEZAS
-    //=========================================
-
-    for (uint8_t square = 0; square < 64; ++square)
-    {
-        ChessPieceRenderer::render(
-            shader,
-            gameState.getPiece(square),
-            square
-        );
-    }
-
-    //=========================================
-    // UI
-    //=========================================
 
     back.render(shader);
     stop.render(shader);

@@ -4,29 +4,31 @@
 #include "ChessTypes.h"
 
 //====================================================
-// Move (representación compacta para IA / engine)
+// Move (representación compacta del engine)
 //====================================================
 //
-// from / to -> índice 0..63 (uint8_t)
-// flags     -> información extra (promoción, captura, etc.)
+// from / to  -> índice 0..63
+// flags      -> tipo de jugada (bitmask)
+// captured   -> pieza capturada (si aplica)
+// promo      -> pieza de promoción (si aplica)
 //====================================================
 
 struct Move
 {
-    uint8_t from;   // 0..63
-    uint8_t to;     // 0..63
+    uint8_t from;
+    uint8_t to;
 
-    uint8_t flags;  // metadata (bitmask)
+    uint8_t flags;
 
-    Piece captured; // pieza capturada (si existe)
-    Piece promo;    // promoción (si aplica)
+    Piece captured;
+    Piece promo;
 
-    //-------------------------------
-    // Flags (bitmask)
-    //-------------------------------
+    //====================================================
+    // FLAGS (bitmask)
+    //====================================================
+
     enum Flag : uint8_t
     {
-        QUIET       = 0,
         CAPTURE     = 1 << 0,
         PROMOTION   = 1 << 1,
         EN_PASSANT  = 1 << 2,
@@ -34,26 +36,36 @@ struct Move
     };
 
     //====================================================
-    // Helpers
+    // CONSTRUCTORS
     //====================================================
 
     Move()
         : from(0),
           to(0),
-          flags(QUIET),
+          flags(0),
           captured(EMPTY),
           promo(EMPTY)
-    {
-    }
+    {}
 
     Move(uint8_t f, uint8_t t)
         : from(f),
           to(t),
-          flags(QUIET),
+          flags(0),
           captured(EMPTY),
           promo(EMPTY)
-    {
-    }
+    {}
+
+    Move(uint8_t f, uint8_t t, uint8_t fl)
+        : from(f),
+          to(t),
+          flags(fl),
+          captured(EMPTY),
+          promo(EMPTY)
+    {}
+
+    //====================================================
+    // QUERY HELPERS
+    //====================================================
 
     inline bool isCapture() const
     {
@@ -74,6 +86,15 @@ struct Move
     {
         return flags & CASTLING;
     }
+
+    inline bool isQuiet() const
+    {
+        return flags == 0;
+    }
+
+    //====================================================
+    // FLAG OPERATIONS
+    //====================================================
 
     inline void setFlag(Flag f)
     {

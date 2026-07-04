@@ -1,10 +1,14 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 
 #include "ChessTypes.h"
-#include "Move.h"
+
+enum class PlayerSide : uint8_t
+{
+    White,
+    Black
+};
 
 class GameState
 {
@@ -12,38 +16,33 @@ public:
 
     GameState();
 
-    //----------------------------------
-    // Lifecycle
-    //----------------------------------
+    //=========================================
+    // STATE
+    //=========================================
 
+    void clear();
     void reset();
 
-    //----------------------------------
-    // Input entry point
-    //----------------------------------
-
-    void onMouseClick(float mouseX, float mouseY);
-
-    //----------------------------------
-    // Board access
-    //----------------------------------
+    //=========================================
+    // BOARD
+    //=========================================
 
     Piece getPiece(uint8_t square) const;
     void setPiece(uint8_t square, Piece piece);
 
     const Piece* getBoard() const;
 
-    //----------------------------------
-    // Selection
-    //----------------------------------
+    //=========================================
+    // TURN
+    //=========================================
 
-    bool hasSelection() const;
-    uint8_t getSelectedSquare() const;
-    void clearSelection();
+    PlayerSide getTurn() const;
+    void setTurn(PlayerSide side);
+    void switchTurn();
 
-    //----------------------------------
-    // Coordinates
-    //----------------------------------
+    //=========================================
+    // COORDINATES
+    //=========================================
 
     static uint8_t getSquare(uint8_t row, uint8_t col);
     static uint8_t getRow(uint8_t square);
@@ -51,35 +50,6 @@ public:
 
 private:
 
-    //----------------------------------
-    // Internal helpers
-    //----------------------------------
-
-    bool mouseToSquare(
-        float mouseX,
-        float mouseY,
-        uint8_t& row,
-        uint8_t& col,
-        uint8_t& square) const;
-
-    bool hasPiece(uint8_t square) const;
-
-    void selectSquare(uint8_t square);
-
-    void movePiece(uint8_t destination);
-
-    //----------------------------------
-    // Move validation layer
-    //----------------------------------
-
-    bool isLegalMove(uint8_t from, uint8_t to) const;
-
-    //----------------------------------
-    // State
-    //----------------------------------
-
     Piece board[64];
-
-    bool selected = false;
-    uint8_t selectedSquare = 0;
+    PlayerSide turn;
 };

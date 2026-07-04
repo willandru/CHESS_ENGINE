@@ -1,86 +1,36 @@
 #include "ChessBoardRenderer.h"
-
 #include "Renderer.h"
 #include "Shader.h"
 #include "Window.h"
+#include "BoardView.h"
 
 extern Window gWindow;
 
-BoardLayout ChessBoardRenderer::getLayout()
-{
-    BoardLayout layout;
-
-    const float screenWidth =
-        static_cast<float>(gWindow.getWindowWidth());
-
-    const float screenHeight =
-        static_cast<float>(gWindow.getWindowHeight());
-
-    layout.boardSize = screenHeight * 0.85f;
-
-    layout.squareSize =
-        layout.boardSize / 8.0f;
-
-    layout.x =
-        (screenWidth - layout.boardSize) * 0.5f;
-
-    layout.y =
-        (screenHeight - layout.boardSize) * 0.5f;
-
-    return layout;
-}
-
 void ChessBoardRenderer::render(Shader& shader)
 {
-    const BoardLayout layout = getLayout();
+    BoardView v = BoardView::compute(
+        gWindow.getWindowWidth(),
+        gWindow.getWindowHeight()
+    );
 
-    constexpr float lightR = 0.93f;
-    constexpr float lightG = 0.87f;
-    constexpr float lightB = 0.73f;
+    constexpr float light[3] = {0.93f, 0.87f, 0.73f};
+    constexpr float dark[3]  = {0.48f, 0.59f, 0.34f};
 
-    constexpr float darkR = 0.48f;
-    constexpr float darkG = 0.59f;
-    constexpr float darkB = 0.34f;
-
-    for (int row = 0; row < 8; ++row)
+    for (uint8_t r = 0; r < 8; ++r)
+    for (uint8_t c = 0; c < 8; ++c)
     {
-        for (int col = 0; col < 8; ++col)
-        {
-            const float x =
-                layout.x + col * layout.squareSize;
+        float x = v.x + c * v.squareSize;
+        float y = v.y + r * v.squareSize;
 
-            const float y =
-                layout.y + row * layout.squareSize;
+        bool isLight = ((r + c) & 1) == 0;
 
-            const bool lightSquare =
-                ((row + col) % 2 == 0);
+        const float* col = isLight ? light : dark;
 
-            if (lightSquare)
-            {
-                Renderer::drawRect(
-                    x,
-                    y,
-                    layout.squareSize,
-                    layout.squareSize,
-                    lightR,
-                    lightG,
-                    lightB,
-                    shader
-                );
-            }
-            else
-            {
-                Renderer::drawRect(
-                    x,
-                    y,
-                    layout.squareSize,
-                    layout.squareSize,
-                    darkR,
-                    darkG,
-                    darkB,
-                    shader
-                );
-            }
-        }
+        Renderer::drawRect(
+            x, y,
+            v.squareSize, v.squareSize,
+            col[0], col[1], col[2],
+            shader
+        );
     }
 }

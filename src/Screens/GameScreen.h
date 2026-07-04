@@ -3,7 +3,8 @@
 #include "Screen.h"
 #include "Button.h"
 #include "Shader.h"
-#include "GameState.h"
+
+#include "ChessGame.h"
 
 class GameScreen : public Screen
 {
@@ -17,19 +18,19 @@ public:
 private:
 
     //=========================================
-    // Game
+    // GAME
     //=========================================
 
-    GameState gameState;
+    ChessGame game;
 
     //=========================================
-    // Shaders
+    // SHADERS
     //=========================================
 
-    // Botones y piezas
+    // piezas + botones
     Shader shader;
 
-    // Tablero y highlights
+    // tablero + highlights
     Shader boardShader;
 
     //=========================================

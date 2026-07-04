@@ -1,7 +1,23 @@
 #include "MoveGenerator.h"
 
-#include "PawnMoves.h"
-#include "ChessTypes.h"
+//====================================================
+// TURN FILTER (CLAVE DEL DISEÑO)
+//====================================================
+
+bool MoveGenerator::isCorrectTurn(const GameState& state, Piece piece)
+{
+    if (piece == EMPTY)
+        return false;
+
+    if (ChessRules::isWhitePiece(piece))
+        return state.getTurn() == PlayerSide::White;
+
+    return state.getTurn() == PlayerSide::Black;
+}
+
+//====================================================
+// PUBLIC API
+//====================================================
 
 void MoveGenerator::generatePieceMoves(
     const GameState& state,
@@ -13,44 +29,40 @@ void MoveGenerator::generatePieceMoves(
     if (p == EMPTY)
         return;
 
+    // 🔴 FILTRO DE TURNO GLOBAL
+    if (!isCorrectTurn(state, p))
+        return;
+
     switch (p)
     {
-        //=========================
-        // PAWNS
-        //=========================
         case WHITE_PAWN:
         case BLACK_PAWN:
-        {
-            PawnMoves::generate(state, square, moves);
+            generatePawn(state, square, moves);
             break;
-        }
 
-        //=========================
-        // FUTURE PIECES
-        //=========================
         case WHITE_KNIGHT:
         case BLACK_KNIGHT:
-            // KnightMoves::generate(state, square, moves);
+            generateKnight(state, square, moves);
             break;
 
         case WHITE_BISHOP:
         case BLACK_BISHOP:
-            // BishopMoves::generate(state, square, moves);
+            generateBishop(state, square, moves);
             break;
 
         case WHITE_ROOK:
         case BLACK_ROOK:
-            // RookMoves::generate(state, square, moves);
+            generateRook(state, square, moves);
             break;
 
         case WHITE_QUEEN:
         case BLACK_QUEEN:
-            // QueenMoves::generate(state, square, moves);
+            generateQueen(state, square, moves);
             break;
 
         case WHITE_KING:
         case BLACK_KING:
-            // KingMoves::generate(state, square, moves);
+            generateKing(state, square, moves);
             break;
 
         default:
@@ -58,33 +70,259 @@ void MoveGenerator::generatePieceMoves(
     }
 }
 
+//====================================================
+// ALL MOVES (for validation or AI)
+//====================================================
+
 void MoveGenerator::generateAllMoves(
     const GameState& state,
     std::vector<Move>& moves)
 {
     moves.clear();
 
-    for (uint8_t square = 0; square < 64; ++square)
+    for (uint8_t sq = 0; sq < 64; ++sq)
     {
-        Piece p = state.getPiece(square);
+        Piece p = state.getPiece(sq);
 
         if (p == EMPTY)
             continue;
 
-        generatePieceMoves(state, square, moves);
+        if (!isCorrectTurn(state, p))
+            continue;
+
+        generatePieceMoves(state, sq, moves);
     }
 }
 
-//==================================================
-// HELPERS (FUTURO TURN SYSTEM)
-//==================================================
+//====================================================
+// HELPERS
+//====================================================
 
-bool MoveGenerator::isWhitePiece(Piece p)
+bool MoveGenerator::isInsideBoard(int square)
 {
-    return p >= WHITE_PAWN && p <= WHITE_KING;
+    return square >= 0 && square < 64;
 }
 
-bool MoveGenerator::isBlackPiece(Piece p)
+bool MoveGenerator::isSameColor(Piece a, Piece b)
 {
-    return p >= BLACK_PAWN && p <= BLACK_KING;
+    if (a == EMPTY || b == EMPTY)
+        return false;
+
+    return ChessRules::isWhitePiece(a) == ChessRules::isWhitePiece(b);
+}
+
+bool MoveGenerator::isEnemy(Piece a, Piece b)
+{
+    if (b == EMPTY)
+        return false;
+
+    return !isSameColor(a, b);
+}
+
+//====================================================
+// KNIGHT
+//====================================================
+
+void MoveGenerator::generateKnight(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece p = state.getPiece(square);
+
+    for (int8_t off : KnightMoves::moves)
+    {
+        int to = square + off;
+
+        if (!isInsideBoard(to))
+            continue;
+
+        Piece target = state.getPiece(to);
+
+        if (isSameColor(p, target))
+            continue;
+
+        Move m(square, to);
+
+        if (isEnemy(p, target))
+            m.setFlag(Move::CAPTURE);
+
+        moves.push_back(m);
+    }
+}
+
+//====================================================
+// KING
+//====================================================
+
+void MoveGenerator::generateKing(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece p = state.getPiece(square);
+
+    for (int8_t off : KingMoves::moves)
+    {
+        int to = square + off;
+
+        if (!isInsideBoard(to))
+            continue;
+
+        Piece target = state.getPiece(to);
+
+        if (isSameColor(p, target))
+            continue;
+
+        Move m(square, to);
+
+        if (isEnemy(p, target))
+            m.setFlag(Move::CAPTURE);
+
+        moves.push_back(m);
+    }
+}
+
+//====================================================
+// ROOK
+//====================================================
+
+void MoveGenerator::generateRook(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece p = state.getPiece(square);
+
+    for (int8_t dir : RookMoves::directions)
+    {
+        int to = square;
+
+        while (true)
+        {
+            to += dir;
+
+            if (!isInsideBoard(to))
+                break;
+
+            Piece target = state.getPiece(to);
+
+            if (isSameColor(p, target))
+                break;
+
+            Move m(square, to);
+
+            if (isEnemy(p, target))
+            {
+                m.setFlag(Move::CAPTURE);
+                moves.push_back(m);
+                break;
+            }
+
+            moves.push_back(m);
+        }
+    }
+}
+
+//====================================================
+// BISHOP
+//====================================================
+
+void MoveGenerator::generateBishop(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece p = state.getPiece(square);
+
+    for (int8_t dir : BishopMoves::directions)
+    {
+        int to = square;
+
+        while (true)
+        {
+            to += dir;
+
+            if (!isInsideBoard(to))
+                break;
+
+            Piece target = state.getPiece(to);
+
+            if (isSameColor(p, target))
+                break;
+
+            Move m(square, to);
+
+            if (isEnemy(p, target))
+            {
+                m.setFlag(Move::CAPTURE);
+                moves.push_back(m);
+                break;
+            }
+
+            moves.push_back(m);
+        }
+    }
+}
+
+//====================================================
+// QUEEN
+//====================================================
+
+void MoveGenerator::generateQueen(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    generateRook(state, square, moves);
+    generateBishop(state, square, moves);
+}
+
+//====================================================
+// PAWN (BASIC STRUCTURE + TURN SAFE)
+//====================================================
+
+void MoveGenerator::generatePawn(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece p = state.getPiece(square);
+
+    int dir = ChessRules::pawnDirection(p);
+    if (dir == 0)
+        return;
+
+    int forward = square + (8 * dir);
+
+    if (isInsideBoard(forward) &&
+        state.getPiece(forward) == EMPTY)
+    {
+        moves.emplace_back(square, forward);
+    }
+
+    int left = square + (8 * dir) - 1;
+    int right = square + (8 * dir) + 1;
+
+    if (isInsideBoard(left))
+    {
+        Piece t = state.getPiece(left);
+        if (isEnemy(p, t))
+        {
+            Move m(square, left);
+            m.setFlag(Move::CAPTURE);
+            moves.push_back(m);
+        }
+    }
+
+    if (isInsideBoard(right))
+    {
+        Piece t = state.getPiece(right);
+        if (isEnemy(p, t))
+        {
+            Move m(square, right);
+            m.setFlag(Move::CAPTURE);
+            moves.push_back(m);
+        }
+    }
 }
