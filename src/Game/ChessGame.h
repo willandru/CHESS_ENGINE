@@ -5,6 +5,7 @@
 
 #include "GameState.h"
 #include "HumanAgent.h"
+#include "RandomAI.h"
 #include "MoveGenerator.h"
 #include "MoveExecutor.h"
 #include "MoveFilter.h"
@@ -25,30 +26,26 @@ public:
 
     const std::vector<Move>& getMoves() const;
 
-    //==================================================
-    // GAME STATE FLAGS (UI CONSUMPTION)
-    //==================================================
     bool isCheck() const { return inCheck; }
     bool isCheckmate() const { return inCheckmate; }
     bool isStalemate() const { return inStalemate; }
 
 private:
+
     GameState state;
 
     HumanAgent whitePlayer;
-    HumanAgent blackPlayer;
+    RandomAI blackAI;
 
     bool waitingDestination = false;
     uint8_t sourceSquare = 0;
 
     std::vector<Move> moves;
 
-    //==================================================
-    // GAME STATUS CACHE
-    //==================================================
     bool inCheck = false;
     bool inCheckmate = false;
     bool inStalemate = false;
 
     void updateGameStatus();
+    void playBlackTurnIfNeeded();
 };

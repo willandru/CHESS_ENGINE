@@ -18,6 +18,7 @@ include_directories(
     src/Screens
     src/UI
     src/Game
+    src/AI
 
     externals/glad/include
     externals/glfw-3.4/include
