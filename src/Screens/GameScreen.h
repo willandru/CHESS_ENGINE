@@ -3,10 +3,12 @@
 #include "Screen.h"
 #include "Button.h"
 #include "Shader.h"
+#include "GameState.h"
 
 class GameScreen : public Screen
 {
 public:
+
     void onEnter() override;
     void update(float dt) override;
     void render() override;
@@ -14,11 +16,25 @@ public:
 
 private:
 
-    // Texturas (botones y piezas)
+    //=========================================
+    // Game
+    //=========================================
+
+    GameState gameState;
+
+    //=========================================
+    // Shaders
+    //=========================================
+
+    // Botones y piezas
     Shader shader;
 
-    // Colores (tablero y highlights)
+    // Tablero y highlights
     Shader boardShader;
+
+    //=========================================
+    // UI
+    //=========================================
 
     Button back;
     Button start;

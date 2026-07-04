@@ -1,27 +1,11 @@
 #pragma once
 
+#include <cstdint>
+
 #include "Texture.h"
+#include "GameState.h"
 
 class Shader;
-
-enum class ChessPiece
-{
-    None = 0,
-
-    WhitePawn,
-    WhiteKnight,
-    WhiteBishop,
-    WhiteRook,
-    WhiteQueen,
-    WhiteKing,
-
-    BlackPawn,
-    BlackKnight,
-    BlackBishop,
-    BlackRook,
-    BlackQueen,
-    BlackKing
-};
 
 class ChessPieceRenderer
 {
@@ -32,9 +16,8 @@ public:
 
     static void render(
         Shader& shader,
-        ChessPiece piece,
-        int row,
-        int col
+        Piece piece,
+        uint8_t square
     );
 
 private:

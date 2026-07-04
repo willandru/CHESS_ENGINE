@@ -37,14 +37,20 @@ void ChessPieceRenderer::shutdown()
 
 void ChessPieceRenderer::render(
     Shader& shader,
-    ChessPiece piece,
-    int row,
-    int col)
+    Piece piece,
+    uint8_t square)
 {
-    if (piece == ChessPiece::None)
+    if (piece == EMPTY)
         return;
 
-    BoardLayout layout = ChessBoardRenderer::getLayout();
+    const BoardLayout layout =
+        ChessBoardRenderer::getLayout();
+
+    const uint8_t row =
+        GameState::getRow(square);
+
+    const uint8_t col =
+        GameState::getCol(square);
 
     const float x =
         layout.x + col * layout.squareSize;
@@ -52,15 +58,18 @@ void ChessPieceRenderer::render(
     const float y =
         layout.y + row * layout.squareSize;
 
-    const int index =
+    const int textureIndex =
         static_cast<int>(piece) - 1;
+
+    if (textureIndex < 0 || textureIndex >= 12)
+        return;
 
     Renderer::drawTextureRect(
         x,
         y,
         layout.squareSize,
         layout.squareSize,
-        textures[index],
+        textures[textureIndex],
         shader
     );
 }

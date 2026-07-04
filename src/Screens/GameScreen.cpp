@@ -29,6 +29,12 @@ void GameScreen::onEnter()
     );
 
     //=========================================
+    // GAME
+    //=========================================
+
+    gameState.reset();
+
+    //=========================================
     // PIECES
     //=========================================
 
@@ -38,8 +44,8 @@ void GameScreen::onEnter()
     // BUTTONS
     //=========================================
 
-    float sw = (float)gWindow.getWindowWidth();
-    float sh = (float)gWindow.getWindowHeight();
+    const float sw = (float)gWindow.getWindowWidth();
+    const float sh = (float)gWindow.getWindowHeight();
 
     const float smallWidth = UI::ButtonWidth * 0.5f;
 
@@ -107,12 +113,20 @@ void GameScreen::update(float dt)
 
     InputMouse::getUIPosition(mx, my);
 
-    bool clicked =
+    const bool clicked =
         InputMouse::isButtonPressed(0);
 
     back.update(mx, my, clicked);
     stop.update(mx, my, clicked);
     start.update(mx, my, clicked);
+
+    if (clicked)
+    {
+        gameState.onMouseClick(
+            mx,
+            my
+        );
+    }
 }
 
 void GameScreen::render()
@@ -121,59 +135,37 @@ void GameScreen::render()
     // TABLERO
     //=========================================
 
-    ChessBoardRenderer::render(boardShader);
+    ChessBoardRenderer::render(
+        boardShader
+    );
 
     //=========================================
-    // DEBUG HIGHLIGHT
+    // HIGHLIGHT
     //=========================================
 
-    HighlightRenderer::renderDebug(boardShader);
+    if (gameState.hasSelection())
+    {
+        HighlightRenderer::render(
+            boardShader,
+            gameState.getSelectedSquare(),
+            0.15f,
+            0.85f,
+            0.20f
+        );
+    }
 
     //=========================================
-    // DEBUG PIECES
+    // PIEZAS
     //=========================================
 
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::BlackKing,
-        0,
-        4
-    );
-
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::WhiteKing,
-        7,
-        4
-    );
-
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::WhiteQueen,
-        7,
-        3
-    );
-
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::BlackQueen,
-        0,
-        3
-    );
-
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::WhitePawn,
-        6,
-        4
-    );
-
-    ChessPieceRenderer::render(
-        shader,
-        ChessPiece::BlackPawn,
-        1,
-        4
-    );
+    for (uint8_t square = 0; square < 64; ++square)
+    {
+        ChessPieceRenderer::render(
+            shader,
+            gameState.getPiece(square),
+            square
+        );
+    }
 
     //=========================================
     // UI

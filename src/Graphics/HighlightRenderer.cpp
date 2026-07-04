@@ -1,13 +1,13 @@
 #include "HighlightRenderer.h"
 
 #include "ChessBoardRenderer.h"
+#include "GameState.h"
 #include "Renderer.h"
 #include "Shader.h"
 
 void HighlightRenderer::render(
     Shader& shader,
-    int row,
-    int col,
+    uint8_t square,
     float r,
     float g,
     float b,
@@ -15,7 +15,14 @@ void HighlightRenderer::render(
 {
     (void)alpha;
 
-    BoardLayout layout = ChessBoardRenderer::getLayout();
+    const BoardLayout layout =
+        ChessBoardRenderer::getLayout();
+
+    const uint8_t row =
+        GameState::getRow(square);
+
+    const uint8_t col =
+        GameState::getCol(square);
 
     const float x =
         layout.x + col * layout.squareSize;
@@ -37,13 +44,12 @@ void HighlightRenderer::render(
 
 void HighlightRenderer::renderDebug(Shader& shader)
 {
-    // Resalta la casilla (4,4)
     render(
         shader,
-        0,
-        0,
-        0.1f,
-        0.8f,
-        0.2f
+        GameState::getSquare(4, 4),
+        0.15f,
+        0.85f,
+        0.20f,
+        0.45f
     );
 }
