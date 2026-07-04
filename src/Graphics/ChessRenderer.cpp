@@ -30,6 +30,9 @@ void ChessRenderer::render(
     //------------------------------------------------
     // SELECTED SQUARE
     //------------------------------------------------
+//------------------------------------------------
+// SELECTED SQUARE + LEGAL MOVES
+//------------------------------------------------
 
     if (game.hasSelection())
     {
@@ -39,6 +42,15 @@ void ChessRenderer::render(
             0.15f,
             0.85f,
             0.20f,
+            view
+        );
+
+        HighlightRenderer::renderMoves(
+            boardShader,
+            game.getMoves(),
+            0.85f,
+            0.85f,
+            0.15f,
             view
         );
     }

@@ -23,6 +23,8 @@ public:
     bool hasSelection() const;
     uint8_t getSelectedSquare() const;
 
+    const std::vector<Move>& getMoves() const;
+
 private:
 
     GameState state;

@@ -112,3 +112,8 @@ uint8_t ChessGame::getSelectedSquare() const
 
     return blackPlayer.getSelectedSquare();
 }
+
+const std::vector<Move>& ChessGame::getMoves() const
+{
+    return moves;
+}

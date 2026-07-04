@@ -1,4 +1,5 @@
 #include "HighlightRenderer.h"
+
 #include "Renderer.h"
 #include "BoardView.h"
 
@@ -23,4 +24,25 @@ void HighlightRenderer::render(
         b,
         shader
     );
+}
+
+void HighlightRenderer::renderMoves(
+    Shader& shader,
+    const std::vector<Move>& moves,
+    float r,
+    float g,
+    float b,
+    const BoardView& view)
+{
+    for (const Move& move : moves)
+    {
+        render(
+            shader,
+            move.to,
+            r,
+            g,
+            b,
+            view
+        );
+    }
 }
