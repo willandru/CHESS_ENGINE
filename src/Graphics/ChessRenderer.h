@@ -6,7 +6,6 @@ class ChessGame;
 class ChessRenderer
 {
 public:
-
     static void render(
         Shader& boardShader,
         Shader& pieceShader,

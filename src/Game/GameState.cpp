@@ -120,3 +120,19 @@ uint8_t GameState::getCol(uint8_t square)
 {
     return square % 8;
 }
+
+uint8_t GameState::findKing(PlayerSide side) const
+{
+    for (uint8_t sq = 0; sq < 64; ++sq)
+    {
+        Piece p = board[sq];
+
+        if (side == PlayerSide::White && p == WHITE_KING)
+            return sq;
+
+        if (side == PlayerSide::Black && p == BLACK_KING)
+            return sq;
+    }
+
+    return 255;
+}

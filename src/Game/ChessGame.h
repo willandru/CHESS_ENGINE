@@ -25,6 +25,13 @@ public:
 
     const std::vector<Move>& getMoves() const;
 
+    //==================================================
+    // GAME STATE FLAGS (UI CONSUMPTION)
+    //==================================================
+    bool isCheck() const { return inCheck; }
+    bool isCheckmate() const { return inCheckmate; }
+    bool isStalemate() const { return inStalemate; }
+
 private:
     GameState state;
 
@@ -35,4 +42,13 @@ private:
     uint8_t sourceSquare = 0;
 
     std::vector<Move> moves;
+
+    //==================================================
+    // GAME STATUS CACHE
+    //==================================================
+    bool inCheck = false;
+    bool inCheckmate = false;
+    bool inStalemate = false;
+
+    void updateGameStatus();
 };

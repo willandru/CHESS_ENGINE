@@ -2,6 +2,7 @@
 #include "MoveFilter.h"
 #include "MoveGenerator.h"
 #include "MoveExecutor.h"
+
 #include <iostream>
 
 ChessGame::ChessGame()
@@ -20,6 +21,10 @@ void ChessGame::reset()
     sourceSquare = 0;
 
     moves.clear();
+
+    inCheck = false;
+    inCheckmate = false;
+    inStalemate = false;
 }
 
 void ChessGame::onSquareClicked(uint8_t square)
@@ -42,24 +47,17 @@ void ChessGame::onSquareClicked(uint8_t square)
         sourceSquare = player.getSelectedSquare();
         moves.clear();
 
-        // 1. PSEUDO MOVES
         MoveGenerator::generatePieceMoves(
             state,
             sourceSquare,
             moves
         );
 
-        std::cout << "Pseudo moves: " << moves.size() << "\n";
-
-        // 2. LEGAL FILTER
         MoveFilter::filterLegalMoves(state, moves);
-
-        std::cout << "Legal moves: " << moves.size() << "\n";
 
         if (moves.empty())
         {
             player.clearSelection();
-            waitingDestination = false;
             return;
         }
 
@@ -84,28 +82,27 @@ void ChessGame::onSquareClicked(uint8_t square)
     waitingDestination = false;
 
     //==================================================
-    // GAME STATE REPORT
+    // UPDATE GAME STATE
     //==================================================
-    auto status = MoveFilter::getGameStatus(state, state.getTurn());
+    updateGameStatus();
 
-    switch (status)
-    {
-        case MoveFilter::GameStateStatus::Check:
-            std::cout << "STATE: CHECK\n";
-            break;
+    if (inCheckmate)
+        std::cout << "STATE: CHECKMATE\n";
+    else if (inCheck)
+        std::cout << "STATE: CHECK\n";
+    else if (inStalemate)
+        std::cout << "STATE: STALEMATE\n";
+    else
+        std::cout << "STATE: NORMAL\n";
+}
 
-        case MoveFilter::GameStateStatus::Checkmate:
-            std::cout << "STATE: CHECKMATE\n";
-            break;
+void ChessGame::updateGameStatus()
+{
+    PlayerSide side = state.getTurn();
 
-        case MoveFilter::GameStateStatus::Stalemate:
-            std::cout << "STATE: STALEMATE\n";
-            break;
-
-        default:
-            std::cout << "STATE: NORMAL\n";
-            break;
-    }
+    inCheck = MoveFilter::isKingInCheck(state, side);
+    inCheckmate = MoveFilter::isCheckmate(state, side);
+    inStalemate = MoveFilter::isStalemate(state, side);
 }
 
 const GameState& ChessGame::getGameState() const

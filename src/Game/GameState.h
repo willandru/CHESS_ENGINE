@@ -47,6 +47,7 @@ public:
     static uint8_t getSquare(uint8_t row, uint8_t col);
     static uint8_t getRow(uint8_t square);
     static uint8_t getCol(uint8_t square);
+    uint8_t findKing(PlayerSide side) const;
 
 private:
 
