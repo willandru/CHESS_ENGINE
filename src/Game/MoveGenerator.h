@@ -65,4 +65,8 @@ private:
     static bool isEnemy(Piece a, Piece b);
 
     static bool isCorrectTurn(const GameState& state, Piece piece);
+    static bool crossedEdge(int from, int to, int dir);
+    static bool isValidKnightMove(int from, int to);
+    static bool isValidKingMove(int from, int to);
+    static bool isValidPawnCapture(int from, int to);
 };

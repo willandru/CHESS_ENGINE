@@ -119,6 +119,8 @@ bool MoveGenerator::isEnemy(Piece a, Piece b)
     return !isSameColor(a, b);
 }
 
+
+
 //====================================================
 // KNIGHT
 //====================================================
@@ -137,6 +139,10 @@ void MoveGenerator::generateKnight(
         if (!isInsideBoard(to))
             continue;
 
+        // FIX: evita wrap-around horizontal/vertical inválido
+        if (!isValidKnightMove(square, to))
+            continue;
+
         Piece target = state.getPiece(to);
 
         if (isSameColor(p, target))
@@ -150,7 +156,6 @@ void MoveGenerator::generateKnight(
         moves.push_back(m);
     }
 }
-
 //====================================================
 // KING
 //====================================================
@@ -167,6 +172,10 @@ void MoveGenerator::generateKing(
         int to = square + off;
 
         if (!isInsideBoard(to))
+            continue;
+
+        // FIX borde tablero
+        if (!isValidKingMove(square, to))
             continue;
 
         Piece target = state.getPiece(to);
@@ -200,9 +209,13 @@ void MoveGenerator::generateRook(
 
         while (true)
         {
+            int previous = to;
             to += dir;
 
             if (!isInsideBoard(to))
+                break;
+
+            if (crossedEdge(previous, to, dir))
                 break;
 
             Piece target = state.getPiece(to);
@@ -241,9 +254,13 @@ void MoveGenerator::generateBishop(
 
         while (true)
         {
+            int previous = to;
             to += dir;
 
             if (!isInsideBoard(to))
+                break;
+
+            if (crossedEdge(previous, to, dir))
                 break;
 
             Piece target = state.getPiece(to);
@@ -279,7 +296,7 @@ void MoveGenerator::generateQueen(
 }
 
 //====================================================
-// PAWN (BASIC STRUCTURE + TURN SAFE)
+// PAWN
 //====================================================
 
 void MoveGenerator::generatePawn(
@@ -295,16 +312,19 @@ void MoveGenerator::generatePawn(
 
     int forward = square + (8 * dir);
 
+    // avance simple
     if (isInsideBoard(forward) &&
         state.getPiece(forward) == EMPTY)
     {
         moves.emplace_back(square, forward);
     }
 
-    int left = square + (8 * dir) - 1;
+    // capturas
+    int left  = square + (8 * dir) - 1;
     int right = square + (8 * dir) + 1;
 
-    if (isInsideBoard(left))
+    if (isInsideBoard(left) &&
+        isValidPawnCapture(square, left))
     {
         Piece t = state.getPiece(left);
         if (isEnemy(p, t))
@@ -315,7 +335,8 @@ void MoveGenerator::generatePawn(
         }
     }
 
-    if (isInsideBoard(right))
+    if (isInsideBoard(right) &&
+        isValidPawnCapture(square, right))
     {
         Piece t = state.getPiece(right);
         if (isEnemy(p, t))
@@ -325,4 +346,68 @@ void MoveGenerator::generatePawn(
             moves.push_back(m);
         }
     }
+}
+
+bool MoveGenerator::crossedEdge(int from, int to, int dir)
+{
+    int fromCol = from & 7;
+    int toCol   = to & 7;
+
+    switch (dir)
+    {
+        case 1:   return toCol != fromCol + 1;
+        case -1:  return toCol != fromCol - 1;
+
+        case 9:   return toCol != fromCol + 1;
+        case -9:  return toCol != fromCol - 1;
+
+        case 7:   return toCol != fromCol - 1;
+        case -7:  return toCol != fromCol + 1;
+    }
+
+    return false;
+}
+
+bool MoveGenerator::isValidKnightMove(int from, int to)
+{
+    int fr = from >> 3;
+    int fc = from & 7;
+
+    int tr = to >> 3;
+    int tc = to & 7;
+
+    int dr = fr - tr;
+    int dc = fc - tc;
+
+    if (dr < 0) dr = -dr;
+    if (dc < 0) dc = -dc;
+
+    return (dr == 2 && dc == 1) || (dr == 1 && dc == 2);
+}
+
+bool MoveGenerator::isValidKingMove(int from, int to)
+{
+    int fr = from >> 3;
+    int fc = from & 7;
+
+    int tr = to >> 3;
+    int tc = to & 7;
+
+    int dr = fr - tr;
+    int dc = fc - tc;
+
+    if (dr < 0) dr = -dr;
+    if (dc < 0) dc = -dc;
+
+    return (dr <= 1 && dc <= 1);
+}
+
+bool MoveGenerator::isValidPawnCapture(int from, int to)
+{
+    int fc = from & 7;
+    int tc = to & 7;
+
+    int dc = fc - tc;
+
+    return (dc == 1 || dc == -1);
 }
