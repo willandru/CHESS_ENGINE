@@ -26,6 +26,11 @@ public:
         const GameState& state,
         std::vector<Move>& moves);
 
+    static bool attacksSquare(
+        const GameState& state,
+        uint8_t from,
+        uint8_t target);
+
 private:
 
     static void generatePawn(

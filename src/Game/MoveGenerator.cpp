@@ -411,3 +411,159 @@ bool MoveGenerator::isValidPawnCapture(int from, int to)
 
     return (dc == 1 || dc == -1);
 }
+
+
+bool MoveGenerator::attacksSquare(
+    const GameState& state,
+    uint8_t from,
+    uint8_t target)
+{
+    Piece p = state.getPiece(from);
+
+    if (p == EMPTY)
+        return false;
+
+    int fr = from >> 3;
+    int fc = from & 7;
+
+    int tr = target >> 3;
+    int tc = target & 7;
+
+    int dr = tr - fr;
+    int dc = tc - fc;
+
+    auto absv = [](int x) { return x < 0 ? -x : x; };
+
+    switch (p)
+    {
+        //==================================================
+        // PAWN
+        //==================================================
+        case WHITE_PAWN:
+            return (dr == -1 && (dc == -1 || dc == 1));
+
+        case BLACK_PAWN:
+            return (dr == 1 && (dc == -1 || dc == 1));
+
+        //==================================================
+        // KNIGHT
+        //==================================================
+        case WHITE_KNIGHT:
+        case BLACK_KNIGHT:
+        {
+            return (absv(dr) == 2 && absv(dc) == 1) ||
+                   (absv(dr) == 1 && absv(dc) == 2);
+        }
+
+        //==================================================
+        // KING
+        //==================================================
+        case WHITE_KING:
+        case BLACK_KING:
+        {
+            return absv(dr) <= 1 && absv(dc) <= 1;
+        }
+
+        //==================================================
+        // ROOK
+        //==================================================
+        case WHITE_ROOK:
+        case BLACK_ROOK:
+        {
+            if (fr != tr && fc != tc)
+                return false;
+
+            int step = (fr == tr)
+                ? ((tc > fc) ? 1 : -1)
+                : ((tr > fr) ? 8 : -8);
+
+            int sq = from + step;
+
+            while (sq != target)
+            {
+                if (state.getPiece(sq) != EMPTY)
+                    return false;
+                sq += step;
+            }
+
+            return true;
+        }
+
+        //==================================================
+        // BISHOP
+        //==================================================
+        case WHITE_BISHOP:
+        case BLACK_BISHOP:
+        {
+            if (absv(dr) != absv(dc))
+                return false;
+
+            int step = ((tr > fr) ? 8 : -8) +
+                       ((tc > fc) ? 1 : -1);
+
+            int sq = from + step;
+
+            while (sq != target)
+            {
+                if (state.getPiece(sq) != EMPTY)
+                    return false;
+                sq += step;
+            }
+
+            return true;
+        }
+
+        //==================================================
+        // QUEEN (FIX REAL)
+        //==================================================
+        case WHITE_QUEEN:
+        case BLACK_QUEEN:
+        {
+            // rook-like
+            bool rookLine = (fr == tr || fc == tc);
+
+            // bishop-like
+            bool bishopLine = (absv(dr) == absv(dc));
+
+            if (rookLine)
+            {
+                int step = (fr == tr)
+                    ? ((tc > fc) ? 1 : -1)
+                    : ((tr > fr) ? 8 : -8);
+
+                int sq = from + step;
+
+                while (sq != target)
+                {
+                    if (state.getPiece(sq) != EMPTY)
+                        return false;
+                    sq += step;
+                }
+
+                return true;
+            }
+
+            if (bishopLine)
+            {
+                int step = ((tr > fr) ? 8 : -8) +
+                           ((tc > fc) ? 1 : -1);
+
+                int sq = from + step;
+
+                while (sq != target)
+                {
+                    if (state.getPiece(sq) != EMPTY)
+                        return false;
+                    sq += step;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
+        default:
+            return false;
+    }
+}

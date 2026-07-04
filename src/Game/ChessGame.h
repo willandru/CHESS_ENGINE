@@ -7,15 +7,15 @@
 #include "HumanAgent.h"
 #include "MoveGenerator.h"
 #include "MoveExecutor.h"
+#include "MoveFilter.h"
+#include "Move.h"
 
 class ChessGame
 {
 public:
-
     ChessGame();
 
     void reset();
-
     void onSquareClicked(uint8_t square);
 
     const GameState& getGameState() const;
@@ -26,15 +26,13 @@ public:
     const std::vector<Move>& getMoves() const;
 
 private:
-
     GameState state;
 
     HumanAgent whitePlayer;
     HumanAgent blackPlayer;
 
-    bool waitingDestination;
-
-    uint8_t sourceSquare;
+    bool waitingDestination = false;
+    uint8_t sourceSquare = 0;
 
     std::vector<Move> moves;
 };
