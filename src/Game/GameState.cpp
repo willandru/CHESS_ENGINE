@@ -1,7 +1,5 @@
 #include "GameState.h"
-
 #include "ChessBoardRenderer.h"
-
 #include <iostream>
 
 GameState::GameState()
@@ -12,14 +10,9 @@ GameState::GameState()
 void GameState::reset()
 {
     for (int i = 0; i < 64; ++i)
-    {
         board[i] = EMPTY;
-    }
 
-    //----------------------------------------
-    // BLACK
-    //----------------------------------------
-
+    // ---------------- BLACK ----------------
     board[0] = BLACK_ROOK;
     board[1] = BLACK_KNIGHT;
     board[2] = BLACK_BISHOP;
@@ -30,14 +23,9 @@ void GameState::reset()
     board[7] = BLACK_ROOK;
 
     for (int i = 8; i < 16; ++i)
-    {
         board[i] = BLACK_PAWN;
-    }
 
-    //----------------------------------------
-    // WHITE
-    //----------------------------------------
-
+    // ---------------- WHITE ----------------
     board[56] = WHITE_ROOK;
     board[57] = WHITE_KNIGHT;
     board[58] = WHITE_BISHOP;
@@ -48,12 +36,24 @@ void GameState::reset()
     board[63] = WHITE_ROOK;
 
     for (int i = 48; i < 56; ++i)
-    {
         board[i] = WHITE_PAWN;
-    }
 
     selected = false;
     selectedSquare = 0;
+}
+
+//==================================================
+// BOARD
+//==================================================
+
+Piece GameState::getPiece(uint8_t square) const
+{
+    return board[square];
+}
+
+void GameState::setPiece(uint8_t square, Piece piece)
+{
+    board[square] = piece;
 }
 
 const Piece* GameState::getBoard() const
@@ -61,17 +61,9 @@ const Piece* GameState::getBoard() const
     return board;
 }
 
-Piece GameState::getPiece(uint8_t square) const
-{
-    return board[square];
-}
-
-void GameState::setPiece(
-    uint8_t square,
-    Piece piece)
-{
-    board[square] = piece;
-}
+//==================================================
+// SELECTION
+//==================================================
 
 bool GameState::hasSelection() const
 {
@@ -83,24 +75,33 @@ uint8_t GameState::getSelectedSquare() const
     return selectedSquare;
 }
 
-uint8_t GameState::getSquare(
-    uint8_t row,
-    uint8_t col)
+void GameState::clearSelection()
+{
+    selected = false;
+}
+
+//==================================================
+// COORDINATES
+//==================================================
+
+uint8_t GameState::getSquare(uint8_t row, uint8_t col)
 {
     return row * 8 + col;
 }
 
-uint8_t GameState::getRow(
-    uint8_t square)
+uint8_t GameState::getRow(uint8_t square)
 {
     return square / 8;
 }
 
-uint8_t GameState::getCol(
-    uint8_t square)
+uint8_t GameState::getCol(uint8_t square)
 {
     return square % 8;
 }
+
+//==================================================
+// INPUT MAPPING
+//==================================================
 
 bool GameState::mouseToSquare(
     float mouseX,
@@ -109,58 +110,42 @@ bool GameState::mouseToSquare(
     uint8_t& col,
     uint8_t& square) const
 {
-    const BoardLayout layout =
-        ChessBoardRenderer::getLayout();
+    const BoardLayout layout = ChessBoardRenderer::getLayout();
 
-    if (mouseX < layout.x)
+    if (mouseX < layout.x ||
+        mouseY < layout.y ||
+        mouseX >= layout.x + layout.boardSize ||
+        mouseY >= layout.y + layout.boardSize)
         return false;
 
-    if (mouseY < layout.y)
-        return false;
-
-    if (mouseX >= layout.x + layout.boardSize)
-        return false;
-
-    if (mouseY >= layout.y + layout.boardSize)
-        return false;
-
-    col = static_cast<uint8_t>(
-        (mouseX - layout.x) / layout.squareSize);
-
-    row = static_cast<uint8_t>(
-        (mouseY - layout.y) / layout.squareSize);
+    col = (mouseX - layout.x) / layout.squareSize;
+    row = (mouseY - layout.y) / layout.squareSize;
 
     square = getSquare(row, col);
-
     return true;
 }
 
-bool GameState::hasPiece(
-    uint8_t square) const
+bool GameState::hasPiece(uint8_t square) const
 {
     return board[square] != EMPTY;
 }
 
-void GameState::selectPiece(
-    uint8_t square)
+//==================================================
+// SELECTION LOGIC
+//==================================================
+
+void GameState::selectSquare(uint8_t square)
 {
     selected = true;
     selectedSquare = square;
 
-    std::cout
-        << "Selected piece\n"
-        << "square : " << (int)square
-        << "\n";
+    std::cout << "Selected: " << (int)square << "\n";
 }
 
-void GameState::moveSelectedPiece(
-    uint8_t destination)
+void GameState::movePiece(uint8_t destination)
 {
-    board[destination] =
-        board[selectedSquare];
-
-    board[selectedSquare] =
-        EMPTY;
+    board[destination] = board[selectedSquare];
+    board[selectedSquare] = EMPTY;
 
     std::cout
         << "Move "
@@ -172,43 +157,33 @@ void GameState::moveSelectedPiece(
     selected = false;
 }
 
-void GameState::onMouseClick(
-    float mouseX,
-    float mouseY)
+//==================================================
+// MAIN INPUT ENTRY
+//==================================================
+
+void GameState::onMouseClick(float mouseX, float mouseY)
 {
-    uint8_t row;
-    uint8_t col;
-    uint8_t square;
+    uint8_t row, col, square;
 
-    if (!mouseToSquare(
-            mouseX,
-            mouseY,
-            row,
-            col,
-            square))
+    if (!mouseToSquare(mouseX, mouseY, row, col, square))
     {
-        std::cout
-            << "Click outside board\n";
-
-        selected = false;
-
+        std::cout << "Click outside board\n";
+        clearSelection();
         return;
     }
 
     std::cout
-        << "row    : " << (int)row << '\n'
-        << "col    : " << (int)col << '\n'
-        << "square : " << (int)square << '\n';
+        << "row=" << (int)row
+        << " col=" << (int)col
+        << " sq=" << (int)square << "\n";
 
     if (!selected)
     {
         if (hasPiece(square))
-        {
-            selectPiece(square);
-        }
+            selectSquare(square);
 
         return;
     }
 
-    moveSelectedPiece(square);
+    movePiece(square);
 }

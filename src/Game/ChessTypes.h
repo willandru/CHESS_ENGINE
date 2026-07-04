@@ -20,3 +20,20 @@ enum Piece : uint8_t
     BLACK_QUEEN,
     BLACK_KING
 };
+
+inline bool isWhite(Piece p)
+{
+    return p >= WHITE_PAWN &&
+           p <= WHITE_KING;
+}
+
+inline bool isBlack(Piece p)
+{
+    return p >= BLACK_PAWN &&
+           p <= BLACK_KING;
+}
+
+inline bool isEmpty(Piece p)
+{
+    return p == EMPTY;
+}
