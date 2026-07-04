@@ -16,4 +16,6 @@ private:
     Shader shader;
 
     Button back;
+    Button start;
+    Button stop;
 };
