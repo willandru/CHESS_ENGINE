@@ -26,31 +26,31 @@ void MoveGenerator::generatePieceMoves(
         }
 
         //=========================
-        // FUTURO
+        // FUTURE PIECES
         //=========================
         case WHITE_KNIGHT:
         case BLACK_KNIGHT:
-            // KnightMoves::generate(...)
+            // KnightMoves::generate(state, square, moves);
             break;
 
         case WHITE_BISHOP:
         case BLACK_BISHOP:
-            // BishopMoves::generate(...)
+            // BishopMoves::generate(state, square, moves);
             break;
 
         case WHITE_ROOK:
         case BLACK_ROOK:
-            // RookMoves::generate(...)
+            // RookMoves::generate(state, square, moves);
             break;
 
         case WHITE_QUEEN:
         case BLACK_QUEEN:
-            // QueenMoves::generate(...)
+            // QueenMoves::generate(state, square, moves);
             break;
 
         case WHITE_KING:
         case BLACK_KING:
-            // KingMoves::generate(...)
+            // KingMoves::generate(state, square, moves);
             break;
 
         default:
@@ -73,4 +73,18 @@ void MoveGenerator::generateAllMoves(
 
         generatePieceMoves(state, square, moves);
     }
+}
+
+//==================================================
+// HELPERS (FUTURO TURN SYSTEM)
+//==================================================
+
+bool MoveGenerator::isWhitePiece(Piece p)
+{
+    return p >= WHITE_PAWN && p <= WHITE_KING;
+}
+
+bool MoveGenerator::isBlackPiece(Piece p)
+{
+    return p >= BLACK_PAWN && p <= BLACK_KING;
 }

@@ -1,6 +1,7 @@
 #include "MoveExecutor.h"
 
 #include "ChessTypes.h"
+#include <iostream>
 
 void MoveExecutor::execute(
     GameState& state,
@@ -12,16 +13,21 @@ void MoveExecutor::execute(
         return;
 
     //=========================================
-    // CAPTURA
+    // GUARDAR PIEZA CAPTURADA
     //=========================================
-    // (solo reemplazamos destino)
-    //=========================================
+    Piece captured = state.getPiece(move.to);
 
+    // IMPORTANTE: guardar para undo / IA
+    const_cast<Move&>(move).captured = captured;
+
+    //=========================================
+    // MOVIMIENTO BASE
+    //=========================================
     state.setPiece(move.to, piece);
     state.setPiece(move.from, EMPTY);
 
     //=========================================
-    // PROMOCIÓN (simple placeholder)
+    // PROMOCIÓN
     //=========================================
     if (move.isPromotion())
     {
@@ -29,12 +35,15 @@ void MoveExecutor::execute(
     }
 
     //=========================================
-    // EN PASSANT (placeholder lógico)
+    // EN PASSANT (placeholder)
     //=========================================
     if (move.isEnPassant())
     {
-        // eliminar pieza capturada en casilla intermedia
-        // (pendiente extender cuando implementes regla completa)
+        uint8_t capSquare =
+            (GameState::getRow(move.to) + (piece == WHITE_PAWN ? 1 : -1)) * 8
+            + GameState::getCol(move.to);
+
+        state.setPiece(capSquare, EMPTY);
     }
 
     //=========================================
@@ -42,12 +51,11 @@ void MoveExecutor::execute(
     //=========================================
     if (move.isCastling())
     {
-        // mover torre correspondiente
-        // (se implementa cuando agregues king moves)
+        // futuro: mover torre automáticamente
     }
 
     //=========================================
-    // DEBUG OUTPUT
+    // DEBUG
     //=========================================
     std::cout
         << "Move executed: "
@@ -61,12 +69,9 @@ void MoveExecutor::undo(
     GameState& state,
     const Move& move)
 {
-    // restaurar pieza original
     Piece moved = state.getPiece(move.to);
 
     state.setPiece(move.from, moved);
-
-    // restaurar casilla destino (simplificado)
     state.setPiece(move.to, move.captured);
 
     std::cout

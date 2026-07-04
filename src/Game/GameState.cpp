@@ -1,5 +1,9 @@
 #include "GameState.h"
+
 #include "ChessBoardRenderer.h"
+#include "MoveGenerator.h"
+#include "MoveExecutor.h"
+
 #include <iostream>
 
 GameState::GameState()
@@ -7,12 +11,16 @@ GameState::GameState()
     reset();
 }
 
+//==================================================
+// INIT BOARD
+//==================================================
+
 void GameState::reset()
 {
     for (int i = 0; i < 64; ++i)
         board[i] = EMPTY;
 
-    // ---------------- BLACK ----------------
+    // BLACK
     board[0] = BLACK_ROOK;
     board[1] = BLACK_KNIGHT;
     board[2] = BLACK_BISHOP;
@@ -25,7 +33,7 @@ void GameState::reset()
     for (int i = 8; i < 16; ++i)
         board[i] = BLACK_PAWN;
 
-    // ---------------- WHITE ----------------
+    // WHITE
     board[56] = WHITE_ROOK;
     board[57] = WHITE_KNIGHT;
     board[58] = WHITE_BISHOP;
@@ -43,7 +51,7 @@ void GameState::reset()
 }
 
 //==================================================
-// BOARD
+// BOARD ACCESS
 //==================================================
 
 Piece GameState::getPiece(uint8_t square) const
@@ -81,7 +89,7 @@ void GameState::clearSelection()
 }
 
 //==================================================
-// COORDINATES
+// COORDS
 //==================================================
 
 uint8_t GameState::getSquare(uint8_t row, uint8_t col)
@@ -131,7 +139,23 @@ bool GameState::hasPiece(uint8_t square) const
 }
 
 //==================================================
-// SELECTION LOGIC
+// MOVE VALIDATION (KEY INTEGRATION)
+//==================================================
+
+bool GameState::isLegalMove(uint8_t from, uint8_t to) const
+{
+    std::vector<Move> moves;
+    MoveGenerator::generatePieceMoves(*this, from, moves);
+
+    for (const Move& m : moves)
+        if (m.from == from && m.to == to)
+            return true;
+
+    return false;
+}
+
+//==================================================
+// SELECTION
 //==================================================
 
 void GameState::selectSquare(uint8_t square)
@@ -142,23 +166,29 @@ void GameState::selectSquare(uint8_t square)
     std::cout << "Selected: " << (int)square << "\n";
 }
 
+//==================================================
+// MOVE EXECUTION
+//==================================================
+
 void GameState::movePiece(uint8_t destination)
 {
-    board[destination] = board[selectedSquare];
-    board[selectedSquare] = EMPTY;
+    if (!isLegalMove(selectedSquare, destination))
+    {
+        std::cout << "Illegal move ignored\n";
+        return;
+    }
 
-    std::cout
-        << "Move "
-        << (int)selectedSquare
-        << " -> "
-        << (int)destination
-        << "\n";
+    Move move;
+    move.from = selectedSquare;
+    move.to = destination;
+
+    MoveExecutor::execute(*this, move);
 
     selected = false;
 }
 
 //==================================================
-// MAIN INPUT ENTRY
+// MAIN INPUT
 //==================================================
 
 void GameState::onMouseClick(float mouseX, float mouseY)
@@ -171,11 +201,6 @@ void GameState::onMouseClick(float mouseX, float mouseY)
         clearSelection();
         return;
     }
-
-    std::cout
-        << "row=" << (int)row
-        << " col=" << (int)col
-        << " sq=" << (int)square << "\n";
 
     if (!selected)
     {

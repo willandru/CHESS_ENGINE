@@ -13,7 +13,7 @@ public:
         const Move& move
     );
 
-    // (opcional futuro) deshacer movimiento
+    // Revertir movimiento (útil para IA)
     static void undo(
         GameState& state,
         const Move& move
