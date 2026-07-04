@@ -5,12 +5,24 @@
 #include "InputMouse.h"
 #include "UIConstants.h"
 
+#include "ChessBoardRenderer.h"
+
 extern ScreenManager gScreenManager;
 extern Window gWindow;
 
 void GameScreen::onEnter()
 {
-    shader.load("Shaders/texture.vert", "Shaders/texture.frag");
+    // Shader para botones (texturas)
+    shader.load(
+        "Shaders/texture.vert",
+        "Shaders/texture.frag"
+    );
+
+    // Shader para el tablero (color sólido)
+    boardShader.load(
+        "Shaders/basic.vert",
+        "Shaders/basic.frag"
+    );
 
     float sw = (float)gWindow.getWindowWidth();
     float sh = (float)gWindow.getWindowHeight();
@@ -21,9 +33,11 @@ void GameScreen::onEnter()
 
     const float backX = UI::ButtonSpacing;
 
-    const float stopX = (sw - (smallWidth * 2.0f + UI::ButtonSpacing)) * 0.5f;
+    const float stopX =
+        (sw - (smallWidth * 2.0f + UI::ButtonSpacing)) * 0.5f;
 
-    const float startX = stopX + smallWidth + UI::ButtonSpacing;
+    const float startX =
+        stopX + smallWidth + UI::ButtonSpacing;
 
     back = Button(
         backX,
@@ -85,6 +99,14 @@ void GameScreen::update(float dt)
 
 void GameScreen::render()
 {
+    // ============================
+    // TABLERO
+    // ============================
+    ChessBoardRenderer::render(boardShader);
+
+    // ============================
+    // BOTONES
+    // ============================
     back.render(shader);
     stop.render(shader);
     start.render(shader);
