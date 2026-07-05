@@ -1,38 +1,60 @@
 #include "HumanAgent.h"
-
-#include <iostream>
+#include "AgentRegistry.h"
 
 HumanAgent::HumanAgent()
 {
-    clear();
+    clickState = ClickState::WaitingSource;
+    sourceSquare = 0;
+    hasMove = false;
+}
+
+bool HumanAgent::isHuman() const
+{
+    return true;
 }
 
 void HumanAgent::onSquareClicked(uint8_t square)
 {
-    clicked = true;
-    clickedSquare = square;
+    if (clickState == ClickState::WaitingSource)
+    {
+        sourceSquare = square;
+        clickState = ClickState::WaitingTarget;
+        return;
+    }
 
-    std::cout
-        << "=================================\n"
-        << "HumanAgent Click\n"
-        << "Square : " << static_cast<int>(clickedSquare) << '\n'
-        << "Row    : " << static_cast<int>(clickedSquare / 8) << '\n'
-        << "Col    : " << static_cast<int>(clickedSquare % 8) << '\n'
-        << "=================================\n";
+    pendingMove.from = sourceSquare;
+    pendingMove.to = square;
+
+    hasMove = true;
+    clickState = ClickState::WaitingSource;
 }
 
-bool HumanAgent::hasClick() const
+bool HumanAgent::decide(const GameState&, Move& move)
 {
-    return clicked;
+    if (!hasMove)
+        return false;
+
+    move = pendingMove;
+    hasMove = false;
+    return true;
 }
 
-uint8_t HumanAgent::getClickedSquare() const
-{
-    return clickedSquare;
-}
 
-void HumanAgent::clear()
+
+//====================================================
+// REGISTRY
+//====================================================
+
+namespace
 {
-    clicked = false;
-    clickedSquare = 0;
+    bool registered = []()
+    {
+        AgentRegistry::registerAgent("Human",
+            []() -> std::unique_ptr<Agent>
+            {
+                return std::make_unique<HumanAgent>();
+            });
+
+        return true;
+    }();
 }

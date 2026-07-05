@@ -1,21 +1,33 @@
 #include "ChessGame.h"
 
-#include "MoveGenerator.h"
-#include "MoveFilter.h"
 #include "MoveExecutor.h"
+#include "MoveFilter.h"
+#include "MoveGenerator.h"
+#include "AgentConfig.h"
 
 #include <iostream>
 
+//====================================================
+
 ChessGame::ChessGame()
 {
+    bindPlayers();
     reset();
 }
+
+//====================================================
+
+void ChessGame::bindPlayers()
+{
+    player1 = AgentConfig::getPlayer1();
+    player2 = AgentConfig::getPlayer2();
+}
+
+//====================================================
 
 void ChessGame::reset()
 {
     state.reset();
-
-    whitePlayer.clear();
 
     waitingDestination = false;
     selectedSquare = 0;
@@ -27,56 +39,43 @@ void ChessGame::reset()
 }
 
 //====================================================
-// UPDATE
-//====================================================
 
 void ChessGame::update(float dt)
 {
     (void)dt;
+    playCurrentPlayer();
 }
 
-//====================================================
-// MAIN INPUT (ONLY HUMAN INPUT)
 //====================================================
 
 void ChessGame::onSquareClicked(uint8_t square)
 {
-    if (state.getTurn() != PlayerSide::White)
+    Agent* current =
+        (state.getTurn() == PlayerSide::White)
+            ? player1.get()
+            : player2.get();
+
+    if (!current->isHuman())
         return;
 
-    HumanAgent& player = whitePlayer;
+    current->onSquareClicked(square);
 
-    //------------------------------------------------
-    // FIRST CLICK (SELECT PIECE)
-    //------------------------------------------------
-
+    // =========================
+    // FIRST CLICK: SELECT PIECE
+    // =========================
     if (!waitingDestination)
     {
-        player.onSquareClicked(square);
-
-        if (!player.hasClick())
-            return;
-
-        selectedSquare = player.getClickedSquare();
-
-        player.clear();
+        selectedSquare = square;
 
         moves.clear();
-
-        MoveGenerator::generatePieceMoves(
-            state,
-            selectedSquare,
-            moves
-        );
-
-        MoveFilter::filterLegalMoves(
-            state,
-            moves
-        );
+        MoveGenerator::generatePieceMoves(state, selectedSquare, moves);
+        MoveFilter::filterLegalMoves(state, moves);
 
         if (moves.empty())
         {
+            // pieza sin jugadas válidas → no selección
             selectedSquare = 0;
+            waitingDestination = false;
             return;
         }
 
@@ -84,109 +83,94 @@ void ChessGame::onSquareClicked(uint8_t square)
         return;
     }
 
-    //------------------------------------------------
-    // SECOND CLICK (EXECUTE MOVE)
-    //------------------------------------------------
+    // =========================
+    // SECOND CLICK: EXECUTE ONLY LEGAL MOVE
+    // =========================
 
-    bool executed = false;
-
-    for (const Move& move : moves)
+    for (const Move& m : moves)
     {
-        if (move.to == square)
+        if (m.to == square)
         {
-            MoveExecutor::execute(
-                state,
-                move
-            );
+            MoveExecutor::execute(state, m);
+            updateGameStatus();
 
-            executed = true;
+            waitingDestination = false;
+            selectedSquare = 0;
+            moves.clear();
+            return;
+        }
+    }
+
+    // click inválido → reset seguro
+    waitingDestination = false;
+    selectedSquare = 0;
+    moves.clear();
+}
+
+//====================================================
+
+void ChessGame::playCurrentPlayer()
+{
+    Agent* current =
+        (state.getTurn() == PlayerSide::White)
+            ? player1.get()
+            : player2.get();
+
+    Move move;
+
+    if (!current->decide(state, move))
+        return;
+
+    // 🔥 CRÍTICO: validar contra moves generados si quieres seguridad extra
+    std::vector<Move> legal;
+    MoveGenerator::generateAllMoves(state, legal);
+    MoveFilter::filterLegalMoves(state, legal);
+
+    bool ok = false;
+    for (const Move& m : legal)
+    {
+        if (m.from == move.from && m.to == move.to)
+        {
+            ok = true;
             break;
         }
     }
 
-    moves.clear();
-
-    waitingDestination = false;
-    selectedSquare = 0;
-
-    if (!executed)
+    if (!ok)
         return;
 
-    updateGameStatus();
-
-    if (inCheckmate || inStalemate)
-        return;
-
-    playBlackTurnIfNeeded();
-}
-
-//====================================================
-// BLACK AI TURN
-//====================================================
-
-void ChessGame::playBlackTurnIfNeeded()
-{
-    if (state.getTurn() != PlayerSide::Black)
-        return;
-
-    Move move;
-
-    if (!blackAI.decide(state, move))
-    {
-        updateGameStatus();
-        return;
-    }
-
-    if (!MoveExecutor::execute(state, move))
-    {
-        updateGameStatus();
-        return;
-    }
-
+    MoveExecutor::execute(state, move);
     updateGameStatus();
 }
 
-//====================================================
-// STATUS UPDATE
 //====================================================
 
 void ChessGame::updateGameStatus()
 {
     PlayerSide side = state.getTurn();
 
-    inCheck = MoveFilter::isKingInCheck(
-        state,
-        side
-    );
-
-    inCheckmate = MoveFilter::isCheckmate(
-        state,
-        side
-    );
-
-    inStalemate = MoveFilter::isStalemate(
-        state,
-        side
-    );
+    inCheck = MoveFilter::isKingInCheck(state, side);
+    inCheckmate = MoveFilter::isCheckmate(state, side);
+    inStalemate = MoveFilter::isStalemate(state, side);
 
     if (inCheckmate)
-        std::cout << "STATE: CHECKMATE\n";
+        std::cout << "CHECKMATE\n";
     else if (inCheck)
-        std::cout << "STATE: CHECK\n";
+        std::cout << "CHECK\n";
     else if (inStalemate)
-        std::cout << "STATE: STALEMATE\n";
+        std::cout << "STALEMATE\n";
     else
-        std::cout << "STATE: NORMAL\n";
+        std::cout << "NORMAL\n";
 }
 
-//====================================================
-// GETTERS
 //====================================================
 
 const GameState& ChessGame::getGameState() const
 {
     return state;
 }
+
+//====================================================
 
 bool ChessGame::hasSelection() const
 {
@@ -201,19 +185,4 @@ uint8_t ChessGame::getSelectedSquare() const
 const std::vector<Move>& ChessGame::getMoves() const
 {
     return moves;
-}
-
-bool ChessGame::isCheck() const
-{
-    return inCheck;
-}
-
-bool ChessGame::isCheckmate() const
-{
-    return inCheckmate;
-}
-
-bool ChessGame::isStalemate() const
-{
-    return inStalemate;
 }

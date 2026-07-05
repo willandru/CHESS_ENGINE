@@ -8,7 +8,14 @@ public:
 
     RandomAI();
 
+    //------------------------------------------------
+    // AGENT
+    //------------------------------------------------
+
+    bool isHuman() const override;
+
     bool decide(
         const GameState& state,
-        Move& move) override;
+        Move& move
+    ) override;
 };

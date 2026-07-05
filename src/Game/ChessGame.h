@@ -1,11 +1,11 @@
 #pragma once
 
-#include <vector>
 #include <cstdint>
+#include <vector>
+#include <memory>
 
 #include "GameState.h"
-#include "HumanAgent.h"
-#include "RandomAI.h"
+#include "Agent.h"
 #include "Move.h"
 
 class ChessGame
@@ -14,71 +14,37 @@ public:
 
     ChessGame();
 
-    //------------------------------------------------
-    // GAME
-    //------------------------------------------------
-
     void reset();
     void update(float dt);
 
-    //------------------------------------------------
-    // INPUT
-    //------------------------------------------------
-
     void onSquareClicked(uint8_t square);
-
-    //------------------------------------------------
-    // GETTERS
-    //------------------------------------------------
 
     const GameState& getGameState() const;
 
+    // ===== UI LEGACY (para que compile renderer) =====
     bool hasSelection() const;
     uint8_t getSelectedSquare() const;
-
     const std::vector<Move>& getMoves() const;
-
-    bool isCheck() const;
-    bool isCheckmate() const;
-    bool isStalemate() const;
 
 private:
 
-    //------------------------------------------------
-    // GAME STATE
-    //------------------------------------------------
+    void updateGameStatus();
+    void playCurrentPlayer();
+    void bindPlayers();
+
+private:
 
     GameState state;
 
-    //------------------------------------------------
-    // PLAYERS
-    //------------------------------------------------
+    std::unique_ptr<Agent> player1;
+    std::unique_ptr<Agent> player2;
 
-    HumanAgent whitePlayer;
-    RandomAI   blackAI;
-
-    //------------------------------------------------
-    // HUMAN INTERACTION
-    //------------------------------------------------
-
+    // ===== UI STATE (mínimo necesario) =====
     bool waitingDestination = false;
-
     uint8_t selectedSquare = 0;
-
     std::vector<Move> moves;
-
-    //------------------------------------------------
-    // GAME STATUS
-    //------------------------------------------------
 
     bool inCheck = false;
     bool inCheckmate = false;
     bool inStalemate = false;
-
-    //------------------------------------------------
-    // INTERNAL
-    //------------------------------------------------
-
-    void updateGameStatus();
-    void playBlackTurnIfNeeded();
 };

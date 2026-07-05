@@ -1,53 +1,86 @@
 #include "CaptureAI.h"
+
 #include "MoveGenerator.h"
 #include "MoveFilter.h"
+#include "AgentRegistry.h"
 
 #include <cstdlib>
 #include <ctime>
 
 CaptureAI::CaptureAI()
 {
-    std::srand(static_cast<unsigned>(std::time(nullptr)));
+    std::srand(
+        static_cast<unsigned int>(
+            std::time(nullptr)
+        )
+    );
 }
 
-void CaptureAI::requestMove(const GameState& state)
-{
-    ready = false;
+//====================================================
+// AGENT
+//====================================================
 
+bool CaptureAI::isHuman() const
+{
+    return false;
+}
+
+bool CaptureAI::decide(
+    const GameState& state,
+    Move& move)
+{
     std::vector<Move> moves;
-    MoveGenerator::generateAllMoves(state, moves);
-    MoveFilter::filterLegalMoves(state, moves);
+
+    MoveGenerator::generateAllMoves(
+        state,
+        moves
+    );
+
+    MoveFilter::filterLegalMoves(
+        state,
+        moves
+    );
 
     if (moves.empty())
-        return;
+        return false;
 
-    // 1. buscar capturas primero
+    //------------------------------------------------
+    // Preferir capturas
+    //------------------------------------------------
+
     std::vector<Move> captures;
 
     for (const Move& m : moves)
     {
-        if (m.captured != EMPTY)
+        if (m.isCapture())
             captures.push_back(m);
     }
 
     const std::vector<Move>& pool =
-        captures.empty() ? moves : captures;
+        captures.empty()
+            ? moves
+            : captures;
 
-    selectedMove = pool[std::rand() % pool.size()];
-    ready = true;
+    move =
+        pool[
+            std::rand() %
+            static_cast<int>(pool.size())
+        ];
+
+    return true;
 }
 
-bool CaptureAI::hasMove() const
-{
-    return ready;
-}
 
-Move CaptureAI::getMove() const
+namespace
 {
-    return selectedMove;
-}
+    bool registered = []()
+    {
+        AgentRegistry::registerAgent("CaptureAI",
+            []() -> std::unique_ptr<Agent>
+            {
+                return std::make_unique<CaptureAI>();
+            });
 
-void CaptureAI::clear()
-{
-    ready = false;
+        return true;
+    }();
 }

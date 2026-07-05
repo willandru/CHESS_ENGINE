@@ -1,24 +1,32 @@
 #pragma once
 
-#include <cstdint>
+#include "Agent.h"
 
-class HumanAgent
+class HumanAgent : public Agent
 {
 public:
-
     HumanAgent();
 
-    void onSquareClicked(uint8_t square);
+    bool isHuman() const override;
 
-    bool hasClick() const;
+    void onSquareClicked(uint8_t square) override;
 
-    uint8_t getClickedSquare() const;
-
-    void clear();
+    bool decide(
+        const GameState& state,
+        Move& move
+    ) override;
 
 private:
+    enum class ClickState
+    {
+        WaitingSource,
+        WaitingTarget
+    };
 
-    bool clicked = false;
+    ClickState clickState;
 
-    uint8_t clickedSquare = 0;
+    uint8_t sourceSquare;
+
+    bool hasMove;
+    Move pendingMove;
 };

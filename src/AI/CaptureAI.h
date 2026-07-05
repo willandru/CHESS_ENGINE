@@ -1,24 +1,21 @@
 #pragma once
 
-#include <vector>
-#include <cstdint>
+#include "Agent.h"
 
-#include "GameState.h"
-#include "Move.h"
-
-class CaptureAI
+class CaptureAI : public Agent
 {
 public:
 
     CaptureAI();
-    void requestMove(const GameState& state);
 
-    bool hasMove() const;
-    Move getMove() const;
+    //------------------------------------------------
+    // AGENT
+    //------------------------------------------------
 
-    void clear();
+    bool isHuman() const override;
 
-private:
-    Move selectedMove;
-    bool ready = false;
+    bool decide(
+        const GameState& state,
+        Move& move
+    ) override;
 };
