@@ -1,6 +1,5 @@
 #include "RandomAI.h"
 
-#include "GameState.h"
 #include "MoveGenerator.h"
 #include "MoveFilter.h"
 
@@ -9,38 +8,37 @@
 
 RandomAI::RandomAI()
 {
-    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+    std::srand(
+        static_cast<unsigned int>(
+            std::time(nullptr)
+        )
+    );
 }
 
-void RandomAI::requestMove(const GameState& state)
+bool RandomAI::decide(
+    const GameState& state,
+    Move& move)
 {
-    ready = false;
-
     std::vector<Move> moves;
 
-    MoveGenerator::generateAllMoves(state, moves);
-    MoveFilter::filterLegalMoves(state, moves);
+    MoveGenerator::generateAllMoves(
+        state,
+        moves
+    );
+
+    MoveFilter::filterLegalMoves(
+        state,
+        moves
+    );
 
     if (moves.empty())
-        return;
+        return false;
 
-    int idx = std::rand() % static_cast<int>(moves.size());
+    int index =
+        std::rand() %
+        static_cast<int>(moves.size());
 
-    selectedMove = moves[idx];
-    ready = true;
-}
+    move = moves[index];
 
-bool RandomAI::hasMove() const
-{
-    return ready;
-}
-
-Move RandomAI::getMove() const
-{
-    return selectedMove;
-}
-
-void RandomAI::clear()
-{
-    ready = false;
+    return true;
 }

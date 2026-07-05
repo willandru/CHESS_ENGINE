@@ -21,8 +21,6 @@ void ChessGame::reset()
     selectedSquare = 0;
     moves.clear();
 
-    blackAI.clear();
-
     inCheck = false;
     inCheckmate = false;
     inStalemate = false;
@@ -96,7 +94,11 @@ void ChessGame::onSquareClicked(uint8_t square)
     {
         if (move.to == square)
         {
-            MoveExecutor::execute(state, move);
+            MoveExecutor::execute(
+                state,
+                move
+            );
+
             executed = true;
             break;
         }
@@ -112,6 +114,9 @@ void ChessGame::onSquareClicked(uint8_t square)
 
     updateGameStatus();
 
+    if (inCheckmate || inStalemate)
+        return;
+
     playBlackTurnIfNeeded();
 }
 
@@ -124,17 +129,19 @@ void ChessGame::playBlackTurnIfNeeded()
     if (state.getTurn() != PlayerSide::Black)
         return;
 
-    blackAI.requestMove(state);
+    Move move;
 
-    if (blackAI.hasMove())
+    if (!blackAI.decide(state, move))
     {
-        MoveExecutor::execute(
-            state,
-            blackAI.getMove()
-        );
+        updateGameStatus();
+        return;
     }
 
-    blackAI.clear();
+    if (!MoveExecutor::execute(state, move))
+    {
+        updateGameStatus();
+        return;
+    }
 
     updateGameStatus();
 }
@@ -147,9 +154,20 @@ void ChessGame::updateGameStatus()
 {
     PlayerSide side = state.getTurn();
 
-    inCheck = MoveFilter::isKingInCheck(state, side);
-    inCheckmate = MoveFilter::isCheckmate(state, side);
-    inStalemate = MoveFilter::isStalemate(state, side);
+    inCheck = MoveFilter::isKingInCheck(
+        state,
+        side
+    );
+
+    inCheckmate = MoveFilter::isCheckmate(
+        state,
+        side
+    );
+
+    inStalemate = MoveFilter::isStalemate(
+        state,
+        side
+    );
 
     if (inCheckmate)
         std::cout << "STATE: CHECKMATE\n";

@@ -1,23 +1,14 @@
 #pragma once
 
-#include <cstdint>
-#include "Move.h"
+#include "Agent.h"
 
-class GameState;
-
-class RandomAI
+class RandomAI : public Agent
 {
 public:
+
     RandomAI();
 
-    void requestMove(const GameState& state);
-
-    bool hasMove() const;
-    Move getMove() const;
-
-    void clear(); // <- SOLO ESTO (no reset)
-
-private:
-    Move selectedMove;
-    bool ready = false;
+    bool decide(
+        const GameState& state,
+        Move& move) override;
 };
