@@ -2,29 +2,23 @@
 
 #include <cstdint>
 
-#include "GameState.h"
-
 class HumanAgent
 {
 public:
 
     HumanAgent();
 
-    void onSquareClicked(
-        const GameState& state,
-        uint8_t square);
+    void onSquareClicked(uint8_t square);
 
-    bool hasSelection() const;
+    bool hasClick() const;
 
-    uint8_t getSelectedSquare() const;
-    Piece getSelectedPiece() const;
+    uint8_t getClickedSquare() const;
 
-    void clearSelection();
+    void clear();
 
 private:
 
-    bool selected;
+    bool clicked = false;
 
-    uint8_t selectedSquare;
-    Piece selectedPiece;
+    uint8_t clickedSquare = 0;
 };

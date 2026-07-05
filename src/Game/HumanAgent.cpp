@@ -4,46 +4,35 @@
 
 HumanAgent::HumanAgent()
 {
-    clearSelection();
+    clear();
 }
 
-void HumanAgent::onSquareClicked(
-    const GameState& state,
-    uint8_t square)
+void HumanAgent::onSquareClicked(uint8_t square)
 {
-    selected = true;
-
-    selectedSquare = square;
-    selectedPiece = state.getPiece(square);
+    clicked = true;
+    clickedSquare = square;
 
     std::cout
         << "=================================\n"
-        << "HumanAgent Selection\n"
-        << "Square : " << static_cast<int>(selectedSquare) << '\n'
-        << "Row    : " << static_cast<int>(GameState::getRow(selectedSquare)) << '\n'
-        << "Col    : " << static_cast<int>(GameState::getCol(selectedSquare)) << '\n'
-        << "Piece  : " << static_cast<int>(selectedPiece) << '\n'
+        << "HumanAgent Click\n"
+        << "Square : " << static_cast<int>(clickedSquare) << '\n'
+        << "Row    : " << static_cast<int>(clickedSquare / 8) << '\n'
+        << "Col    : " << static_cast<int>(clickedSquare % 8) << '\n'
         << "=================================\n";
 }
 
-bool HumanAgent::hasSelection() const
+bool HumanAgent::hasClick() const
 {
-    return selected;
+    return clicked;
 }
 
-uint8_t HumanAgent::getSelectedSquare() const
+uint8_t HumanAgent::getClickedSquare() const
 {
-    return selectedSquare;
+    return clickedSquare;
 }
 
-Piece HumanAgent::getSelectedPiece() const
+void HumanAgent::clear()
 {
-    return selectedPiece;
-}
-
-void HumanAgent::clearSelection()
-{
-    selected = false;
-    selectedSquare = 0;
-    selectedPiece = EMPTY;
+    clicked = false;
+    clickedSquare = 0;
 }

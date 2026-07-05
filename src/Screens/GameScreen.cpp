@@ -110,7 +110,7 @@ void GameScreen::update(float dt)
 {
     (void)dt;
 
-    game.update(dt);   // 👈 ESTE ES EL FIX CRÍTICO
+    game.update(dt);   
 
     float mx, my;
     InputMouse::getUIPosition(mx, my);
