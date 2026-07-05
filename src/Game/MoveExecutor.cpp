@@ -1,103 +1,178 @@
 #include "MoveExecutor.h"
+
 #include "ChessRules.h"
-#include <iostream>
+
+#include <cstdlib>
 
 //====================================================
 // EXECUTE MOVE
 //====================================================
 
-bool MoveExecutor::execute(GameState& state, const Move& move)
+MoveExecutor::Undo MoveExecutor::execute(
+    GameState& state,
+    const Move& move)
 {
+    Undo undo;
+
+    undo.captured = state.getPiece(move.to);
+    undo.previousEnPassant = state.getEnPassantSquare();
+    undo.previousTurn = state.getTurn();
+
     Piece piece = state.getPiece(move.from);
 
     if (piece == EMPTY)
-        return false;
-
-    Piece target = state.getPiece(move.to);
+        return undo;
 
     //================================================
-    // RESET EN PASSANT BY DEFAULT
+    // RESET EN PASSANT
     //================================================
-    state.setEnPassantSquare(255);
+
+    state.clearEnPassant();
 
     //================================================
-    // DETECT DOUBLE PAWN PUSH (IMPORTANT)
+    // DOUBLE PAWN PUSH
     //================================================
-    if (piece == WHITE_PAWN || piece == BLACK_PAWN)
+
+    if (piece == WHITE_PAWN ||
+        piece == BLACK_PAWN)
     {
         int fr = GameState::getRow(move.from);
         int tr = GameState::getRow(move.to);
 
-        if (abs(tr - fr) == 2)
+        if (std::abs(tr - fr) == 2)
         {
-            // square intermedio
-            uint8_t epSquare = GameState::getSquare(
-                (fr + tr) / 2,
-                GameState::getCol(move.from)
-            );
+            uint8_t ep =
+                GameState::getSquare(
+                    (fr + tr) / 2,
+                    GameState::getCol(move.from));
 
-            state.setEnPassantSquare(epSquare);
+            state.setEnPassantSquare(ep);
         }
     }
 
     //================================================
-    // APPLY MOVE
+    // NORMAL MOVE
     //================================================
+
     state.setPiece(move.to, piece);
     state.setPiece(move.from, EMPTY);
-
-    const_cast<Move&>(move).captured = target;
 
     //================================================
     // PROMOTION
     //================================================
+
     if (move.isPromotion())
     {
-        state.setPiece(move.to, move.promo);
+        state.setPiece(
+            move.to,
+            move.promo);
     }
 
     //================================================
-    // EN PASSANT CAPTURE
+    // EN PASSANT
     //================================================
+
     if (move.isEnPassant())
     {
-        int dir = ChessRules::pawnDirection(piece);
+        int dir =
+            ChessRules::pawnDirection(piece);
 
-        uint8_t capSquare =
+        uint8_t capturedSquare =
             GameState::getSquare(
                 GameState::getRow(move.to) - dir,
-                GameState::getCol(move.to)
-            );
+                GameState::getCol(move.to));
 
-        state.setPiece(capSquare, EMPTY);
+        undo.captured =
+            state.getPiece(capturedSquare);
+
+        state.setPiece(
+            capturedSquare,
+            EMPTY);
     }
 
     //================================================
-    // CASTLING (unchanged)
+    // CASTLING
     //================================================
+
     if (move.isCastling())
     {
         // TODO
     }
 
     //================================================
-    // SWITCH TURN
+    // NEXT TURN
     //================================================
+
     state.switchTurn();
 
-    return true;
+    return undo;
 }
+
 //====================================================
 // UNDO MOVE
 //====================================================
 
-void MoveExecutor::undo(GameState& state, const Move& move)
+void MoveExecutor::undo(
+    GameState& state,
+    const Move& move,
+    const Undo& undo)
 {
-    Piece moved = state.getPiece(move.to);
+    state.setTurn(undo.previousTurn);
 
-    state.setPiece(move.from, moved);
-    state.setPiece(move.to, move.captured);
+    state.setEnPassantSquare(
+        undo.previousEnPassant);
 
-    // revert turn
-    state.switchTurn();
+    Piece moved =
+        state.getPiece(move.to);
+
+    //================================================
+    // PROMOTION
+    //================================================
+
+    if (move.isPromotion())
+    {
+        moved = ChessRules::isWhitePiece(moved)
+            ? WHITE_PAWN
+            : BLACK_PAWN;
+    }
+
+    state.setPiece(
+        move.from,
+        moved);
+
+    state.setPiece(
+        move.to,
+        undo.captured);
+
+    //================================================
+    // EN PASSANT
+    //================================================
+
+    if (move.isEnPassant())
+    {
+        state.setPiece(
+            move.to,
+            EMPTY);
+
+        int dir =
+            ChessRules::pawnDirection(moved);
+
+        uint8_t capturedSquare =
+            GameState::getSquare(
+                GameState::getRow(move.to) - dir,
+                GameState::getCol(move.to));
+
+        state.setPiece(
+            capturedSquare,
+            undo.captured);
+    }
+
+    //================================================
+    // CASTLING
+    //================================================
+
+    if (move.isCastling())
+    {
+        // TODO
+    }
 }

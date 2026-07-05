@@ -4,105 +4,139 @@
 #include "ChessTypes.h"
 
 //====================================================
-// Move (representación compacta del engine)
+// Move
 //====================================================
 //
-// from / to  -> índice 0..63
-// flags      -> tipo de jugada (bitmask)
-// captured   -> pieza capturada (si aplica)
-// promo      -> pieza de promoción (si aplica)
+// Representa una jugada del motor.
+//
+// Contiene toda la información necesaria para:
+//
+//  • ejecutar un movimiento
+//  • deshacer un movimiento
+//
+// No pertenece a la IA.
+// No representa un nodo del árbol.
 //====================================================
 
 struct Move
 {
+    //------------------------------------------------
+    // MOVE
+    //------------------------------------------------
+
     uint8_t from;
     uint8_t to;
 
+    //------------------------------------------------
+    // TYPE
+    //------------------------------------------------
+
     uint8_t flags;
+
+    //------------------------------------------------
+    // EXECUTION DATA
+    //------------------------------------------------
 
     Piece captured;
     Piece promo;
 
-    //====================================================
-    // FLAGS (bitmask)
-    //====================================================
+    //------------------------------------------------
+    // UNDO DATA
+    //------------------------------------------------
+
+    uint8_t previousEnPassant;
+
+    //------------------------------------------------
+    // FLAGS
+    //------------------------------------------------
 
     enum Flag : uint8_t
     {
-        CAPTURE     = 1 << 0,
-        PROMOTION   = 1 << 1,
-        EN_PASSANT  = 1 << 2,
-        CASTLING    = 1 << 3
+        CAPTURE    = 1 << 0,
+        PROMOTION  = 1 << 1,
+        EN_PASSANT = 1 << 2,
+        CASTLING   = 1 << 3
     };
 
-    //====================================================
+    //------------------------------------------------
     // CONSTRUCTORS
-    //====================================================
+    //------------------------------------------------
 
     Move()
         : from(0),
           to(0),
           flags(0),
           captured(EMPTY),
-          promo(EMPTY)
-    {}
+          promo(EMPTY),
+          previousEnPassant(255)
+    {
+    }
 
-    Move(uint8_t f, uint8_t t)
+    Move(
+        uint8_t f,
+        uint8_t t)
         : from(f),
           to(t),
           flags(0),
           captured(EMPTY),
-          promo(EMPTY)
-    {}
+          promo(EMPTY),
+          previousEnPassant(255)
+    {
+    }
 
-    Move(uint8_t f, uint8_t t, uint8_t fl)
+    Move(
+        uint8_t f,
+        uint8_t t,
+        uint8_t fl)
         : from(f),
           to(t),
           flags(fl),
           captured(EMPTY),
-          promo(EMPTY)
-    {}
-
-    //====================================================
-    // QUERY HELPERS
-    //====================================================
-
-    inline bool isCapture() const
+          promo(EMPTY),
+          previousEnPassant(255)
     {
-        return flags & CAPTURE;
     }
 
-    inline bool isPromotion() const
+    //------------------------------------------------
+    // QUERY
+    //------------------------------------------------
+
+    bool isCapture() const
     {
-        return flags & PROMOTION;
+        return (flags & CAPTURE) != 0;
     }
 
-    inline bool isEnPassant() const
+    bool isPromotion() const
     {
-        return flags & EN_PASSANT;
+        return (flags & PROMOTION) != 0;
     }
 
-    inline bool isCastling() const
+    bool isEnPassant() const
     {
-        return flags & CASTLING;
+        return (flags & EN_PASSANT) != 0;
     }
 
-    inline bool isQuiet() const
+    bool isCastling() const
+    {
+        return (flags & CASTLING) != 0;
+    }
+
+    bool isQuiet() const
     {
         return flags == 0;
     }
 
-    //====================================================
-    // FLAG OPERATIONS
-    //====================================================
+    //------------------------------------------------
+    // FLAGS
+    //------------------------------------------------
 
-    inline void setFlag(Flag f)
+    void setFlag(Flag flag)
     {
-        flags |= f;
+        flags |= flag;
     }
 
-    inline void clearFlag(Flag f)
+    void clearFlag(Flag flag)
     {
-        flags &= ~f;
+        flags &= ~flag;
     }
 };

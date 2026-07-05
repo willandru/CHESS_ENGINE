@@ -2,31 +2,99 @@
 
 #include "MoveGenerator.h"
 #include "MoveFilter.h"
-#include "MoveExecutor.h"
 
-void DecisionTreeEngine::expandNode(
-    const Node& parent,
-    std::vector<Node>& outChildren)
+DecisionTreeEngine::DecisionTreeEngine()
 {
-    outChildren.clear();
+    clear();
+}
+
+//====================================================
+// CLEAR (SOLO UNA VEZ)
+//====================================================
+void DecisionTreeEngine::clear()
+{
+    root = DecisionNode{};
+    visitedNodes = 0;
+    maxDepth = 0;
+}
+
+//====================================================
+// BUILD
+//====================================================
+void DecisionTreeEngine::build(const GameState& state, uint32_t depth)
+{
+    clear();
+
+    GameState copy = state;
+    expand(copy, root, depth);
+}
+
+//====================================================
+// EXPAND (CORE ENGINE)
+//====================================================
+void DecisionTreeEngine::expand(
+    GameState& state,
+    DecisionNode& node,
+    uint32_t depth)
+{
+    ++visitedNodes;
+
+    if (node.depth > maxDepth)
+        maxDepth = node.depth;
+
+    if (depth == 0)
+    {
+        node.terminal = true;
+        return;
+    }
 
     std::vector<Move> moves;
+    MoveGenerator::generateAllMoves(state, moves);
+    MoveFilter::filterLegalMoves(state, moves);
 
-    // 1. generar movimientos desde estado del nodo
-    MoveGenerator::generateAllMoves(parent.state, moves);
-    MoveFilter::filterLegalMoves(parent.state, moves);
+    node.children.reserve(moves.size());
 
-    // 2. crear hijos
-    for (const Move& m : moves)
+    for (const Move& move : moves)
     {
-        Node child;
-        child.state = parent.state;   // copiar estado
-        MoveExecutor::execute(child.state, m);
+        node.children.emplace_back();
+        DecisionNode& child = node.children.back();
 
-        child.move = m;
-        child.parent = -1; // si luego haces árbol real, aquí se asigna índice
-        child.score = 0;
+        child.move = move;
+        child.depth = node.depth + 1;
 
-        outChildren.push_back(child);
+        // APPLY MOVE
+        child.undo = MoveExecutor::execute(state, move);
+
+        // RECURSION
+        expand(state, child, depth - 1);
+
+        // UNDO
+        MoveExecutor::undo(state, move, child.undo);
     }
+}
+
+//====================================================
+// ROOT ACCESS
+//====================================================
+const DecisionNode& DecisionTreeEngine::getRoot() const
+{
+    return root;
+}
+
+DecisionNode& DecisionTreeEngine::getRoot()
+{
+    return root;
+}
+
+//====================================================
+// STATS
+//====================================================
+uint64_t DecisionTreeEngine::getVisitedNodes() const
+{
+    return visitedNodes;
+}
+
+uint32_t DecisionTreeEngine::getMaxDepth() const
+{
+    return maxDepth;
 }

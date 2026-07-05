@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Agent.h"
+#include "DecisionTreeEngine.h"
 
 class RandomAI : public Agent
 {
@@ -18,4 +19,8 @@ public:
         const GameState& state,
         Move& move
     ) override;
+
+private:
+
+    DecisionTreeEngine tree;
 };

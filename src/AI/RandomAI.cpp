@@ -1,15 +1,15 @@
 #include "RandomAI.h"
 
-#include "MoveGenerator.h"
-#include "MoveFilter.h"
 #include "AgentRegistry.h"
 
 #include <cstdlib>
 #include <ctime>
+#include <iostream>
 
 RandomAI::RandomAI()
 {
     static bool seeded = false;
+
     if (!seeded)
     {
         std::srand(static_cast<unsigned>(std::time(nullptr)));
@@ -30,24 +30,35 @@ bool RandomAI::decide(
     const GameState& state,
     Move& move)
 {
-    std::vector<Move> moves;
+    //------------------------------------------------
+    // Build depth-1 tree
+    //------------------------------------------------
 
-    MoveGenerator::generateAllMoves(state, moves);
-    MoveFilter::filterLegalMoves(state, moves);
+    tree.build(state, 1);
 
-    if (moves.empty())
+    const DecisionNode& root = tree.getRoot();
+
+    std::cout << "[DEBUG] Children count: "
+              << root.children.size()
+              << std::endl;
+
+    if (root.children.empty())
         return false;
 
-    int index =
-        std::rand() % static_cast<int>(moves.size());
+    //------------------------------------------------
+    // Pick one child randomly
+    //------------------------------------------------
 
-    move = moves[index];
+    int index =
+        std::rand() % static_cast<int>(root.children.size());
+
+    move = root.children[index].move;
 
     return true;
 }
 
 //====================================================
-// REGISTRATION (MUY IMPORTANTE)
+// REGISTRATION
 //====================================================
 
 namespace
@@ -59,8 +70,7 @@ namespace
             []() -> std::unique_ptr<Agent>
             {
                 return std::make_unique<RandomAI>();
-            }
-        );
+            });
 
         return true;
     }();
