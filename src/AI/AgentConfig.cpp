@@ -1,34 +1,62 @@
 #include "AgentConfig.h"
 
 #include "AgentRegistry.h"
-#include <iostream>
 
-std::string AgentConfig::player1Type = "RandomAI";
-std::string AgentConfig::player2Type = "Human";
+namespace
+{
+    constexpr const char* Human     = "Human";
+    constexpr const char* RandomAI  = "RandomAI";
+    constexpr const char* CaptureAI = "CaptureAI";
+
+    const char* toString(AgentConfig::Player player)
+    {
+        switch (player)
+        {
+        case AgentConfig::Player::Human:
+            return Human;
+
+        case AgentConfig::Player::RandomAI:
+            return RandomAI;
+
+        case AgentConfig::Player::CaptureAI:
+            return CaptureAI;
+        }
+
+        return Human;
+    }
+}
+
+//====================================================
+// STATIC MEMBERS
+//====================================================
+
+AgentConfig::Player AgentConfig::player1;
+AgentConfig::Player AgentConfig::player2;
 
 //====================================================
 
 void AgentConfig::load()
 {
-    // 🔴 simulación de JSON
-    player1Type = "RandomAI";
-    player2Type = "Human";
+    // Configuración actual de la partida
 
-    std::cout << "AgentConfig loaded (SIMULATED)\n";
-    std::cout << "Player1 = " << player1Type << "\n";
-    std::cout << "Player2 = " << player2Type << "\n";
+    player1 = Player::CaptureAI;
+    player2 = Player::CaptureAI;
 }
 
 //====================================================
 
 std::unique_ptr<Agent> AgentConfig::getPlayer1()
 {
-    return AgentRegistry::create(player1Type);
+    return AgentRegistry::create(
+        toString(player1)
+    );
 }
 
 //====================================================
 
 std::unique_ptr<Agent> AgentConfig::getPlayer2()
 {
-    return AgentRegistry::create(player2Type);
+    return AgentRegistry::create(
+        toString(player2)
+    );
 }

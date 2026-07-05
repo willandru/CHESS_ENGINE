@@ -1,19 +1,27 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "Agent.h"
 
 class AgentConfig
 {
 public:
-    static void load(); // simulación (luego JSON real)
+
+    enum class Player
+    {
+        Human,
+        RandomAI,
+        CaptureAI
+    };
+
+    static void load();
 
     static std::unique_ptr<Agent> getPlayer1();
     static std::unique_ptr<Agent> getPlayer2();
 
 private:
-    static std::string player1Type;
-    static std::string player2Type;
+
+    static Player player1;
+    static Player player2;
 };

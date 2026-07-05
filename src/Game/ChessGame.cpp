@@ -11,6 +11,7 @@
 
 ChessGame::ChessGame()
 {
+    AgentConfig::load();
     bindPlayers();
     reset();
 }
@@ -42,7 +43,22 @@ void ChessGame::reset()
 
 void ChessGame::update(float dt)
 {
-    (void)dt;
+    Agent* current =
+        (state.getTurn() == PlayerSide::White)
+            ? player1.get()
+            : player2.get();
+
+    // El humano no necesita temporizador.
+    if (current->isHuman())
+        return;
+
+    aiTimer += dt;
+
+    if (aiTimer < AI_DELAY)
+        return;
+
+    aiTimer = 0.0f;
+
     playCurrentPlayer();
 }
 
@@ -92,6 +108,7 @@ void ChessGame::onSquareClicked(uint8_t square)
         if (m.to == square)
         {
             MoveExecutor::execute(state, m);
+            aiTimer = 0.0f;
             updateGameStatus();
 
             waitingDestination = false;
@@ -121,7 +138,6 @@ void ChessGame::playCurrentPlayer()
     if (!current->decide(state, move))
         return;
 
-    // 🔥 CRÍTICO: validar contra moves generados si quieres seguridad extra
     std::vector<Move> legal;
     MoveGenerator::generateAllMoves(state, legal);
     MoveFilter::filterLegalMoves(state, legal);

@@ -47,4 +47,7 @@ private:
     bool inCheck = false;
     bool inCheckmate = false;
     bool inStalemate = false;
+
+    float aiTimer = 0.0f;
+    static constexpr float AI_DELAY = 0.3f;
 };
