@@ -1,26 +1,51 @@
 #pragma once
 
+#include <cstdint>
 #include <vector>
+
+#include "GameState.h"
 #include "Move.h"
 #include "MoveExecutor.h"
 
 struct DecisionNode
 {
-    // Movimiento que llevó a este nodo desde su padre
+    //------------------------------------------------
+    // Move that generated this node
+    //------------------------------------------------
+
     Move move;
 
-    // Undo mínimo del movimiento aplicado
+    //------------------------------------------------
+    // Information required to restore the position
+    //------------------------------------------------
+
     MoveExecutor::Undo undo;
 
-    // Árbol
+    //------------------------------------------------
+    // Child nodes
+    //------------------------------------------------
+
     std::vector<DecisionNode> children;
 
-    // Estructura
-    int depth = 0;
+    //------------------------------------------------
+    // Search information
+    //------------------------------------------------
 
-    // Evaluación estática o de minimax
+    uint32_t depth = 0;
+
     float evaluation = 0.0f;
 
-    // Flags opcionales (útiles en engines reales)
-    bool terminal = false;   // checkmate / draw / leaf
+    //------------------------------------------------
+    // Position information
+    //------------------------------------------------
+
+    PlayerSide sideToMove = PlayerSide::White;
+
+    bool terminal = false;
+
+    bool inCheck = false;
+
+    bool checkmate = false;
+
+    bool stalemate = false;
 };

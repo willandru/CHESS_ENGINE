@@ -1,16 +1,12 @@
 #pragma once
 
 #include "Agent.h"
+#include "DecisionTreeEngine.h"
 
 class CaptureAI : public Agent
 {
 public:
-
     CaptureAI();
-
-    //------------------------------------------------
-    // AGENT
-    //------------------------------------------------
 
     bool isHuman() const override;
 
@@ -18,4 +14,7 @@ public:
         const GameState& state,
         Move& move
     ) override;
+
+private:
+    DecisionTreeEngine tree;
 };

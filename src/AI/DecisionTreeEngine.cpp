@@ -3,17 +3,23 @@
 #include "MoveGenerator.h"
 #include "MoveFilter.h"
 
+//====================================================
+// CONSTRUCTOR
+//====================================================
+
 DecisionTreeEngine::DecisionTreeEngine()
 {
     clear();
 }
 
 //====================================================
-// CLEAR (SOLO UNA VEZ)
+// CLEAR
 //====================================================
+
 void DecisionTreeEngine::clear()
 {
     root = DecisionNode{};
+
     visitedNodes = 0;
     maxDepth = 0;
 }
@@ -21,80 +27,159 @@ void DecisionTreeEngine::clear()
 //====================================================
 // BUILD
 //====================================================
-void DecisionTreeEngine::build(const GameState& state, uint32_t depth)
+
+void DecisionTreeEngine::build(
+    const GameState& state,
+    uint32_t depth)
 {
     clear();
 
     GameState copy = state;
+
+    root.sideToMove = copy.getTurn();
+
     expand(copy, root, depth);
 }
 
 //====================================================
-// EXPAND (CORE ENGINE)
+// EXPAND
 //====================================================
+
 void DecisionTreeEngine::expand(
     GameState& state,
     DecisionNode& node,
-    uint32_t depth)
+    uint32_t remainingDepth)
 {
     ++visitedNodes;
 
     if (node.depth > maxDepth)
         maxDepth = node.depth;
 
-    if (depth == 0)
+    node.sideToMove = state.getTurn();
+
+    node.inCheck =
+        MoveFilter::isKingInCheck(
+            state,
+            state.getTurn());
+
+    //------------------------------------------------
+    // Stop by depth
+    //------------------------------------------------
+
+    if (remainingDepth == 0)
     {
         node.terminal = true;
         return;
     }
 
+    //------------------------------------------------
+    // Generate legal moves
+    //------------------------------------------------
+
     std::vector<Move> moves;
-    MoveGenerator::generateAllMoves(state, moves);
-    MoveFilter::filterLegalMoves(state, moves);
+
+    MoveGenerator::generateAllMoves(
+        state,
+        moves);
+
+    MoveFilter::filterLegalMoves(
+        state,
+        moves);
+
+    //------------------------------------------------
+    // No legal moves
+    //------------------------------------------------
+
+    if (moves.empty())
+    {
+        node.terminal = true;
+
+        node.checkmate =
+            MoveFilter::isCheckmate(
+                state,
+                state.getTurn());
+
+        node.stalemate =
+            MoveFilter::isStalemate(
+                state,
+                state.getTurn());
+
+        return;
+    }
+
+    //------------------------------------------------
+    // Expand children
+    //------------------------------------------------
 
     node.children.reserve(moves.size());
 
     for (const Move& move : moves)
     {
         node.children.emplace_back();
-        DecisionNode& child = node.children.back();
+
+        DecisionNode& child =
+            node.children.back();
 
         child.move = move;
         child.depth = node.depth + 1;
 
-        // APPLY MOVE
-        child.undo = MoveExecutor::execute(state, move);
+        //------------------------------------------------
+        // Apply move
+        //------------------------------------------------
 
-        // RECURSION
-        expand(state, child, depth - 1);
+        child.undo =
+            MoveExecutor::execute(
+                state,
+                move);
 
-        // UNDO
-        MoveExecutor::undo(state, move, child.undo);
+        //------------------------------------------------
+        // Recursive expansion
+        //------------------------------------------------
+
+        expand(
+            state,
+            child,
+            remainingDepth - 1);
+
+        //------------------------------------------------
+        // Restore position
+        //------------------------------------------------
+
+        MoveExecutor::undo(
+            state,
+            move,
+            child.undo);
     }
 }
 
 //====================================================
-// ROOT ACCESS
+// ROOT
 //====================================================
-const DecisionNode& DecisionTreeEngine::getRoot() const
+
+const DecisionNode&
+DecisionTreeEngine::getRoot() const
 {
     return root;
 }
 
-DecisionNode& DecisionTreeEngine::getRoot()
+DecisionNode&
+DecisionTreeEngine::getRoot()
 {
     return root;
 }
 
 //====================================================
-// STATS
+// STATISTICS
 //====================================================
-uint64_t DecisionTreeEngine::getVisitedNodes() const
+
+uint64_t
+DecisionTreeEngine::getVisitedNodes() const
 {
     return visitedNodes;
 }
 
-uint32_t DecisionTreeEngine::getMaxDepth() const
+uint32_t
+DecisionTreeEngine::getMaxDepth() const
 {
     return maxDepth;
 }

@@ -51,6 +51,9 @@ void ChessGame::update(float dt)
     // El humano no necesita temporizador.
     if (current->isHuman())
         return;
+    
+    if (inCheckmate || inStalemate)
+    return;
 
     aiTimer += dt;
 
