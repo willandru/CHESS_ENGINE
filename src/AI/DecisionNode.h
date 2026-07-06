@@ -16,19 +16,19 @@ struct DecisionNode
     Move move;
 
     //------------------------------------------------
-    // Undo information
+    // Information required to restore the position
     //------------------------------------------------
 
     MoveExecutor::Undo undo;
 
     //------------------------------------------------
-    // Tree
+    // Child nodes
     //------------------------------------------------
 
     std::vector<DecisionNode> children;
 
     //------------------------------------------------
-    // Node information
+    // Search information
     //------------------------------------------------
 
     uint32_t depth = 0;
@@ -48,52 +48,4 @@ struct DecisionNode
     bool checkmate = false;
 
     bool stalemate = false;
-};
-
-class DecisionTreeEngine
-{
-public:
-
-    DecisionTreeEngine();
-
-    //------------------------------------------------
-    // Tree
-    //------------------------------------------------
-
-    void build(
-        const GameState& state,
-        uint32_t depth);
-
-    void clear();
-
-    //------------------------------------------------
-    // Root access
-    //------------------------------------------------
-
-    const DecisionNode& getRoot() const;
-
-    DecisionNode& getRoot();
-
-    //------------------------------------------------
-    // Statistics
-    //------------------------------------------------
-
-    uint64_t getVisitedNodes() const;
-
-    uint32_t getMaxDepth() const;
-
-private:
-
-    void expand(
-        GameState& state,
-        DecisionNode& node,
-        uint32_t remainingDepth);
-
-private:
-
-    DecisionNode root;
-
-    uint64_t visitedNodes = 0;
-
-    uint32_t maxDepth = 0;
 };

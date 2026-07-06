@@ -6,6 +6,22 @@
 class MoveExecutor
 {
 public:
-    static bool execute(GameState& state, const Move& move);
-    static void undo(GameState& state, const Move& move);
+
+    struct Undo
+    {
+        Piece captured = EMPTY;
+
+        uint8_t previousEnPassant = 255;
+
+        PlayerSide previousTurn = PlayerSide::White;
+    };
+
+    static Undo execute(
+        GameState& state,
+        const Move& move);
+
+    static void undo(
+        GameState& state,
+        const Move& move,
+        const Undo& undo);
 };

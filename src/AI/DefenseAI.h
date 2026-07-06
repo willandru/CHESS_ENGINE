@@ -3,10 +3,15 @@
 #include "Agent.h"
 #include "DecisionTreeEngine.h"
 
-class CaptureAI : public Agent
+class DefenseAI : public Agent
 {
 public:
-    CaptureAI();
+
+    DefenseAI();
+
+    //------------------------------------------------
+    // Agent
+    //------------------------------------------------
 
     bool isHuman() const override;
 
@@ -16,5 +21,6 @@ public:
     ) override;
 
 private:
+
     DecisionTreeEngine tree;
 };

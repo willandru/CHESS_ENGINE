@@ -1,4 +1,4 @@
-#include "CaptureAI.h"
+#include "DefenseAI.h"
 
 #include "AgentRegistry.h"
 
@@ -7,13 +7,16 @@
 #include <iostream>
 #include <vector>
 
-CaptureAI::CaptureAI()
+DefenseAI::DefenseAI()
 {
     static bool seeded = false;
 
     if (!seeded)
     {
-        std::srand(static_cast<unsigned>(std::time(nullptr)));
+        std::srand(
+            static_cast<unsigned>(
+                std::time(nullptr)));
+
         seeded = true;
     }
 }
@@ -22,27 +25,27 @@ CaptureAI::CaptureAI()
 // AGENT
 //====================================================
 
-bool CaptureAI::isHuman() const
+bool DefenseAI::isHuman() const
 {
     return false;
 }
 
-bool CaptureAI::decide(
+bool DefenseAI::decide(
     const GameState& state,
     Move& move)
 {
     //------------------------------------------------
-    // Search tree
+    // Build search tree
     //
     // Depth 0 : current position
     // Depth 1 : our move
-    // Depth 2 : opponent move
-    // Depth 3 : our reply
+    // Depth 2 : opponent reply
     //------------------------------------------------
 
-    tree.build(state, 3);
+    tree.build(state, 2);
 
-    const DecisionNode& root = tree.getRoot();
+    const DecisionNode& root =
+        tree.getRoot();
 
     if (root.children.empty())
         return false;
@@ -51,114 +54,81 @@ bool CaptureAI::decide(
     // Analysis
     //------------------------------------------------
 
-    std::vector<int> immediateCaptures;
-    std::vector<int> forcedCaptures;
+    std::vector<int> safeMoves;
 
-    uint32_t analysedRootMoves = 0;
     uint32_t analysedEnemyReplies = 0;
-    uint32_t analysedFutureMoves = 0;
+    uint32_t dangerousMoves = 0;
 
     //------------------------------------------------
     // Analyse every legal move
     //------------------------------------------------
 
-    for (size_t i = 0; i < root.children.size(); ++i)
+    for (size_t i = 0;
+         i < root.children.size();
+         ++i)
     {
-        ++analysedRootMoves;
-
-        const DecisionNode& firstMove =
+        const DecisionNode& myMove =
             root.children[i];
-
-        //------------------------------------------------
-        // Immediate capture
-        //------------------------------------------------
-
-        if (firstMove.move.isCapture())
-        {
-            immediateCaptures.push_back(
-                static_cast<int>(i));
-        }
 
         //------------------------------------------------
         // No opponent replies
         //------------------------------------------------
 
-        if (firstMove.children.empty())
+        if (myMove.children.empty())
+        {
+            safeMoves.push_back(
+                static_cast<int>(i));
+
             continue;
+        }
 
         //------------------------------------------------
-        // Verify whether EVERY opponent reply still
-        // allows us to capture on our next move.
+        // Check every opponent reply
         //------------------------------------------------
 
-        bool forced = true;
+        bool safe = true;
 
         for (const DecisionNode& enemyReply :
-             firstMove.children)
+             myMove.children)
         {
             ++analysedEnemyReplies;
 
-            bool captureExists = false;
-
-            for (const DecisionNode& ourReply :
-                 enemyReply.children)
+            if (enemyReply.move.isCapture())
             {
-                ++analysedFutureMoves;
-
-                if (ourReply.move.isCapture())
-                {
-                    captureExists = true;
-                    break;
-                }
-            }
-
-            //--------------------------------------------
-            // Opponent found a defence
-            //--------------------------------------------
-
-            if (!captureExists)
-            {
-                forced = false;
+                safe = false;
                 break;
             }
         }
 
-        if (forced)
+        if (safe)
         {
-            forcedCaptures.push_back(
+            safeMoves.push_back(
                 static_cast<int>(i));
+        }
+        else
+        {
+            ++dangerousMoves;
         }
     }
 
     //------------------------------------------------
-    // Decision
+    // Choose move
     //------------------------------------------------
 
     const char* decision = "RANDOM";
 
-    if (!immediateCaptures.empty())
+    if (!safeMoves.empty())
     {
         int idx =
-            immediateCaptures[
+            safeMoves[
                 std::rand() %
-                immediateCaptures.size()
+                safeMoves.size()
             ];
 
-        move = root.children[idx].move;
+        move =
+            root.children[idx].move;
 
-        decision = "IMMEDIATE";
-    }
-    else if (!forcedCaptures.empty())
-    {
-        int idx =
-            forcedCaptures[
-                std::rand() %
-                forcedCaptures.size()
-            ];
-
-        move = root.children[idx].move;
-
-        decision = "FORCED";
+        decision = "SAFE";
     }
     else
     {
@@ -167,14 +137,16 @@ bool CaptureAI::decide(
             static_cast<int>(
                 root.children.size());
 
-        move = root.children[idx].move;
+        move =
+            root.children[idx].move;
     }
 
     //------------------------------------------------
     // Debug
     //------------------------------------------------
 
-    std::cout << "\n========== CaptureAI ==========\n";
+    std::cout
+        << "\n========== DefenseAI ==========\n";
 
     std::cout
         << "Visited nodes          : "
@@ -188,17 +160,7 @@ bool CaptureAI::decide(
 
     std::cout
         << "Root moves analysed    : "
-        << analysedRootMoves
-        << '\n';
-
-    std::cout
-        << "Immediate captures     : "
-        << immediateCaptures.size()
-        << '\n';
-
-    std::cout
-        << "Forced capture moves   : "
-        << forcedCaptures.size()
+        << root.children.size()
         << '\n';
 
     std::cout
@@ -207,8 +169,13 @@ bool CaptureAI::decide(
         << '\n';
 
     std::cout
-        << "Future moves analysed  : "
-        << analysedFutureMoves
+        << "Safe moves             : "
+        << safeMoves.size()
+        << '\n';
+
+    std::cout
+        << "Dangerous moves        : "
+        << dangerousMoves
         << '\n';
 
     std::cout
@@ -238,10 +205,10 @@ namespace
     const bool registered = []()
     {
         AgentRegistry::registerAgent(
-            "CaptureAI",
+            "DefenseAI",
             []() -> std::unique_ptr<Agent>
             {
-                return std::make_unique<CaptureAI>();
+                return std::make_unique<DefenseAI>();
             });
 
         return true;
