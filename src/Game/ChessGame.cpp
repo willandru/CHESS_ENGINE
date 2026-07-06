@@ -219,23 +219,21 @@ void ChessGame::playCurrentPlayer()
 
     for (const Move& m : legal)
     {
-        if (m.from != move.from || m.to != move.to)
+        if (m.from != move.from)
             continue;
 
+        if (m.to != move.to)
+            continue;
+
+        // Si ambos son promociones, deben promocionar
+        // a la misma pieza.
         if (m.isPromotion())
         {
-            Move autoMove = m;
-            autoMove.promo =
-                (state.getTurn() == PlayerSide::White)
-                    ? WHITE_QUEEN
-                    : BLACK_QUEEN;
+            if (m.promo != move.promo)
+                continue;
+        }
 
-            MoveExecutor::execute(state, autoMove);
-        }
-        else
-        {
-            MoveExecutor::execute(state, m);
-        }
+        MoveExecutor::execute(state, m);
 
         updateGameStatus();
         return;

@@ -95,5 +95,5 @@ private:
     //------------------------------------------------
     float aiTimer = 0.0f;
 
-    static constexpr float AI_DELAY = 0.1f;
+    static constexpr float AI_DELAY = 0.2f;
 };
