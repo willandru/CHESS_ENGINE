@@ -1,4 +1,5 @@
 #include "MoveGenerator.h"
+#include "InitialPosition.h"
 
 //====================================================
 // TURN FILTER (CLAVE DEL DISEÑO)
@@ -190,6 +191,93 @@ void MoveGenerator::generateKing(
 
         moves.push_back(m);
     }
+    generateCastling(state, square, moves);
+}
+
+//====================================================
+// CASTLING (PSEUDO-LEGAL)
+//====================================================
+
+void MoveGenerator::generateCastling(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece king = state.getPiece(square);
+
+    //------------------------------------------------
+    // WHITE
+    //------------------------------------------------
+
+    if (king == WHITE_KING)
+    {
+        // Kingside
+
+        if (state.canCastleKingside(PlayerSide::White))
+        {
+            if (state.getPiece(61) == EMPTY &&
+                state.getPiece(62) == EMPTY)
+            {
+                Move m(square, 62);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        // Queenside
+
+        if (state.canCastleQueenside(PlayerSide::White))
+        {
+            if (state.getPiece(59) == EMPTY &&
+                state.getPiece(58) == EMPTY &&
+                state.getPiece(57) == EMPTY)
+            {
+                Move m(square, 58);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        return;
+    }
+
+    //------------------------------------------------
+    // BLACK
+    //------------------------------------------------
+
+    if (king == BLACK_KING)
+    {
+        // Kingside
+
+        if (state.canCastleKingside(PlayerSide::Black))
+        {
+            if (state.getPiece(5) == EMPTY &&
+                state.getPiece(6) == EMPTY)
+            {
+                Move m(square, 6);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        // Queenside
+
+        if (state.canCastleQueenside(PlayerSide::Black))
+        {
+            if (state.getPiece(3) == EMPTY &&
+                state.getPiece(2) == EMPTY &&
+                state.getPiece(1) == EMPTY)
+            {
+                Move m(square, 2);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+    }
 }
 
 //====================================================
@@ -314,77 +402,152 @@ void MoveGenerator::generatePawn(
 
     int startRow = (p == WHITE_PAWN) ? 6 : 1;
 
+    int promotionRow =
+        (p == WHITE_PAWN)
+        ? InitialPosition::WHITE_PROMOTION_ROW
+        : InitialPosition::BLACK_PROMOTION_ROW;
+
+    Piece promotions[4] =
+    {
+        ChessRules::isWhitePiece(p) ? WHITE_QUEEN  : BLACK_QUEEN,
+        ChessRules::isWhitePiece(p) ? WHITE_ROOK   : BLACK_ROOK,
+        ChessRules::isWhitePiece(p) ? WHITE_BISHOP : BLACK_BISHOP,
+        ChessRules::isWhitePiece(p) ? WHITE_KNIGHT : BLACK_KNIGHT
+    };
+
     //====================================================
     // SINGLE PUSH
     //====================================================
+
     int forward = square + (8 * dir);
 
     if (isInsideBoard(forward) &&
         state.getPiece(forward) == EMPTY)
     {
-        moves.emplace_back(square, forward);
-
-        //================================================
-        // DOUBLE PUSH
-        //================================================
-        int forward2 = square + (16 * dir);
-
-        if (row == startRow &&
-            state.getPiece(forward2) == EMPTY &&
-            state.getPiece(forward) == EMPTY)
+        if (GameState::getRow(forward) == promotionRow)
         {
-            Move m2(square, forward2);
-            moves.push_back(m2);
+            for (Piece promo : promotions)
+            {
+                Move m(square, forward);
+
+                m.setFlag(Move::PROMOTION);
+                m.promo = promo;
+
+                moves.push_back(m);
+            }
+        }
+        else
+        {
+            moves.emplace_back(square, forward);
+
+            //================================================
+            // DOUBLE PUSH
+            //================================================
+
+            int forward2 = square + (16 * dir);
+
+            if (row == startRow &&
+                state.getPiece(forward2) == EMPTY)
+            {
+                Move m2(square, forward2);
+                moves.push_back(m2);
+            }
         }
     }
 
     //====================================================
     // NORMAL CAPTURES
     //====================================================
+
     int left  = square + (8 * dir) - 1;
     int right = square + (8 * dir) + 1;
 
-    if (isInsideBoard(left) && isValidPawnCapture(square, left))
+    if (isInsideBoard(left) &&
+        isValidPawnCapture(square, left))
     {
         Piece t = state.getPiece(left);
+
         if (isEnemy(p, t))
         {
-            Move m(square, left);
-            m.setFlag(Move::CAPTURE);
-            moves.push_back(m);
+            if (GameState::getRow(left) == promotionRow)
+            {
+                for (Piece promo : promotions)
+                {
+                    Move m(square, left);
+
+                    m.setFlag(Move::CAPTURE);
+                    m.setFlag(Move::PROMOTION);
+
+                    m.promo = promo;
+
+                    moves.push_back(m);
+                }
+            }
+            else
+            {
+                Move m(square, left);
+
+                m.setFlag(Move::CAPTURE);
+
+                moves.push_back(m);
+            }
         }
     }
 
-    if (isInsideBoard(right) && isValidPawnCapture(square, right))
+    if (isInsideBoard(right) &&
+        isValidPawnCapture(square, right))
     {
         Piece t = state.getPiece(right);
+
         if (isEnemy(p, t))
         {
-            Move m(square, right);
-            m.setFlag(Move::CAPTURE);
-            moves.push_back(m);
+            if (GameState::getRow(right) == promotionRow)
+            {
+                for (Piece promo : promotions)
+                {
+                    Move m(square, right);
+
+                    m.setFlag(Move::CAPTURE);
+                    m.setFlag(Move::PROMOTION);
+
+                    m.promo = promo;
+
+                    moves.push_back(m);
+                }
+            }
+            else
+            {
+                Move m(square, right);
+
+                m.setFlag(Move::CAPTURE);
+
+                moves.push_back(m);
+            }
         }
     }
 
     //====================================================
-    // EN PASSANT (FIXED LOGIC)
+    // EN PASSANT
     //====================================================
+
     int epSquare = state.getEnPassantSquare();
 
     if (epSquare != 255)
     {
-        int epRow = epSquare >> 3;
         int epCol = epSquare & 7;
 
-        // el peón atacante debe estar en la fila correcta
-        bool validRank = (row == (p == WHITE_PAWN ? 3 : 4));
+        bool validRank =
+            (row == (p == WHITE_PAWN ? 3 : 4));
 
         if (validRank)
         {
-            if (col - 1 == epCol || col + 1 == epCol)
+            if (col - 1 == epCol ||
+                col + 1 == epCol)
             {
                 Move m(square, epSquare);
+
                 m.setFlag(Move::EN_PASSANT);
+
                 moves.push_back(m);
             }
         }

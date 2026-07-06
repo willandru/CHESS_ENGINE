@@ -22,6 +22,10 @@ void GameState::clear()
     turn = PlayerSide::White;
 
     enPassantSquare = 255;
+
+    castleRights = 0;
+
+    halfMoveClock = 0;
 }
 
 void GameState::reset()
@@ -57,6 +61,10 @@ void GameState::reset()
     turn = PlayerSide::White;
 
     enPassantSquare = 255;
+
+    castleRights = ALL_CASTLING_RIGHTS;
+
+    halfMoveClock = 0;
 }
 
 //====================================================
@@ -71,6 +79,11 @@ Piece GameState::getPiece(uint8_t square) const
 void GameState::setPiece(uint8_t square, Piece piece)
 {
     board[square] = piece;
+}
+
+const Piece* GameState::getBoard() const
+{
+    return board;
 }
 
 //====================================================
@@ -114,6 +127,88 @@ void GameState::clearEnPassant()
 }
 
 //====================================================
+// CASTLING RIGHTS
+//====================================================
+
+uint8_t GameState::getCastleRights() const
+{
+    return castleRights;
+}
+
+void GameState::setCastleRights(uint8_t rights)
+{
+    castleRights = rights;
+}
+
+bool GameState::canCastleKingside(PlayerSide side) const
+{
+    if (side == PlayerSide::White)
+        return (castleRights & WHITE_KINGSIDE) != 0;
+
+    return (castleRights & BLACK_KINGSIDE) != 0;
+}
+
+bool GameState::canCastleQueenside(PlayerSide side) const
+{
+    if (side == PlayerSide::White)
+        return (castleRights & WHITE_QUEENSIDE) != 0;
+
+    return (castleRights & BLACK_QUEENSIDE) != 0;
+}
+
+void GameState::removeKingsideCastle(PlayerSide side)
+{
+    if (side == PlayerSide::White)
+        castleRights &= ~WHITE_KINGSIDE;
+    else
+        castleRights &= ~BLACK_KINGSIDE;
+}
+
+void GameState::removeQueensideCastle(PlayerSide side)
+{
+    if (side == PlayerSide::White)
+        castleRights &= ~WHITE_QUEENSIDE;
+    else
+        castleRights &= ~BLACK_QUEENSIDE;
+}
+
+void GameState::removeAllCastle(PlayerSide side)
+{
+    if (side == PlayerSide::White)
+    {
+        castleRights &= ~(WHITE_KINGSIDE | WHITE_QUEENSIDE);
+    }
+    else
+    {
+        castleRights &= ~(BLACK_KINGSIDE | BLACK_QUEENSIDE);
+    }
+}
+
+//====================================================
+// FIFTY-MOVE RULE
+//====================================================
+
+uint16_t GameState::getHalfMoveClock() const
+{
+    return halfMoveClock;
+}
+
+void GameState::setHalfMoveClock(uint16_t value)
+{
+    halfMoveClock = value;
+}
+
+void GameState::resetHalfMoveClock()
+{
+    halfMoveClock = 0;
+}
+
+void GameState::incrementHalfMoveClock()
+{
+    ++halfMoveClock;
+}
+
+//====================================================
 // COORDINATES
 //====================================================
 
@@ -146,9 +241,4 @@ uint8_t GameState::findKing(PlayerSide side) const
     }
 
     return 255;
-}
-
-const Piece* GameState::getBoard() const
-{
-    return board;
 }

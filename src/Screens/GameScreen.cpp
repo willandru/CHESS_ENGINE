@@ -8,6 +8,7 @@
 #include "BoardView.h"
 #include "ChessRenderer.h"
 #include "ChessPieceRenderer.h"
+#include "PromotionRenderer.h"
 
 extern ScreenManager gScreenManager;
 extern Window gWindow;
@@ -35,10 +36,11 @@ void GameScreen::onEnter()
     game.reset();
 
     //-----------------------------------------
-    // PIECES
+    // RENDERERS
     //-----------------------------------------
 
     ChessPieceRenderer::init();
+    PromotionRenderer::init();
 
     //-----------------------------------------
     // BUTTONS
@@ -108,9 +110,7 @@ void GameScreen::onEnter()
 
 void GameScreen::update(float dt)
 {
-    (void)dt;
-
-    game.update(dt);   
+    game.update(dt);
 
     float mx, my;
     InputMouse::getUIPosition(mx, my);
@@ -129,16 +129,39 @@ void GameScreen::update(float dt)
         gWindow.getWindowHeight()
     );
 
+    //------------------------------------------------
+    // PROMOTION UI
+    //------------------------------------------------
+    if (game.isPromotionPending())
+    {
+        uint8_t option =
+            PromotionRenderer::pickOption(mx, my, view);
+
+        if (option != 255)
+        {
+            game.onPromotionSelected(option);
+        }
+
+        return;
+    }
+
+    //------------------------------------------------
+    // BOARD INPUT
+    //------------------------------------------------
     if (mx < view.x ||
         mx >= view.x + view.size ||
         my < view.y ||
         my >= view.y + view.size)
         return;
 
-    uint8_t col = (uint8_t)((mx - view.x) / view.squareSize);
-    uint8_t row = (uint8_t)((my - view.y) / view.squareSize);
+    uint8_t col =
+        (uint8_t)((mx - view.x) / view.squareSize);
 
-    uint8_t square = GameState::getSquare(row, col);
+    uint8_t row =
+        (uint8_t)((my - view.y) / view.squareSize);
+
+    uint8_t square =
+        GameState::getSquare(row, col);
 
     game.onSquareClicked(square);
 }
@@ -158,5 +181,6 @@ void GameScreen::render()
 
 void GameScreen::onExit()
 {
+    PromotionRenderer::shutdown();
     ChessPieceRenderer::shutdown();
 }

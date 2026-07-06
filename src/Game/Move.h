@@ -55,7 +55,7 @@ struct Move
         CAPTURE    = 1 << 0,
         PROMOTION  = 1 << 1,
         EN_PASSANT = 1 << 2,
-        CASTLING   = 1 << 3
+        CASTLE     = 1 << 3
     };
 
     //------------------------------------------------
@@ -116,9 +116,9 @@ struct Move
         return (flags & EN_PASSANT) != 0;
     }
 
-    bool isCastling() const
+    bool isCastle() const
     {
-        return (flags & CASTLING) != 0;
+        return (flags & CASTLE) != 0;
     }
 
     bool isQuiet() const

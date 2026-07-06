@@ -52,8 +52,8 @@ void AgentConfig::load()
 {
     // Configuración actual de la partida
 
-    player1 = Player::CaptureDefenseAI;
-    player2 = Player::RandomAI;
+    player1 = Player::DefenseCaptureAI;
+    player2 = Player::CaptureDefenseAI;
 }
 
 //====================================================

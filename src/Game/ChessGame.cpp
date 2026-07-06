@@ -34,26 +34,34 @@ void ChessGame::reset()
     selectedSquare = 0;
     moves.clear();
 
+    promotionPending = false;
+    promotionMoves.clear();
+    promotionSide = 0;
+
     inCheck = false;
     inCheckmate = false;
     inStalemate = false;
+
+    aiTimer = 0.0f;
 }
 
 //====================================================
 
 void ChessGame::update(float dt)
 {
+    if (promotionPending)
+        return;
+
+    if (inCheckmate || inStalemate)
+        return;
+
     Agent* current =
         (state.getTurn() == PlayerSide::White)
             ? player1.get()
             : player2.get();
 
-    // El humano no necesita temporizador.
-    if (current->isHuman())
+    if (!current || current->isHuman())
         return;
-    
-    if (inCheckmate || inStalemate)
-    return;
 
     aiTimer += dt;
 
@@ -69,19 +77,25 @@ void ChessGame::update(float dt)
 
 void ChessGame::onSquareClicked(uint8_t square)
 {
+    if (promotionPending)
+        return;
+
+    if (inCheckmate || inStalemate)
+        return;
+
     Agent* current =
         (state.getTurn() == PlayerSide::White)
             ? player1.get()
             : player2.get();
 
-    if (!current->isHuman())
+    if (!current || !current->isHuman())
         return;
 
     current->onSquareClicked(square);
 
-    // =========================
-    // FIRST CLICK: SELECT PIECE
-    // =========================
+    //------------------------------------------------
+    // FIRST CLICK
+    //------------------------------------------------
     if (!waitingDestination)
     {
         selectedSquare = square;
@@ -92,9 +106,8 @@ void ChessGame::onSquareClicked(uint8_t square)
 
         if (moves.empty())
         {
-            // pieza sin jugadas válidas → no selección
-            selectedSquare = 0;
             waitingDestination = false;
+            selectedSquare = 0;
             return;
         }
 
@@ -102,29 +115,88 @@ void ChessGame::onSquareClicked(uint8_t square)
         return;
     }
 
-    // =========================
-    // SECOND CLICK: EXECUTE ONLY LEGAL MOVE
-    // =========================
-
+    //------------------------------------------------
+    // SECOND CLICK
+    //------------------------------------------------
     for (const Move& m : moves)
     {
-        if (m.to == square)
-        {
-            MoveExecutor::execute(state, m);
-            aiTimer = 0.0f;
-            updateGameStatus();
+        if (m.to != square)
+            continue;
 
-            waitingDestination = false;
-            selectedSquare = 0;
-            moves.clear();
+        //------------------------------------------------
+        // PROMOTION
+        //------------------------------------------------
+        if (m.isPromotion())
+        {
+            promotionPending = true;
+            promotionMoves.clear();
+
+            // 🔥 SNAPSHOT DEL LADO EN EL MOMENTO EXACTO
+            promotionSide = (state.getTurn() == PlayerSide::White) ? 0 : 1;
+
+            Move base = m;
+            base.setFlag(Move::PROMOTION);
+
+            PlayerSide side = state.getTurn();
+
+            Piece options[4] =
+            {
+                (side == PlayerSide::White ? WHITE_QUEEN  : BLACK_QUEEN),
+                (side == PlayerSide::White ? WHITE_ROOK   : BLACK_ROOK),
+                (side == PlayerSide::White ? WHITE_BISHOP : BLACK_BISHOP),
+                (side == PlayerSide::White ? WHITE_KNIGHT : BLACK_KNIGHT)
+            };
+
+            for (int i = 0; i < 4; i++)
+            {
+                Move pm = base;
+                pm.promo = options[i];
+                promotionMoves.push_back(pm);
+            }
+
             return;
         }
+
+        //------------------------------------------------
+        // NORMAL MOVE
+        //------------------------------------------------
+        MoveExecutor::execute(state, m);
+
+        waitingDestination = false;
+        selectedSquare = 0;
+        moves.clear();
+
+        updateGameStatus();
+        return;
     }
 
-    // click inválido → reset seguro
+    //------------------------------------------------
+    // INVALID CLICK RESET
+    //------------------------------------------------
     waitingDestination = false;
     selectedSquare = 0;
     moves.clear();
+}
+
+//====================================================
+
+void ChessGame::onPromotionSelected(uint8_t option)
+{
+    if (!promotionPending)
+        return;
+
+    if (option >= promotionMoves.size())
+        return;
+
+    MoveExecutor::execute(state, promotionMoves[option]);
+
+    promotionPending = false;
+    promotionMoves.clear();
+
+    waitingDestination = false;
+    selectedSquare = 0;
+
+    updateGameStatus();
 }
 
 //====================================================
@@ -136,6 +208,9 @@ void ChessGame::playCurrentPlayer()
             ? player1.get()
             : player2.get();
 
+    if (!current)
+        return;
+
     Move move;
 
     if (!current->decide(state, move))
@@ -145,21 +220,27 @@ void ChessGame::playCurrentPlayer()
     MoveGenerator::generateAllMoves(state, legal);
     MoveFilter::filterLegalMoves(state, legal);
 
-    bool ok = false;
     for (const Move& m : legal)
     {
-        if (m.from == move.from && m.to == move.to)
+        if (m.from != move.from)
+            continue;
+
+        if (m.to != move.to)
+            continue;
+
+        // Si ambos son promociones, deben promocionar
+        // a la misma pieza.
+        if (m.isPromotion())
         {
-            ok = true;
-            break;
+            if (m.promo != move.promo)
+                continue;
         }
-    }
 
-    if (!ok)
+        MoveExecutor::execute(state, m);
+
+        updateGameStatus();
         return;
-
-    MoveExecutor::execute(state, move);
-    updateGameStatus();
+    }
 }
 
 //====================================================
@@ -168,40 +249,66 @@ void ChessGame::updateGameStatus()
 {
     PlayerSide side = state.getTurn();
 
-    inCheck = MoveFilter::isKingInCheck(state, side);
-    inCheckmate = MoveFilter::isCheckmate(state, side);
-    inStalemate = MoveFilter::isStalemate(state, side);
+    //------------------------------------------------
+    // 50-MOVE RULE
+    //------------------------------------------------
+
+    if (state.getHalfMoveClock() >= 100)
+    {
+        std::cout
+            << "50-MOVE RULE: STALEMATE"
+            << std::endl;
+
+        inCheck = false;
+        inCheckmate = false;
+        inStalemate = true;
+        return;
+
+    }
+
+    //------------------------------------------------
+    // NORMAL STATUS
+    //------------------------------------------------
+
+    inCheck =
+        MoveFilter::isKingInCheck(state, side);
+
+    inCheckmate =
+        MoveFilter::isCheckmate(state, side);
+
+    inStalemate =
+        MoveFilter::isStalemate(state, side);
 
     if (inCheckmate)
+    {
         std::cout << "CHECKMATE\n";
+    }
     else if (inCheck)
+    {
         std::cout << "CHECK\n";
+    }
     else if (inStalemate)
+    {
         std::cout << "STALEMATE\n";
+    }
     else
+    {
         std::cout << "NORMAL\n";
+    }
 }
 
 //====================================================
 
-const GameState& ChessGame::getGameState() const
-{
-    return state;
-}
+const GameState& ChessGame::getGameState() const { return state; }
 
-//====================================================
+bool ChessGame::hasSelection() const { return waitingDestination; }
 
-bool ChessGame::hasSelection() const
-{
-    return waitingDestination;
-}
+uint8_t ChessGame::getSelectedSquare() const { return selectedSquare; }
 
-uint8_t ChessGame::getSelectedSquare() const
-{
-    return selectedSquare;
-}
+const std::vector<Move>& ChessGame::getMoves() const { return moves; }
 
-const std::vector<Move>& ChessGame::getMoves() const
-{
-    return moves;
-}
+bool ChessGame::isPromotionPending() const { return promotionPending; }
+
+const std::vector<Move>& ChessGame::getPromotionMoves() const { return promotionMoves; }
+
+uint8_t ChessGame::getPromotionSelectedSide() const { return promotionSide; }

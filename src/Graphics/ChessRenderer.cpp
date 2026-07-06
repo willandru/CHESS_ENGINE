@@ -1,18 +1,20 @@
 #include "ChessRenderer.h"
 
 #include "ChessGame.h"
-
 #include "ChessBoardRenderer.h"
 #include "ChessPieceRenderer.h"
 #include "HighlightRenderer.h"
+#include "PromotionRenderer.h"
 
 #include "BoardView.h"
 #include "Window.h"
-
 #include "MoveFilter.h"
 
 extern Window gWindow;
 
+//====================================================
+// MAIN RENDER PIPELINE
+//====================================================
 void ChessRenderer::render(
     Shader& boardShader,
     Shader& pieceShader,
@@ -26,12 +28,12 @@ void ChessRenderer::render(
     );
 
     //------------------------------------------------
-    // BOARD
+    // 1. BOARD
     //------------------------------------------------
     ChessBoardRenderer::render(boardShader);
 
     //------------------------------------------------
-    // GAME STATUS
+    // 2. CHECK / MATE VISUALIZATION
     //------------------------------------------------
     PlayerSide side = state.getTurn();
 
@@ -40,9 +42,6 @@ void ChessRenderer::render(
 
     uint8_t kingSq = state.findKing(side);
 
-    //------------------------------------------------
-    // CHECK / CHECKMATE HIGHLIGHT
-    //------------------------------------------------
     if (kingSq != 255)
     {
         if (inMate)
@@ -50,7 +49,7 @@ void ChessRenderer::render(
             HighlightRenderer::render(
                 boardShader,
                 kingSq,
-                1.0f, 0.0f, 0.0f,   // rojo
+                1.0f, 0.0f, 0.0f,
                 view
             );
         }
@@ -59,16 +58,16 @@ void ChessRenderer::render(
             HighlightRenderer::render(
                 boardShader,
                 kingSq,
-                0.0f, 0.4f, 1.0f,   // azul
+                0.0f, 0.4f, 1.0f,
                 view
             );
         }
     }
 
     //------------------------------------------------
-    // SELECTED SQUARE + LEGAL MOVES
+    // 3. PIECE SELECTION (DISABLED DURING PROMOTION)
     //------------------------------------------------
-    if (game.hasSelection())
+    if (game.hasSelection() && !game.isPromotionPending())
     {
         HighlightRenderer::render(
             boardShader,
@@ -86,16 +85,26 @@ void ChessRenderer::render(
     }
 
     //------------------------------------------------
-    // PIECES
+    // 4. PIECES
     //------------------------------------------------
     const Piece* board = state.getBoard();
 
-    for (uint8_t square = 0; square < 64; ++square)
+    for (uint8_t sq = 0; sq < 64; ++sq)
     {
-        ChessPieceRenderer::render(
+        ChessPieceRenderer::render(pieceShader, board[sq], sq, view);
+    }
+
+    //------------------------------------------------
+    // 5. PROMOTION UI (FINAL LAYER)
+    //------------------------------------------------
+    if (game.isPromotionPending())
+    {
+        // 🔥 IMPORTANTE: usar snapshot, NO estado actual del turno
+        bool whiteSide = (game.getPromotionSelectedSide() == 0);
+
+        PromotionRenderer::render(
             pieceShader,
-            board[square],
-            square,
+            whiteSide,
             view
         );
     }
