@@ -92,7 +92,6 @@ void ChessGame::onSquareClicked(uint8_t square)
 
         if (moves.empty())
         {
-            // pieza sin jugadas válidas → no selección
             selectedSquare = 0;
             waitingDestination = false;
             return;
@@ -103,25 +102,34 @@ void ChessGame::onSquareClicked(uint8_t square)
     }
 
     // =========================
-    // SECOND CLICK: EXECUTE ONLY LEGAL MOVE
+    // SECOND CLICK: EXECUTE MOVE
     // =========================
 
     for (const Move& m : moves)
     {
-        if (m.to == square)
-        {
-            MoveExecutor::execute(state, m);
-            aiTimer = 0.0f;
-            updateGameStatus();
+        if (m.to != square)
+            continue;
 
-            waitingDestination = false;
-            selectedSquare = 0;
-            moves.clear();
-            return;
+        // Promoción automática a dama.
+        if (m.isPromotion() &&
+            m.promo != WHITE_QUEEN &&
+            m.promo != BLACK_QUEEN)
+        {
+            continue;
         }
+
+        MoveExecutor::execute(state, m);
+
+        aiTimer = 0.0f;
+        updateGameStatus();
+
+        waitingDestination = false;
+        selectedSquare = 0;
+        moves.clear();
+        return;
     }
 
-    // click inválido → reset seguro
+    // Click inválido
     waitingDestination = false;
     selectedSquare = 0;
     moves.clear();
@@ -145,21 +153,26 @@ void ChessGame::playCurrentPlayer()
     MoveGenerator::generateAllMoves(state, legal);
     MoveFilter::filterLegalMoves(state, legal);
 
-    bool ok = false;
     for (const Move& m : legal)
     {
-        if (m.from == move.from && m.to == move.to)
+        if (m.from != move.from ||
+            m.to != move.to)
         {
-            ok = true;
-            break;
+            continue;
         }
-    }
 
-    if (!ok)
+        // Promoción automática a dama.
+        if (m.isPromotion() &&
+            m.promo != WHITE_QUEEN &&
+            m.promo != BLACK_QUEEN)
+        {
+            continue;
+        }
+
+        MoveExecutor::execute(state, m);
+        updateGameStatus();
         return;
-
-    MoveExecutor::execute(state, move);
-    updateGameStatus();
+    }
 }
 
 //====================================================
