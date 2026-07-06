@@ -39,23 +39,20 @@ add_library(glad
 add_subdirectory(externals/glfw-3.4)
 
 # ==========================================
-# SOURCE FILES
+# SOURCE FILES (ENGINE CORE)
 # ==========================================
 file(GLOB_RECURSE SOURCES
     src/*.cpp
 )
 
 # ==========================================
-# EXECUTABLE
+# EXECUTABLE 1: CHESS ENGINE
 # ==========================================
 add_executable(chess_engine
     main.cpp
     ${SOURCES}
 )
 
-# ==========================================
-# LINK LIBRARIES
-# ==========================================
 target_link_libraries(chess_engine
     PRIVATE
         glad
@@ -63,10 +60,26 @@ target_link_libraries(chess_engine
         opengl32
 )
 
-# ==========================================
-# VISUAL STUDIO WORKING DIR
-# ==========================================
 set_target_properties(chess_engine PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+)
+
+# ==========================================
+# EXECUTABLE 2: RL TRAINER / AGENT SYSTEM
+# ==========================================
+add_executable(rl_trainer
+    main_rl.cpp
+)
+
+# (opcional ahora, futuro RL libs)
+target_link_libraries(rl_trainer
+    PRIVATE
+        glad
+        glfw
+        opengl32
+)
+
+set_target_properties(rl_trainer PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
@@ -79,7 +92,7 @@ file(COPY
 )
 
 # ==========================================
-# ASSETS COPY (CRÍTICO)
+# ASSETS COPY
 # ==========================================
 file(COPY
     "${CMAKE_SOURCE_DIR}/src/Assets"
