@@ -190,6 +190,93 @@ void MoveGenerator::generateKing(
 
         moves.push_back(m);
     }
+    generateCastling(state, square, moves);
+}
+
+//====================================================
+// CASTLING (PSEUDO-LEGAL)
+//====================================================
+
+void MoveGenerator::generateCastling(
+    const GameState& state,
+    uint8_t square,
+    std::vector<Move>& moves)
+{
+    Piece king = state.getPiece(square);
+
+    //------------------------------------------------
+    // WHITE
+    //------------------------------------------------
+
+    if (king == WHITE_KING)
+    {
+        // Kingside
+
+        if (state.canCastleKingside(PlayerSide::White))
+        {
+            if (state.getPiece(61) == EMPTY &&
+                state.getPiece(62) == EMPTY)
+            {
+                Move m(square, 62);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        // Queenside
+
+        if (state.canCastleQueenside(PlayerSide::White))
+        {
+            if (state.getPiece(59) == EMPTY &&
+                state.getPiece(58) == EMPTY &&
+                state.getPiece(57) == EMPTY)
+            {
+                Move m(square, 58);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        return;
+    }
+
+    //------------------------------------------------
+    // BLACK
+    //------------------------------------------------
+
+    if (king == BLACK_KING)
+    {
+        // Kingside
+
+        if (state.canCastleKingside(PlayerSide::Black))
+        {
+            if (state.getPiece(5) == EMPTY &&
+                state.getPiece(6) == EMPTY)
+            {
+                Move m(square, 6);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+
+        // Queenside
+
+        if (state.canCastleQueenside(PlayerSide::Black))
+        {
+            if (state.getPiece(3) == EMPTY &&
+                state.getPiece(2) == EMPTY &&
+                state.getPiece(1) == EMPTY)
+            {
+                Move m(square, 2);
+                m.setFlag(Move::CASTLE);
+
+                moves.push_back(m);
+            }
+        }
+    }
 }
 
 //====================================================

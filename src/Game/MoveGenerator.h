@@ -63,6 +63,11 @@ private:
         uint8_t square,
         std::vector<Move>& moves);
 
+    static void generateCastling(
+        const GameState& state,
+        uint8_t square,
+        std::vector<Move>& moves);
+
 private:
 
     static bool isInsideBoard(int square);

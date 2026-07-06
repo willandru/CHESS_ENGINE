@@ -12,6 +12,7 @@ public:
         Piece captured = EMPTY;
 
         uint8_t previousEnPassant = 255;
+        uint8_t previousCastleRights = 0;
 
         PlayerSide previousTurn = PlayerSide::White;
     };

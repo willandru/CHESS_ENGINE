@@ -1,4 +1,5 @@
 #include "MoveFilter.h"
+
 #include "MoveExecutor.h"
 #include "MoveGenerator.h"
 #include "ChessRules.h"
@@ -6,6 +7,7 @@
 //====================================================
 // FILTER LEGAL MOVES
 //====================================================
+
 void MoveFilter::filterLegalMoves(
     const GameState& state,
     std::vector<Move>& moves)
@@ -17,6 +19,33 @@ void MoveFilter::filterLegalMoves(
 
     for (const Move& m : moves)
     {
+        //------------------------------------------------
+        // SPECIAL CASTLING RULES
+        //------------------------------------------------
+        if (m.isCastle())
+        {
+            // El rey no puede estar actualmente en jaque.
+            if (isKingInCheck(state, side))
+                continue;
+
+            PlayerSide enemy =
+                (side == PlayerSide::White)
+                ? PlayerSide::Black
+                : PlayerSide::White;
+
+            uint8_t middle =
+                (m.to > m.from)
+                ? static_cast<uint8_t>(m.from + 1)
+                : static_cast<uint8_t>(m.from - 1);
+
+            // El rey no puede cruzar una casilla atacada.
+            if (isSquareAttacked(state, middle, enemy))
+                continue;
+        }
+
+        //------------------------------------------------
+        // VERIFY FINAL POSITION
+        //------------------------------------------------
         GameState copy = state;
 
         MoveExecutor::execute(copy, m);
@@ -31,6 +60,7 @@ void MoveFilter::filterLegalMoves(
 //====================================================
 // CHECK
 //====================================================
+
 bool MoveFilter::isKingInCheck(
     const GameState& state,
     PlayerSide side)
@@ -51,6 +81,7 @@ bool MoveFilter::isKingInCheck(
 //====================================================
 // FIND KING
 //====================================================
+
 uint8_t MoveFilter::findKing(
     const GameState& state,
     PlayerSide side)
@@ -72,6 +103,7 @@ uint8_t MoveFilter::findKing(
 //====================================================
 // ATTACK DETECTION
 //====================================================
+
 bool MoveFilter::isSquareAttacked(
     const GameState& state,
     uint8_t square,
@@ -102,6 +134,7 @@ bool MoveFilter::isSquareAttacked(
 //====================================================
 // CHECKMATE
 //====================================================
+
 bool MoveFilter::isCheckmate(
     const GameState& state,
     PlayerSide side)
@@ -110,6 +143,7 @@ bool MoveFilter::isCheckmate(
         return false;
 
     std::vector<Move> moves;
+
     MoveGenerator::generateAllMoves(state, moves);
 
     filterLegalMoves(state, moves);
@@ -120,6 +154,7 @@ bool MoveFilter::isCheckmate(
 //====================================================
 // STALEMATE
 //====================================================
+
 bool MoveFilter::isStalemate(
     const GameState& state,
     PlayerSide side)
@@ -128,6 +163,7 @@ bool MoveFilter::isStalemate(
         return false;
 
     std::vector<Move> moves;
+
     MoveGenerator::generateAllMoves(state, moves);
 
     filterLegalMoves(state, moves);
@@ -136,8 +172,9 @@ bool MoveFilter::isStalemate(
 }
 
 //====================================================
-// GAME STATUS (API FINAL)
+// GAME STATUS
 //====================================================
+
 MoveFilter::GameStateStatus MoveFilter::getGameStatus(
     const GameState& state,
     PlayerSide side)
