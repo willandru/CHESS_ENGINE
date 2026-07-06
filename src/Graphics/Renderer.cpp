@@ -13,7 +13,6 @@ unsigned int Renderer::vbo = 0;
 
 bool Renderer::init()
 {
-    // BLENDING (CRÍTICO PARA PNG)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -39,7 +38,6 @@ bool Renderer::init()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
     return true;
@@ -63,18 +61,13 @@ void Renderer::beginFrame()
 
 void Renderer::endFrame() {}
 
-void Renderer::drawRect(float x,
-                        float y,
-                        float width,
-                        float height,
-                        float r,
-                        float g,
-                        float b,
+void Renderer::drawRect(float x,float y,float w,float h,
+                        float r,float g,float b,
                         Shader& shader)
 {
     shader.bind();
 
-    shader.setVec4("uRect", x, y, width, height);
+    shader.setVec4("uRect", x, y, w, h);
     shader.setVec2("uScreenSize",
         (float)gWindow.getWindowWidth(),
         (float)gWindow.getWindowHeight());
@@ -88,22 +81,22 @@ void Renderer::drawRect(float x,
     shader.unbind();
 }
 
-void Renderer::drawTextureRect(float x,
-                               float y,
-                               float width,
-                               float height,
+void Renderer::drawTextureRect(float x,float y,float w,float h,
                                Texture& texture,
                                Shader& shader)
 {
     shader.bind();
 
-    shader.setVec4("uRect", x, y, width, height);
+    shader.setVec4("uRect", x, y, w, h);
     shader.setVec2("uScreenSize",
         (float)gWindow.getWindowWidth(),
         (float)gWindow.getWindowHeight());
 
-    texture.bind(0);
+    // 🔥 ORDEN CRÍTICO OPENGL (ESTO SOLUCIONA TU BUG)
     shader.setInt("uTexture", 0);
+
+    glActiveTexture(GL_TEXTURE0);
+    texture.bind(0);
 
     glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 6);

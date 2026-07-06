@@ -1,7 +1,7 @@
 #pragma once
 
 class Shader;
-class Texture;   // SOLO forward declaration
+class Texture;
 
 class Renderer
 {

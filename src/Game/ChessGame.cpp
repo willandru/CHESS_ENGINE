@@ -36,6 +36,7 @@ void ChessGame::reset()
 
     promotionPending = false;
     promotionMoves.clear();
+    promotionSide = 0;
 
     inCheck = false;
     inCheckmate = false;
@@ -51,15 +52,15 @@ void ChessGame::update(float dt)
     if (promotionPending)
         return;
 
+    if (inCheckmate || inStalemate)
+        return;
+
     Agent* current =
         (state.getTurn() == PlayerSide::White)
             ? player1.get()
             : player2.get();
 
-    if (current->isHuman())
-        return;
-
-    if (inCheckmate || inStalemate)
+    if (!current || current->isHuman())
         return;
 
     aiTimer += dt;
@@ -84,14 +85,14 @@ void ChessGame::onSquareClicked(uint8_t square)
             ? player1.get()
             : player2.get();
 
-    if (!current->isHuman())
+    if (!current || !current->isHuman())
         return;
 
     current->onSquareClicked(square);
 
-    //================================================
+    //------------------------------------------------
     // FIRST CLICK
-    //================================================
+    //------------------------------------------------
     if (!waitingDestination)
     {
         selectedSquare = square;
@@ -102,6 +103,7 @@ void ChessGame::onSquareClicked(uint8_t square)
 
         if (moves.empty())
         {
+            waitingDestination = false;
             selectedSquare = 0;
             return;
         }
@@ -110,23 +112,26 @@ void ChessGame::onSquareClicked(uint8_t square)
         return;
     }
 
-    //================================================
+    //------------------------------------------------
     // SECOND CLICK
-    //================================================
+    //------------------------------------------------
     for (const Move& m : moves)
     {
         if (m.to != square)
             continue;
 
-        // PROMOTION TRIGGER
+        //------------------------------------------------
+        // PROMOTION
+        //------------------------------------------------
         if (m.isPromotion())
         {
             promotionPending = true;
             promotionMoves.clear();
 
-            // generar 4 variantes manualmente
-            Move base = m;
+            // 🔥 SNAPSHOT DEL LADO EN EL MOMENTO EXACTO
+            promotionSide = (state.getTurn() == PlayerSide::White) ? 0 : 1;
 
+            Move base = m;
             base.setFlag(Move::PROMOTION);
 
             PlayerSide side = state.getTurn();
@@ -149,6 +154,9 @@ void ChessGame::onSquareClicked(uint8_t square)
             return;
         }
 
+        //------------------------------------------------
+        // NORMAL MOVE
+        //------------------------------------------------
         MoveExecutor::execute(state, m);
 
         waitingDestination = false;
@@ -159,6 +167,9 @@ void ChessGame::onSquareClicked(uint8_t square)
         return;
     }
 
+    //------------------------------------------------
+    // INVALID CLICK RESET
+    //------------------------------------------------
     waitingDestination = false;
     selectedSquare = 0;
     moves.clear();
@@ -194,6 +205,9 @@ void ChessGame::playCurrentPlayer()
             ? player1.get()
             : player2.get();
 
+    if (!current)
+        return;
+
     Move move;
 
     if (!current->decide(state, move))
@@ -210,7 +224,6 @@ void ChessGame::playCurrentPlayer()
 
         if (m.isPromotion())
         {
-            // IA elige dama automáticamente (simple y estable)
             Move autoMove = m;
             autoMove.promo =
                 (state.getTurn() == PlayerSide::White)
@@ -250,8 +263,13 @@ void ChessGame::updateGameStatus()
 const GameState& ChessGame::getGameState() const { return state; }
 
 bool ChessGame::hasSelection() const { return waitingDestination; }
+
 uint8_t ChessGame::getSelectedSquare() const { return selectedSquare; }
+
 const std::vector<Move>& ChessGame::getMoves() const { return moves; }
 
 bool ChessGame::isPromotionPending() const { return promotionPending; }
+
 const std::vector<Move>& ChessGame::getPromotionMoves() const { return promotionMoves; }
+
+uint8_t ChessGame::getPromotionSelectedSide() const { return promotionSide; }

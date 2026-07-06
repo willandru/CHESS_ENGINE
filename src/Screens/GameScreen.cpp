@@ -36,10 +36,11 @@ void GameScreen::onEnter()
     game.reset();
 
     //-----------------------------------------
-    // PIECES
+    // RENDERERS
     //-----------------------------------------
 
     ChessPieceRenderer::init();
+    PromotionRenderer::init();
 
     //-----------------------------------------
     // BUTTONS
@@ -129,7 +130,7 @@ void GameScreen::update(float dt)
     );
 
     //------------------------------------------------
-    // 1. PROMOTION UI PRIORITY
+    // PROMOTION UI
     //------------------------------------------------
     if (game.isPromotionPending())
     {
@@ -141,11 +142,11 @@ void GameScreen::update(float dt)
             game.onPromotionSelected(option);
         }
 
-        return; // bloqueo del input al tablero
+        return;
     }
 
     //------------------------------------------------
-    // 2. CLICK EN TABLERO
+    // BOARD INPUT
     //------------------------------------------------
     if (mx < view.x ||
         mx >= view.x + view.size ||
@@ -153,10 +154,14 @@ void GameScreen::update(float dt)
         my >= view.y + view.size)
         return;
 
-    uint8_t col = (uint8_t)((mx - view.x) / view.squareSize);
-    uint8_t row = (uint8_t)((my - view.y) / view.squareSize);
+    uint8_t col =
+        (uint8_t)((mx - view.x) / view.squareSize);
 
-    uint8_t square = GameState::getSquare(row, col);
+    uint8_t row =
+        (uint8_t)((my - view.y) / view.squareSize);
+
+    uint8_t square =
+        GameState::getSquare(row, col);
 
     game.onSquareClicked(square);
 }
@@ -176,5 +181,6 @@ void GameScreen::render()
 
 void GameScreen::onExit()
 {
+    PromotionRenderer::shutdown();
     ChessPieceRenderer::shutdown();
 }

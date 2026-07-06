@@ -11,6 +11,7 @@ Texture PromotionRenderer::textures[8];
 //====================================================
 // INIT
 //====================================================
+
 bool PromotionRenderer::init()
 {
     bool ok = true;
@@ -22,11 +23,13 @@ bool PromotionRenderer::init()
 
     ok &= textures[4].loadFromFile("Assets/dama_negra.png");
     ok &= textures[5].loadFromFile("Assets/torre_negra.png");
-    ok &= textures[6].loadFromFile("Assets/alfil_negra.png");
+    ok &= textures[6].loadFromFile("Assets/alfil_negro.png");
     ok &= textures[7].loadFromFile("Assets/caballo_negro.png");
 
     if (!ok)
+    {
         std::cerr << "[PromotionRenderer] ERROR loading textures\n";
+    }
 
     return ok;
 }
@@ -34,6 +37,7 @@ bool PromotionRenderer::init()
 //====================================================
 // SHUTDOWN
 //====================================================
+
 void PromotionRenderer::shutdown()
 {
     for (int i = 0; i < 8; ++i)
@@ -43,6 +47,7 @@ void PromotionRenderer::shutdown()
 //====================================================
 // RENDER
 //====================================================
+
 void PromotionRenderer::render(
     Shader& shader,
     bool whiteSide,
@@ -54,41 +59,22 @@ void PromotionRenderer::render(
     float size = view.squareSize * optionSizeScale;
     float spacing = size + view.squareSize * spacingScale;
 
-    std::cout << "[PromotionRenderer] whiteSide = " << whiteSide << "\n";
+    static const int whiteMap[4] = {0, 1, 2, 3};
+    static const int blackMap[4] = {4, 5, 6, 7};
+
+    const int* map = whiteSide ? whiteMap : blackMap;
 
     for (int i = 0; i < 4; ++i)
     {
         float x = baseX;
         float y = baseY + i * spacing - 1.5f * spacing;
 
-        int texIndex;
-
-        if (whiteSide)
-            texIndex = i;       // 0..3
-        else
-            texIndex = i + 4;   // 4..7
-
-        //================================================
-        // HARD SAFETY CHECK (CRITICAL)
-        //================================================
-        if (texIndex < 0 || texIndex >= 8)
-        {
-            std::cerr << "[PromotionRenderer] INVALID texIndex: " << texIndex << "\n";
-            continue;
-        }
-
-        // DEBUG: detectar colapso de textura
-        if (texIndex == 1)
-        {
-            std::cout << "[PromotionRenderer] RENDERING ROOK SLOT\n";
-        }
-
         Renderer::drawTextureRect(
             x,
             y,
             size,
             size,
-            textures[texIndex],
+            textures[map[i]],
             shader
         );
     }
@@ -97,6 +83,7 @@ void PromotionRenderer::render(
 //====================================================
 // PICKING
 //====================================================
+
 uint8_t PromotionRenderer::pickOption(
     float mouseX,
     float mouseY,
@@ -113,14 +100,13 @@ uint8_t PromotionRenderer::pickOption(
         float x = baseX;
         float y = baseY + i * spacing - 1.5f * spacing;
 
-        bool inside =
-            mouseX >= x &&
+        if (mouseX >= x &&
             mouseX <= x + size &&
             mouseY >= y &&
-            mouseY <= y + size;
-
-        if (inside)
+            mouseY <= y + size)
+        {
             return static_cast<uint8_t>(i);
+        }
     }
 
     return 255;

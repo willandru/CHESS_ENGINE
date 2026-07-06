@@ -15,42 +15,43 @@ public:
     ChessGame();
 
     //------------------------------------------------
-    // GAME
+    // GAME LOOP
     //------------------------------------------------
-
     void reset();
     void update(float dt);
 
     //------------------------------------------------
     // INPUT
     //------------------------------------------------
-
     void onSquareClicked(uint8_t square);
     void onPromotionSelected(uint8_t option);
 
     //------------------------------------------------
-    // STATE
+    // STATE ACCESS
     //------------------------------------------------
-
     const GameState& getGameState() const;
 
     //------------------------------------------------
-    // UI
+    // UI SELECTION
     //------------------------------------------------
-
     bool hasSelection() const;
     uint8_t getSelectedSquare() const;
     const std::vector<Move>& getMoves() const;
 
     //------------------------------------------------
-    // PROMOTION
+    // PROMOTION UI
     //------------------------------------------------
-
     bool isPromotionPending() const;
     const std::vector<Move>& getPromotionMoves() const;
 
+    // 🔥 SNAPSHOT DEL LADO (CRÍTICO PARA RENDER)
+    uint8_t getPromotionSelectedSide() const;
+
 private:
 
+    //------------------------------------------------
+    // INTERNAL LOGIC
+    //------------------------------------------------
     void updateGameStatus();
     void playCurrentPlayer();
     void bindPlayers();
@@ -58,45 +59,40 @@ private:
 private:
 
     //------------------------------------------------
-    // GAME STATE
+    // CORE GAME STATE
     //------------------------------------------------
-
     GameState state;
 
     //------------------------------------------------
-    // PLAYERS
+    // PLAYERS (AI / HUMAN)
     //------------------------------------------------
-
     std::unique_ptr<Agent> player1;
     std::unique_ptr<Agent> player2;
 
     //------------------------------------------------
-    // SELECTION
+    // SELECTION STATE
     //------------------------------------------------
-
     bool waitingDestination = false;
     uint8_t selectedSquare = 0;
     std::vector<Move> moves;
 
     //------------------------------------------------
-    // PROMOTION
+    // PROMOTION STATE
     //------------------------------------------------
-
     bool promotionPending = false;
+    uint8_t promotionSide = 0; // 0 = white, 1 = black
     std::vector<Move> promotionMoves;
 
     //------------------------------------------------
-    // GAME STATUS
+    // GAME STATUS FLAGS
     //------------------------------------------------
-
     bool inCheck = false;
     bool inCheckmate = false;
     bool inStalemate = false;
 
     //------------------------------------------------
-    // AI
+    // AI TIMING CONTROL
     //------------------------------------------------
-
     float aiTimer = 0.0f;
 
     static constexpr float AI_DELAY = 0.1f;

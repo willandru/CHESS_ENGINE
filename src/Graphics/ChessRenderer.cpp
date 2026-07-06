@@ -1,7 +1,6 @@
 #include "ChessRenderer.h"
 
 #include "ChessGame.h"
-
 #include "ChessBoardRenderer.h"
 #include "ChessPieceRenderer.h"
 #include "HighlightRenderer.h"
@@ -13,6 +12,9 @@
 
 extern Window gWindow;
 
+//====================================================
+// MAIN RENDER PIPELINE
+//====================================================
 void ChessRenderer::render(
     Shader& boardShader,
     Shader& pieceShader,
@@ -26,12 +28,12 @@ void ChessRenderer::render(
     );
 
     //------------------------------------------------
-    // BOARD
+    // 1. BOARD
     //------------------------------------------------
     ChessBoardRenderer::render(boardShader);
 
     //------------------------------------------------
-    // STATUS (CHECK / MATE)
+    // 2. CHECK / MATE VISUALIZATION
     //------------------------------------------------
     PlayerSide side = state.getTurn();
 
@@ -63,9 +65,9 @@ void ChessRenderer::render(
     }
 
     //------------------------------------------------
-    // PIECE SELECTION UI
+    // 3. PIECE SELECTION (DISABLED DURING PROMOTION)
     //------------------------------------------------
-    if (game.hasSelection())
+    if (game.hasSelection() && !game.isPromotionPending())
     {
         HighlightRenderer::render(
             boardShader,
@@ -83,7 +85,7 @@ void ChessRenderer::render(
     }
 
     //------------------------------------------------
-    // PIECES
+    // 4. PIECES
     //------------------------------------------------
     const Piece* board = state.getBoard();
 
@@ -93,13 +95,16 @@ void ChessRenderer::render(
     }
 
     //------------------------------------------------
-    // PROMOTION UI (OVERLAY FINAL)
+    // 5. PROMOTION UI (FINAL LAYER)
     //------------------------------------------------
     if (game.isPromotionPending())
     {
+        // 🔥 IMPORTANTE: usar snapshot, NO estado actual del turno
+        bool whiteSide = (game.getPromotionSelectedSide() == 0);
+
         PromotionRenderer::render(
             pieceShader,
-            state.getTurn() == PlayerSide::White,
+            whiteSide,
             view
         );
     }
