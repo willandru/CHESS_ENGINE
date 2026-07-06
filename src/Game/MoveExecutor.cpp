@@ -19,11 +19,27 @@ MoveExecutor::Undo MoveExecutor::execute(
     undo.previousEnPassant     = state.getEnPassantSquare();
     undo.previousCastleRights  = state.getCastleRights();
     undo.previousTurn          = state.getTurn();
+    undo.previousHalfMoveClock = state.getHalfMoveClock();
 
     Piece piece = state.getPiece(move.from);
 
     if (piece == EMPTY)
         return undo;
+
+    //================================================
+    // FIFTY-MOVE RULE
+    //================================================
+
+    if (ChessRules::isPawn(piece) ||
+        undo.captured != EMPTY ||
+        move.isEnPassant())
+    {
+        state.resetHalfMoveClock();
+    }
+    else
+    {
+        state.incrementHalfMoveClock();
+    }
 
     //================================================
     // RESET EN PASSANT
@@ -69,7 +85,10 @@ MoveExecutor::Undo MoveExecutor::execute(
             break;
     }
 
-    // Si se captura una torre inicial también se pierde ese derecho.
+    //------------------------------------------------
+    // Si se captura una torre inicial también se pierde
+    // ese derecho de enroque.
+    //------------------------------------------------
 
     switch (undo.captured)
     {
@@ -166,25 +185,21 @@ MoveExecutor::Undo MoveExecutor::execute(
     {
         switch (move.to)
         {
-            // White kingside
             case 62:
                 state.setPiece(61, WHITE_ROOK);
                 state.setPiece(63, EMPTY);
                 break;
 
-            // White queenside
             case 58:
                 state.setPiece(59, WHITE_ROOK);
                 state.setPiece(56, EMPTY);
                 break;
 
-            // Black kingside
             case 6:
                 state.setPiece(5, BLACK_ROOK);
                 state.setPiece(7, EMPTY);
                 break;
 
-            // Black queenside
             case 2:
                 state.setPiece(3, BLACK_ROOK);
                 state.setPiece(0, EMPTY);
@@ -211,6 +226,9 @@ void MoveExecutor::undo(
     const Undo& undo)
 {
     state.setTurn(undo.previousTurn);
+
+    state.setHalfMoveClock(
+        undo.previousHalfMoveClock);
 
     state.setEnPassantSquare(
         undo.previousEnPassant);

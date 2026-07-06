@@ -89,6 +89,17 @@ public:
 
     uint8_t findKing(PlayerSide side) const;
 
+
+    //=========================================
+    // FIFTY-MOVE RULE
+    //=========================================
+
+    uint16_t getHalfMoveClock() const;
+    void setHalfMoveClock(uint16_t value);
+    void resetHalfMoveClock();
+    void incrementHalfMoveClock();
+    
+
 private:
 
     Piece board[64];
@@ -101,4 +112,12 @@ private:
 
     // Derechos de enroque.
     uint8_t castleRights = 0;
+
+    // Regla de los 50 movimientos.
+    // Cuenta medio-movimientos (ply)
+    // desde el último movimiento de peón
+    // o captura.
+    uint16_t halfMoveClock = 0;
+
+
 };

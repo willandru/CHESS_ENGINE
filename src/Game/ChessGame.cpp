@@ -80,6 +80,9 @@ void ChessGame::onSquareClicked(uint8_t square)
     if (promotionPending)
         return;
 
+    if (inCheckmate || inStalemate)
+        return;
+
     Agent* current =
         (state.getTurn() == PlayerSide::White)
             ? player1.get()
@@ -246,14 +249,52 @@ void ChessGame::updateGameStatus()
 {
     PlayerSide side = state.getTurn();
 
-    inCheck = MoveFilter::isKingInCheck(state, side);
-    inCheckmate = MoveFilter::isCheckmate(state, side);
-    inStalemate = MoveFilter::isStalemate(state, side);
+    //------------------------------------------------
+    // 50-MOVE RULE
+    //------------------------------------------------
 
-    if (inCheckmate) std::cout << "CHECKMATE\n";
-    else if (inCheck) std::cout << "CHECK\n";
-    else if (inStalemate) std::cout << "STALEMATE\n";
-    else std::cout << "NORMAL\n";
+    if (state.getHalfMoveClock() >= 100)
+    {
+        std::cout
+            << "50-MOVE RULE: STALEMATE"
+            << std::endl;
+
+        inCheck = false;
+        inCheckmate = false;
+        inStalemate = true;
+        return;
+
+    }
+
+    //------------------------------------------------
+    // NORMAL STATUS
+    //------------------------------------------------
+
+    inCheck =
+        MoveFilter::isKingInCheck(state, side);
+
+    inCheckmate =
+        MoveFilter::isCheckmate(state, side);
+
+    inStalemate =
+        MoveFilter::isStalemate(state, side);
+
+    if (inCheckmate)
+    {
+        std::cout << "CHECKMATE\n";
+    }
+    else if (inCheck)
+    {
+        std::cout << "CHECK\n";
+    }
+    else if (inStalemate)
+    {
+        std::cout << "STALEMATE\n";
+    }
+    else
+    {
+        std::cout << "NORMAL\n";
+    }
 }
 
 //====================================================

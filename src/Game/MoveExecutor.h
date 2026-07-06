@@ -15,6 +15,9 @@ public:
         uint8_t previousCastleRights = 0;
 
         PlayerSide previousTurn = PlayerSide::White;
+
+        // Regla de los 50 movimientos
+        uint16_t previousHalfMoveClock = 0;
     };
 
     static Undo execute(
