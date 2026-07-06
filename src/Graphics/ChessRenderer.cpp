@@ -5,10 +5,10 @@
 #include "ChessBoardRenderer.h"
 #include "ChessPieceRenderer.h"
 #include "HighlightRenderer.h"
+#include "PromotionRenderer.h"
 
 #include "BoardView.h"
 #include "Window.h"
-
 #include "MoveFilter.h"
 
 extern Window gWindow;
@@ -31,7 +31,7 @@ void ChessRenderer::render(
     ChessBoardRenderer::render(boardShader);
 
     //------------------------------------------------
-    // GAME STATUS
+    // STATUS (CHECK / MATE)
     //------------------------------------------------
     PlayerSide side = state.getTurn();
 
@@ -40,9 +40,6 @@ void ChessRenderer::render(
 
     uint8_t kingSq = state.findKing(side);
 
-    //------------------------------------------------
-    // CHECK / CHECKMATE HIGHLIGHT
-    //------------------------------------------------
     if (kingSq != 255)
     {
         if (inMate)
@@ -50,7 +47,7 @@ void ChessRenderer::render(
             HighlightRenderer::render(
                 boardShader,
                 kingSq,
-                1.0f, 0.0f, 0.0f,   // rojo
+                1.0f, 0.0f, 0.0f,
                 view
             );
         }
@@ -59,14 +56,14 @@ void ChessRenderer::render(
             HighlightRenderer::render(
                 boardShader,
                 kingSq,
-                0.0f, 0.4f, 1.0f,   // azul
+                0.0f, 0.4f, 1.0f,
                 view
             );
         }
     }
 
     //------------------------------------------------
-    // SELECTED SQUARE + LEGAL MOVES
+    // PIECE SELECTION UI
     //------------------------------------------------
     if (game.hasSelection())
     {
@@ -90,12 +87,19 @@ void ChessRenderer::render(
     //------------------------------------------------
     const Piece* board = state.getBoard();
 
-    for (uint8_t square = 0; square < 64; ++square)
+    for (uint8_t sq = 0; sq < 64; ++sq)
     {
-        ChessPieceRenderer::render(
+        ChessPieceRenderer::render(pieceShader, board[sq], sq, view);
+    }
+
+    //------------------------------------------------
+    // PROMOTION UI (OVERLAY FINAL)
+    //------------------------------------------------
+    if (game.isPromotionPending())
+    {
+        PromotionRenderer::render(
             pieceShader,
-            board[square],
-            square,
+            state.getTurn() == PlayerSide::White,
             view
         );
     }

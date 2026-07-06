@@ -8,6 +8,7 @@
 #include "BoardView.h"
 #include "ChessRenderer.h"
 #include "ChessPieceRenderer.h"
+#include "PromotionRenderer.h"
 
 extern ScreenManager gScreenManager;
 extern Window gWindow;
@@ -108,9 +109,7 @@ void GameScreen::onEnter()
 
 void GameScreen::update(float dt)
 {
-    (void)dt;
-
-    game.update(dt);   
+    game.update(dt);
 
     float mx, my;
     InputMouse::getUIPosition(mx, my);
@@ -129,6 +128,25 @@ void GameScreen::update(float dt)
         gWindow.getWindowHeight()
     );
 
+    //------------------------------------------------
+    // 1. PROMOTION UI PRIORITY
+    //------------------------------------------------
+    if (game.isPromotionPending())
+    {
+        uint8_t option =
+            PromotionRenderer::pickOption(mx, my, view);
+
+        if (option != 255)
+        {
+            game.onPromotionSelected(option);
+        }
+
+        return; // bloqueo del input al tablero
+    }
+
+    //------------------------------------------------
+    // 2. CLICK EN TABLERO
+    //------------------------------------------------
     if (mx < view.x ||
         mx >= view.x + view.size ||
         my < view.y ||
