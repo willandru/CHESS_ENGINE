@@ -13,7 +13,9 @@ public:
         Human,
         RandomAI,
         CaptureAI,
-        DefenseAI
+        DefenseAI,
+        DefenseCaptureAI,
+        CaptureDefenseAI
     };
 
     static void load();
