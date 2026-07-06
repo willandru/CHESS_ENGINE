@@ -7,6 +7,7 @@ namespace
     constexpr const char* Human     = "Human";
     constexpr const char* RandomAI  = "RandomAI";
     constexpr const char* CaptureAI = "CaptureAI";
+    constexpr const char* DefenseAI = "DefenseAI";
 
     const char* toString(AgentConfig::Player player)
     {
@@ -20,7 +21,11 @@ namespace
 
         case AgentConfig::Player::CaptureAI:
             return CaptureAI;
+        
+        case AgentConfig::Player::DefenseAI:
+            return DefenseAI;
         }
+        
 
         return Human;
     }
@@ -39,8 +44,8 @@ void AgentConfig::load()
 {
     // Configuración actual de la partida
 
-    player1 = Player::Human;
-    player2 = Player::CaptureAI;
+    player1 = Player::CaptureAI;
+    player2 = Player::DefenseAI;
 }
 
 //====================================================

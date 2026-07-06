@@ -12,7 +12,8 @@ public:
     {
         Human,
         RandomAI,
-        CaptureAI
+        CaptureAI,
+        DefenseAI
     };
 
     static void load();
