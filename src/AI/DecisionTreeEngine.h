@@ -64,6 +64,11 @@ public:
         const GameState& state,
         uint32_t depth);
 
+    void build(
+    const GameState& state,
+    uint8_t sourceSquare,
+    uint32_t depth);
+
     void clear();
 
     //------------------------------------------------
