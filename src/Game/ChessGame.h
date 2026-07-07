@@ -7,6 +7,7 @@
 #include "GameState.h"
 #include "Agent.h"
 #include "Move.h"
+#include "ChessAnalyzer.h"
 
 class ChessGame
 {
@@ -44,7 +45,7 @@ public:
     bool isPromotionPending() const;
     const std::vector<Move>& getPromotionMoves() const;
 
-    // 🔥 SNAPSHOT DEL LADO (CRÍTICO PARA RENDER)
+    // Snapshot del lado que promociona
     uint8_t getPromotionSelectedSide() const;
 
 private:
@@ -55,6 +56,11 @@ private:
     void updateGameStatus();
     void playCurrentPlayer();
     void bindPlayers();
+    //------------------------------------------------
+    // POSITION ANALYSIS
+    //------------------------------------------------
+
+    void analyzeCurrentPosition();
 
 private:
 
@@ -62,6 +68,11 @@ private:
     // CORE GAME STATE
     //------------------------------------------------
     GameState state;
+
+    //------------------------------------------------
+    // POSITION ANALYZER
+    //------------------------------------------------
+    ChessAnalyzer analyzer;
 
     //------------------------------------------------
     // PLAYERS (AI / HUMAN)
@@ -96,4 +107,6 @@ private:
     float aiTimer = 0.0f;
 
     static constexpr float AI_DELAY = 0.2f;
+
+
 };

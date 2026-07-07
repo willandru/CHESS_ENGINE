@@ -19,6 +19,7 @@ include_directories(
     src/UI
     src/Game
     src/AI
+    src/Analysis
 
     externals/glad/include
     externals/glfw-3.4/include

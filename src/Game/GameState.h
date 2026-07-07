@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include "ChessTypes.h"
+#include <string>
+
 
 enum class PlayerSide : uint8_t
 {
@@ -98,6 +100,9 @@ public:
     void setHalfMoveClock(uint16_t value);
     void resetHalfMoveClock();
     void incrementHalfMoveClock();
+
+    static std::string squareToNotation(uint8_t square);
+    static uint8_t notationToSquare(const std::string& notation);
     
 
 private:
@@ -121,3 +126,8 @@ private:
 
 
 };
+
+
+
+
+

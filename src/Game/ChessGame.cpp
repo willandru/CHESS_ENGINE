@@ -104,6 +104,12 @@ void ChessGame::onSquareClicked(uint8_t square)
         MoveGenerator::generatePieceMoves(state, selectedSquare, moves);
         MoveFilter::filterLegalMoves(state, moves);
 
+        //------------------------------------------------
+        // ANALYZE CURRENT POSITION
+        //------------------------------------------------
+        analyzeCurrentPosition();
+
+
         if (moves.empty())
         {
             waitingDestination = false;
@@ -156,6 +162,13 @@ void ChessGame::onSquareClicked(uint8_t square)
 
             return;
         }
+
+            std::cout
+        << "Human: "
+        << GameState::squareToNotation(m.from)
+        << " -> "
+        << GameState::squareToNotation(m.to)
+        << '\n';
 
         //------------------------------------------------
         // NORMAL MOVE
@@ -279,6 +292,9 @@ void ChessGame::updateGameStatus()
     inStalemate =
         MoveFilter::isStalemate(state, side);
 
+
+
+
     if (inCheckmate)
     {
         std::cout << "CHECKMATE\n";
@@ -295,6 +311,19 @@ void ChessGame::updateGameStatus()
     {
         std::cout << "NORMAL\n";
     }
+}
+
+//====================================================
+// POSITION ANALYSIS
+//====================================================
+
+void ChessGame::analyzeCurrentPosition()
+{
+
+    analyzer.analyze(
+        state,
+        3,
+        selectedSquare);
 }
 
 //====================================================

@@ -42,6 +42,91 @@ void DecisionTreeEngine::build(
 }
 
 //====================================================
+// BUILD FROM ONE PIECE
+//====================================================
+
+void DecisionTreeEngine::build(
+    const GameState& state,
+    uint8_t sourceSquare,
+    uint32_t depth)
+{
+    clear();
+
+    GameState copy = state;
+
+    root.sideToMove = copy.getTurn();
+
+    //------------------------------------------------
+    // Depth zero
+    //------------------------------------------------
+
+    if (depth == 0)
+    {
+        root.terminal = true;
+        return;
+    }
+
+    //------------------------------------------------
+    // Generate only selected piece moves
+    //------------------------------------------------
+
+    std::vector<Move> moves;
+
+    MoveGenerator::generatePieceMoves(
+        copy,
+        sourceSquare,
+        moves);
+
+    MoveFilter::filterLegalMoves(
+        copy,
+        moves);
+
+    //------------------------------------------------
+    // No legal moves
+    //------------------------------------------------
+
+    if (moves.empty())
+    {
+        root.terminal = true;
+        return;
+    }
+
+    //------------------------------------------------
+    // Expand first level
+    //------------------------------------------------
+
+    root.children.reserve(moves.size());
+
+    for (const Move& move : moves)
+    {
+        root.children.emplace_back();
+
+        DecisionNode& child =
+            root.children.back();
+
+        child.move = move;
+        child.depth = 1;
+
+        child.undo =
+            MoveExecutor::execute(
+                copy,
+                move);
+
+        expand(
+            copy,
+            child,
+            depth - 1);
+
+        MoveExecutor::undo(
+            copy,
+            move,
+            child.undo);
+    }
+}
+
+
+
+//====================================================
 // EXPAND
 //====================================================
 
@@ -55,6 +140,10 @@ void DecisionTreeEngine::expand(
     if (node.depth > maxDepth)
         maxDepth = node.depth;
 
+    //------------------------------------------------
+    // POSITION INFORMATION
+    //------------------------------------------------
+
     node.sideToMove = state.getTurn();
 
     node.inCheck =
@@ -62,8 +151,28 @@ void DecisionTreeEngine::expand(
             state,
             state.getTurn());
 
+    node.checkmate =
+        MoveFilter::isCheckmate(
+            state,
+            state.getTurn());
+
+    node.stalemate =
+        MoveFilter::isStalemate(
+            state,
+            state.getTurn());
+
     //------------------------------------------------
-    // Stop by depth
+    // TERMINAL POSITION
+    //------------------------------------------------
+
+    if (node.checkmate || node.stalemate)
+    {
+        node.terminal = true;
+        return;
+    }
+
+    //------------------------------------------------
+    // STOP BY DEPTH
     //------------------------------------------------
 
     if (remainingDepth == 0)
@@ -73,7 +182,7 @@ void DecisionTreeEngine::expand(
     }
 
     //------------------------------------------------
-    // Generate legal moves
+    // GENERATE LEGAL MOVES
     //------------------------------------------------
 
     std::vector<Move> moves;
@@ -87,28 +196,7 @@ void DecisionTreeEngine::expand(
         moves);
 
     //------------------------------------------------
-    // No legal moves
-    //------------------------------------------------
-
-    if (moves.empty())
-    {
-        node.terminal = true;
-
-        node.checkmate =
-            MoveFilter::isCheckmate(
-                state,
-                state.getTurn());
-
-        node.stalemate =
-            MoveFilter::isStalemate(
-                state,
-                state.getTurn());
-
-        return;
-    }
-
-    //------------------------------------------------
-    // Expand children
+    // EXPAND CHILDREN
     //------------------------------------------------
 
     node.children.reserve(moves.size());
@@ -124,7 +212,7 @@ void DecisionTreeEngine::expand(
         child.depth = node.depth + 1;
 
         //------------------------------------------------
-        // Apply move
+        // APPLY MOVE
         //------------------------------------------------
 
         child.undo =
@@ -133,7 +221,7 @@ void DecisionTreeEngine::expand(
                 move);
 
         //------------------------------------------------
-        // Recursive expansion
+        // RECURSIVE EXPANSION
         //------------------------------------------------
 
         expand(
@@ -142,7 +230,7 @@ void DecisionTreeEngine::expand(
             remainingDepth - 1);
 
         //------------------------------------------------
-        // Restore position
+        // RESTORE POSITION
         //------------------------------------------------
 
         MoveExecutor::undo(

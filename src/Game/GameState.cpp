@@ -1,5 +1,7 @@
 #include "GameState.h"
 #include "InitialPosition.h"
+#include <string>
+
 
 //====================================================
 // INIT
@@ -241,4 +243,25 @@ uint8_t GameState::findKing(PlayerSide side) const
     }
 
     return 255;
+}
+
+
+std::string GameState::squareToNotation(uint8_t square)
+{
+    char file = 'a' + getCol(square);
+    char rank = '8' - getRow(square);
+
+    return std::string{file, rank};
+}
+
+uint8_t GameState::notationToSquare(
+    const std::string& notation)
+{
+    if (notation.size() != 2)
+        return 255;
+
+    uint8_t col = notation[0] - 'a';
+    uint8_t row = '8' - notation[1];
+
+    return getSquare(row, col);
 }
