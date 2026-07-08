@@ -107,7 +107,7 @@ void ChessGame::onSquareClicked(uint8_t square)
         //------------------------------------------------
         // ANALYZE CURRENT POSITION
         //------------------------------------------------
-        analyzeCurrentPosition();
+        //analyzeCurrentPosition();
 
 
         if (moves.empty())
@@ -322,7 +322,7 @@ void ChessGame::analyzeCurrentPosition()
 
     analyzer.analyze(
         state,
-        3,
+        1,
         selectedSquare);
 }
 

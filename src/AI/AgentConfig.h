@@ -15,7 +15,8 @@ public:
         CaptureAI,
         DefenseAI,
         DefenseCaptureAI,
-        CaptureDefenseAI
+        CaptureDefenseAI,
+        RLAgentAI
     };
 
     static void load();
