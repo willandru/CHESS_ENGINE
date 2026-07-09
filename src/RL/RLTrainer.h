@@ -5,71 +5,42 @@
 #include <memory>
 #include <vector>
 #include <string>
-#include <cstdint>
-#include <random>
+
 
 #include "DecisionDL.h"
 
 
+
 //====================================================
-// Reinforcement Learning Transition
+// EPISODE EXPERIENCE
 //
-// Represents one experience:
+// One selected action during a game.
 //
-// (state + action, reward,
-//  next candidate actions, done)
+// The final reward is applied when
+// the game finishes.
 //
 //====================================================
 
-struct RLTransition
+struct RLExperience
 {
-    //------------------------------------------------
-    // Current (state, action)
-    //
-    // Shape:
-    // [1 x inputSize]
-    //------------------------------------------------
 
-    torch::Tensor currentStateAction;
+    torch::Tensor stateAction;
 
-
-    //------------------------------------------------
-    // Candidate actions of next state
-    //
-    // Shape:
-    // [N x inputSize]
-    //------------------------------------------------
-
-    torch::Tensor nextStateActions;
-
-
-    //------------------------------------------------
-    // Immediate reward
-    //------------------------------------------------
-
-    float reward = 0.0f;
-
-
-    //------------------------------------------------
-    // Terminal state
-    //------------------------------------------------
-
-    bool done = false;
 };
 
 
 
+
+
 //====================================================
-// Reinforcement Learning Trainer
+// RL TRAINER
 //
-// Responsibilities:
+// Responsible for:
 //
-// - Experience replay
-// - Bellman target calculation
-// - Network optimization
-// - Action selection policy
-// - Exploration / exploitation control
-// - Model persistence
+// - Storing episode actions
+// - Training after episode result
+// - Updating DecisionDL
+// - Saving/loading model
 //
 //====================================================
 
@@ -96,60 +67,42 @@ public:
 
 
 
+
     //------------------------------------------------
-    // Store experience
+    // Store one action
+    //
+    // Called every move.
+    //
     //------------------------------------------------
 
     void remember(
-        const RLTransition& transition);
+        const torch::Tensor& stateAction);
 
-
-
-    //------------------------------------------------
-    // Train one optimization step
-    //------------------------------------------------
-
-    void trainStep();
 
 
 
     //------------------------------------------------
-    // Action Selection
+    // Train after complete game
     //
-    // Uses ε-greedy policy:
+    // reward:
     //
-    // exploration:
-    // random action
-    //
-    // exploitation:
-    // highest Q value
+    // positive -> victory
+    // negative -> defeat
     //
     //------------------------------------------------
 
-    uint32_t selectAction(
-        const torch::Tensor& candidateStateActions);
+    void trainEpisode(
+        float reward);
 
-
-
-    //------------------------------------------------
-    // Exploration control
-    //------------------------------------------------
-
-    void resetExploration();
-
-
-    float getExplorationRate() const;
 
 
 
     //------------------------------------------------
-    // Replay memory
+    // Clear episode memory
     //------------------------------------------------
 
-    void clearReplayMemory();
+    void clearEpisode();
 
-
-    std::size_t getReplaySize() const;
 
 
 
@@ -157,54 +110,13 @@ public:
     // Persistence
     //------------------------------------------------
 
-    void saveModel(
-        const std::string& file);
-
-
-    void loadModel(
-        const std::string& file);
+    bool saveModel(
+        const std::string& filename);
 
 
 
-    //------------------------------------------------
-    // Status
-    //------------------------------------------------
-
-    bool isInitialized() const;
-
-
-
-private:
-
-
-    //------------------------------------------------
-    // Bellman target
-    //
-    // target =
-    // reward + gamma * max(Q(next))
-    //
-    //------------------------------------------------
-
-    torch::Tensor computeTarget(
-        const RLTransition& transition);
-
-
-
-    //------------------------------------------------
-    // Policy helpers
-    //------------------------------------------------
-
-    uint32_t greedyAction(
-        const torch::Tensor& candidateStateActions);
-
-
-
-    uint32_t randomAction(
-        uint32_t actionCount);
-
-
-
-    void updateExploration();
+    bool loadModel(
+        const std::string& filename);
 
 
 
@@ -219,74 +131,36 @@ private:
 
 
 
-    //------------------------------------------------
-    // Replay memory
-    //------------------------------------------------
-
-    std::vector<RLTransition> replayBuffer;
-
-
 
     //------------------------------------------------
     // Optimizer
     //------------------------------------------------
 
-    std::unique_ptr<torch::optim::Adam> optimizer;
+    std::unique_ptr<
+        torch::optim::Adam> optimizer;
+
 
 
 
     //------------------------------------------------
-    // Q-Learning Hyperparameters
+    // Current episode
     //------------------------------------------------
 
-    float gamma = 0.99f;
+    std::vector<RLExperience> episode;
 
+
+
+
+    //------------------------------------------------
+    // Hyperparameters
+    //------------------------------------------------
 
     float learningRate = 0.001f;
 
 
 
     //------------------------------------------------
-    // Training parameters
-    //------------------------------------------------
-
-    uint32_t batchSize = 4;
-
-
-    uint32_t replayCapacity = 50000;
-
-
-
-    //------------------------------------------------
-    // ε-Greedy exploration parameters
-    //------------------------------------------------
-
-    // Initial exploration probability
-
-    float epsilon = 0.0f;
-
-
-    // Minimum exploration probability
-
-    float epsilonMin = 0.05f;
-
-
-    // Decay after training steps
-
-    float epsilonDecay = 0.995f;
-
-
-
-    //------------------------------------------------
-    // Random generator
-    //------------------------------------------------
-
-    std::mt19937 rng;
-
-
-
-    //------------------------------------------------
-    // Initialization state
+    // State
     //------------------------------------------------
 
     bool initialized = false;

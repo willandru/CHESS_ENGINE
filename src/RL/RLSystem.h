@@ -1,10 +1,11 @@
 #pragma once
 
+
 #include <torch/torch.h>
 
 #include <memory>
-#include <string>
 #include <vector>
+#include <string>
 #include <cstdint>
 
 
@@ -20,18 +21,16 @@
 #include "FeatureEngineering.h"
 
 
+
 //====================================================
-// Reinforcement Learning System
+// RL SYSTEM
 //
-// Coordinates:
+// Controls reinforcement learning process:
 //
-// - Decision tree generation
-// - Candidate action encoding
-// - Neural network evaluation
-// - Action selection policy
-// - Reward calculation
-// - Experience storage
-// - Training
+// - Generates candidate moves
+// - Uses DecisionDL evaluation
+// - Stores selected actions
+// - Sends episode reward to trainer
 //
 //====================================================
 
@@ -41,43 +40,52 @@ class RLSystem
 public:
 
 
-    //================================================
+    //------------------------------------------------
     // Constructor
-    //================================================
+    //------------------------------------------------
 
     RLSystem();
 
 
 
-    //================================================
-    // Initialize complete RL system
-    //================================================
+    //------------------------------------------------
+    // Initialize RL system
+    //------------------------------------------------
 
     void initialize();
 
 
 
-    //================================================
-    // Episode control
-    //================================================
+    //------------------------------------------------
+    // Start new game episode
+    //------------------------------------------------
 
     void newEpisode();
 
 
 
+    //------------------------------------------------
+    // Finish game episode
+    //
+    // victory:
+    //      true  -> win
+    //      false -> loss
+    //
+    //------------------------------------------------
+
     void finishEpisode(
-        const GameState& state);
+        bool victory);
 
 
 
-    //================================================
-    // Decide action
+    //------------------------------------------------
+    // Decide next move
     //
-    // Generates candidate moves,
-    // selects one using RL policy,
-    // stores transition information.
+    // Generates candidates,
+    // evaluates them,
+    // selects one.
     //
-    //================================================
+    //------------------------------------------------
 
     bool decide(
         const GameState& state,
@@ -85,24 +93,22 @@ public:
 
 
 
-    //================================================
-    // Observe environment
+    //------------------------------------------------
+    // Observe executed move
     //
-    // Called after external engine
-    // executes the selected move.
+    // Stores selected action
+    // into current episode.
     //
-    // Creates transition and trains.
-    //
-    //================================================
+    //------------------------------------------------
 
     void observe(
         const GameState& state);
 
 
 
-    //================================================
+    //------------------------------------------------
     // Training control
-    //================================================
+    //------------------------------------------------
 
     void setTrainingEnabled(
         bool enabled);
@@ -113,22 +119,9 @@ public:
 
 
 
-    //================================================
-    // Exploration
-    //================================================
-
-    void setEpsilon(
-        float value);
-
-
-
-    float getEpsilon() const;
-
-
-
-    //================================================
+    //------------------------------------------------
     // Model persistence
-    //================================================
+    //------------------------------------------------
 
     bool saveModel(
         const std::string& filename);
@@ -140,113 +133,100 @@ public:
 
 
 
+
 private:
 
 
-    //================================================
-    // Generate candidate tensor
+    //------------------------------------------------
+    // Encode candidate moves
     //
-    // Converts DecisionNodes:
+    // DecisionNode[]
     //
-    // [N nodes]
+    // -> Tensor [N x inputSize]
     //
-    // into:
-    //
-    // [N x inputSize]
-    //
-    //================================================
+    //------------------------------------------------
 
     torch::Tensor encodeCandidates(
         const GameState& state);
 
 
 
-    //================================================
-    // Create RL transition
-    //================================================
 
-    void createTransition(
-        const GameState& state);
-
-
-
-    //================================================
-    // Check terminal state
-    //================================================
+    //------------------------------------------------
+    // Check terminal node
+    //------------------------------------------------
 
     bool isTerminal(
         const DecisionNode& node) const;
 
 
 
+
 private:
 
 
-    //================================================
-    // Decision tree generator
-    //================================================
+    //------------------------------------------------
+    // Decision tree
+    //------------------------------------------------
 
     DecisionTreeEngine tree;
 
 
 
-    //================================================
-    // Deep Q Network
-    //================================================
+
+    //------------------------------------------------
+    // Neural network
+    //------------------------------------------------
 
     std::shared_ptr<DecisionDL> decisionDL;
 
 
 
-    //================================================
-    // RL Trainer
-    //
-    // Contains:
-    //
-    // - Replay memory
-    // - Bellman update
-    // - Optimizer
-    // - Epsilon greedy
-    //
-    //================================================
+
+    //------------------------------------------------
+    // Trainer
+    //------------------------------------------------
 
     std::unique_ptr<RLTrainer> trainer;
 
 
 
-    //================================================
-    // Reward system
-    //================================================
+
+    //------------------------------------------------
+    // Reward calculation
+    //------------------------------------------------
 
     RewardSystem rewardSystem;
 
 
 
-    //================================================
-    // Current candidate nodes
-    //
-    // Index correspondence:
-    //
-    // candidates[i]
-    //
-    // tensor[i]
-    //
-    // action i
-    //
-    //================================================
+
+    //------------------------------------------------
+    // Current possible moves
+    //------------------------------------------------
 
     std::vector<DecisionNode> currentCandidates;
 
 
 
-    //================================================
-    // Previous transition data
+
+    //------------------------------------------------
+    // Episode memory
     //
-    // Stored after decide()
+    // Stored by RLTrainer internally.
     //
-    // Consumed by observe()
+    //------------------------------------------------
+
+
+
+
+    //------------------------------------------------
+    // Previous selected action
     //
-    //================================================
+    // Created in decide()
+    // consumed in observe()
+    //
+    //------------------------------------------------
 
     torch::Tensor previousStateAction;
 
@@ -256,29 +236,32 @@ private:
 
 
 
-    bool hasPreviousTransition = false;
+    bool hasPreviousAction = false;
 
 
 
-    //================================================
-    // Episode data
-    //================================================
+
+    //------------------------------------------------
+    // Episode information
+    //------------------------------------------------
 
     uint32_t turn = 0;
 
 
 
-    //================================================
-    // Tree search configuration
-    //================================================
+
+    //------------------------------------------------
+    // Tree search depth
+    //------------------------------------------------
 
     uint32_t searchDepth = 1;
 
 
 
-    //================================================
-    // Training state
-    //================================================
+
+    //------------------------------------------------
+    // System state
+    //------------------------------------------------
 
     bool trainingEnabled = true;
 

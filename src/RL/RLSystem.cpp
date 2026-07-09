@@ -3,6 +3,7 @@
 #include <iostream>
 
 
+
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -10,6 +11,7 @@
 RLSystem::RLSystem()
 {
 }
+
 
 
 
@@ -34,10 +36,6 @@ void RLSystem::initialize()
 
 
 
-    //------------------------------------------------
-    // Initialize network
-    //------------------------------------------------
-
     decisionDL->initialize(
         FeatureEngineering::inputSize(),
         128,
@@ -55,16 +53,12 @@ void RLSystem::initialize()
 
 
 
-    //------------------------------------------------
-    // Initialize optimizer
-    //------------------------------------------------
-
     trainer->initialize();
 
 
 
     //------------------------------------------------
-    // Reset episode
+    // Start first episode
     //------------------------------------------------
 
     newEpisode();
@@ -72,7 +66,16 @@ void RLSystem::initialize()
 
 
     initialized = true;
+
+
+
+    std::cout
+        << "[RLSystem] Initialized"
+        << std::endl;
+
 }
+
+
 
 
 
@@ -85,7 +88,10 @@ void RLSystem::newEpisode()
 
     turn = 0;
 
-    hasPreviousTransition = false;
+
+    hasPreviousAction = false;
+
+
 
     previousStateAction =
         torch::Tensor();
@@ -93,7 +99,11 @@ void RLSystem::newEpisode()
 
 
     previousNode =
-        DecisionNode{};
+        DecisionNode();
+
+
+
+    currentCandidates.clear();
 
 
 
@@ -103,39 +113,29 @@ void RLSystem::newEpisode()
 
     if(trainer)
     {
-        trainer->resetExploration();
+        trainer->clearEpisode();
     }
+
+
+
+    std::cout
+        << "[RLSystem] New episode"
+        << std::endl;
+
 }
 
 
-
-//====================================================
-// FINISH EPISODE
-//====================================================
-
-void RLSystem::finishEpisode(
-    const GameState& state)
-{
-
-    hasPreviousTransition = false;
-
-
-    currentCandidates.clear();
-
-
-    rewardSystem.reset();
-}
 
 
 
 //====================================================
 // ENCODE CANDIDATES
 //
-// Converts:
+// DecisionNode list:
 //
-// DecisionNode[]
+// [N nodes]
 //
-// into:
+// becomes:
 //
 // Tensor [N x inputSize]
 //
@@ -147,13 +147,21 @@ torch::Tensor RLSystem::encodeCandidates(
 
     if(currentCandidates.empty())
     {
+
         return torch::empty(
-            {0, FeatureEngineering::inputSize()});
+        {
+            0,
+            static_cast<int64_t>(
+                FeatureEngineering::inputSize())
+        });
+
     }
 
 
 
+
     std::vector<torch::Tensor> tensors;
+
 
 
     tensors.reserve(
@@ -161,9 +169,12 @@ torch::Tensor RLSystem::encodeCandidates(
 
 
 
+
+
     for(const DecisionNode& node :
         currentCandidates)
     {
+
 
         std::vector<float> features =
             FeatureEngineering::encode(
@@ -175,22 +186,23 @@ torch::Tensor RLSystem::encodeCandidates(
         tensors.push_back(
             torch::tensor(
                 features));
+
     }
+
 
 
 
     return torch::stack(
         tensors);
+
 }
-
-
 
 //====================================================
 // DECIDE MOVE
 //
-// Generates candidates,
-// selects action,
-// stores previous transition.
+// Generates candidate moves,
+// evaluates them with DecisionDL,
+// stores selected action.
 //
 //====================================================
 
@@ -205,7 +217,7 @@ bool RLSystem::decide(
 
 
     //------------------------------------------------
-    // Generate decision tree
+    // Build decision tree
     //------------------------------------------------
 
     tree.build(
@@ -215,7 +227,7 @@ bool RLSystem::decide(
 
 
     //------------------------------------------------
-    // Obtain candidate nodes
+    // Get candidates
     //------------------------------------------------
 
     const DecisionNode& root =
@@ -228,14 +240,18 @@ bool RLSystem::decide(
 
 
 
-    //------------------------------------------------
-    // No possible moves
-    //------------------------------------------------
-
     if(currentCandidates.empty())
     {
+
+        std::cout
+            << "[RLSystem] No candidates"
+            << std::endl;
+
+
         return false;
     }
+
+
 
 
 
@@ -243,72 +259,107 @@ bool RLSystem::decide(
     // Encode candidates
     //------------------------------------------------
 
-    torch::Tensor candidateTensor =
+    torch::Tensor candidates =
         encodeCandidates(
             state);
 
 
 
+
+
     //------------------------------------------------
-    // Select action using RL policy
+    // Select best action
+    //
+    // DecisionDL output:
+    //
+    // Q values per candidate
+    //
     //------------------------------------------------
 
-    uint32_t selected =
-        trainer->selectAction(
-            candidateTensor);
+    torch::Tensor values =
+        decisionDL->evaluate(
+            state,
+            currentCandidates);
 
 
 
-    if(selected >= currentCandidates.size())
+    int64_t index =
+        values.argmax()
+        .item<int64_t>();
+
+
+
+
+    if(index < 0 ||
+       index >= static_cast<int64_t>(
+            currentCandidates.size()))
     {
-        selected = 0;
+
+        index = 0;
+
     }
 
 
 
+
+
     //------------------------------------------------
-    // Store transition information
+    // Store selected action
+    //
+    // Used by observe()
+    //
     //------------------------------------------------
 
     previousStateAction =
-        candidateTensor[selected]
+        candidates[index]
         .unsqueeze(0);
 
 
 
     previousNode =
-        currentCandidates[selected];
+        currentCandidates[index];
 
 
 
-    hasPreviousTransition = true;
+    hasPreviousAction = true;
+
+
 
 
 
     //------------------------------------------------
-    // Return chosen move
+    // Return move
     //------------------------------------------------
 
     move =
-        currentCandidates[selected]
+        currentCandidates[index]
         .move;
 
 
 
+    std::cout
+        << "[RLSystem] Selected action: "
+        << index
+        << std::endl;
+
+
+
     return true;
+
 }
 
+
+
+
+
+
 //====================================================
-// OBSERVE ENVIRONMENT
+// OBSERVE
 //
-// Called after the game engine executes
+// Called after game engine executes
 // the selected move.
 //
-// Creates:
-//
-// (state, action, reward, nextState)
-//
-// and sends it to RLTrainer.
+// Stores action in RLTrainer.
 //
 //====================================================
 
@@ -316,139 +367,121 @@ void RLSystem::observe(
     const GameState& state)
 {
 
-    std::cout 
-    << "[RL] OBSERVE CALLED"
-    << std::endl;
-
-    if(!hasPreviousTransition)
+    if(!hasPreviousAction)
         return;
 
 
 
-    //------------------------------------------------
-    // Generate next state candidates
-    //------------------------------------------------
-
-    tree.build(
-        state,
-        searchDepth);
+    if(!trainer)
+        return;
 
 
 
-    const DecisionNode& root =
-        tree.getRoot();
-
-
-
-    std::vector<DecisionNode> nextCandidates =
-        root.children;
-
-
-
-    //------------------------------------------------
-    // Encode next actions
-    //------------------------------------------------
-
-    torch::Tensor nextStateActions;
-
-
-
-    if(nextCandidates.empty())
-    {
-
-        nextStateActions =
-            torch::empty(
-                {
-                    0,
-                    FeatureEngineering::inputSize()
-                });
-    }
-    else
-    {
-
-        std::vector<torch::Tensor> tensors;
-
-
-        tensors.reserve(
-            nextCandidates.size());
-
-
-
-        for(const DecisionNode& node :
-            nextCandidates)
-        {
-
-            std::vector<float> features =
-                FeatureEngineering::encode(
-                    state,
-                    node);
-
-
-
-            tensors.push_back(
-                torch::tensor(
-                    features));
-        }
-
-
-
-        nextStateActions =
-            torch::stack(
-                tensors);
-    }
-
-
-
-    //------------------------------------------------
-    // Calculate reward
-    //------------------------------------------------
-
-    float reward =
-        rewardSystem.calculateReward(
-            previousNode,
-            turn);
-
-
-
-    //------------------------------------------------
-    // Create transition
-    //------------------------------------------------
-
-    RLTransition transition;
-
-
-    transition.currentStateAction =
-        previousStateAction.clone();
-
-
-
-    transition.nextStateActions =
-        nextStateActions.clone();
-
-
-
-    transition.reward =
-        reward;
-
-
-
-    transition.done =
-        isTerminal(
-            previousNode);
-
-
-
-            std::cout
-    << "[RL] Reward generated: "
-    << reward
-    << std::endl;
 
     //------------------------------------------------
     // Store experience
     //------------------------------------------------
 
     trainer->remember(
-        transition);
+        previousStateAction);
+
+
+
+    std::cout
+        << "[RLSystem] Action stored"
+        << std::endl;
+
+
+
+
+    //------------------------------------------------
+    // Clear temporary action
+    //------------------------------------------------
+
+    previousStateAction =
+        torch::Tensor();
+
+
+
+    previousNode =
+        DecisionNode();
+
+
+
+    hasPreviousAction = false;
+
+
+
+    turn++;
+
+}
+
+//====================================================
+// FINISH EPISODE
+//
+// Called when game ends.
+//
+// victory:
+//      true  -> win
+//      false -> loss
+//
+// Applies final reward and trains network.
+//
+//====================================================
+
+void RLSystem::finishEpisode(
+    bool victory)
+{
+
+    if(!trainer)
+        return;
+
+
+
+    //------------------------------------------------
+    // Calculate final reward
+    //------------------------------------------------
+
+    float reward = 0.0f;
+
+
+
+    if(victory)
+    {
+        reward = 100.0f;
+    }
+    else
+    {
+        reward = -100.0f;
+    }
+
+
+
+    //------------------------------------------------
+    // Time penalty
+    //------------------------------------------------
+
+    reward -=
+        static_cast<float>(turn);
+
+
+
+    std::cout
+        << "[RLSystem] Episode finished"
+        << std::endl;
+
+
+    std::cout
+        << "[RLSystem] Turns: "
+        << turn
+        << std::endl;
+
+
+    std::cout
+        << "[RLSystem] Reward: "
+        << reward
+        << std::endl;
+
 
 
 
@@ -458,25 +491,39 @@ void RLSystem::observe(
 
     if(trainingEnabled)
     {
-        trainer->trainStep();
+
+        trainer->trainEpisode(
+            reward);
+
+
+        std::cout
+            << "[RLSystem] Training complete"
+            << std::endl;
+
     }
 
 
 
+
     //------------------------------------------------
-    // Prepare next turn
+    // Reset episode
     //------------------------------------------------
 
-    hasPreviousTransition = false;
+    newEpisode();
 
-
-    ++turn;
 }
+
+
+
+
 
 
 
 //====================================================
 // TERMINAL CHECK
+//
+// Checks if node ends game.
+//
 //====================================================
 
 bool RLSystem::isTerminal(
@@ -487,7 +534,12 @@ bool RLSystem::isTerminal(
         node.checkmate ||
         node.stalemate ||
         node.terminal;
+
 }
+
+
+
+
 
 
 
@@ -498,14 +550,21 @@ bool RLSystem::isTerminal(
 void RLSystem::setTrainingEnabled(
     bool enabled)
 {
+
     trainingEnabled = enabled;
+
+
+
+    std::cout
+        << "[RLSystem] Training "
+        << (enabled ? "enabled" : "disabled")
+        << std::endl;
+
 }
 
 
 
-//====================================================
-// IS TRAINING ENABLED
-//====================================================
+
 
 bool RLSystem::isTrainingEnabled() const
 {
@@ -514,43 +573,8 @@ bool RLSystem::isTrainingEnabled() const
 
 
 
-//====================================================
-// SET EPSILON
-//====================================================
-
-void RLSystem::setEpsilon(
-    float value)
-{
-
-    if(!trainer)
-        return;
 
 
-    //
-    // Direct access to epsilon is intentionally
-    // controlled by RLTrainer.
-    //
-    // This is a temporary testing interface.
-    //
-
-    trainer->resetExploration();
-}
-
-
-
-//====================================================
-// GET EPSILON
-//====================================================
-
-float RLSystem::getEpsilon() const
-{
-
-    if(!trainer)
-        return 0.0f;
-
-
-    return trainer->getExplorationRate();
-}
 
 
 
@@ -562,25 +586,40 @@ bool RLSystem::saveModel(
     const std::string& filename)
 {
 
-    if(!decisionDL)
+    if(!trainer)
         return false;
 
 
-    try
-    {
 
+    bool result =
         trainer->saveModel(
             filename);
 
-    }
-    catch(...)
+
+
+    if(result)
     {
-        return false;
+        std::cout
+            << "[RLSystem] Model saved: "
+            << filename
+            << std::endl;
+    }
+    else
+    {
+        std::cout
+            << "[RLSystem] Save failed"
+            << std::endl;
     }
 
 
-    return true;
+
+    return result;
+
 }
+
+
+
+
 
 
 
@@ -592,22 +631,33 @@ bool RLSystem::loadModel(
     const std::string& filename)
 {
 
-    if(!decisionDL)
+    if(!trainer)
         return false;
 
 
-    try
-    {
 
+    bool result =
         trainer->loadModel(
             filename);
 
-    }
-    catch(...)
+
+
+    if(result)
     {
-        return false;
+        std::cout
+            << "[RLSystem] Model loaded: "
+            << filename
+            << std::endl;
+    }
+    else
+    {
+        std::cout
+            << "[RLSystem] Load failed"
+            << std::endl;
     }
 
 
-    return true;
+
+    return result;
+
 }

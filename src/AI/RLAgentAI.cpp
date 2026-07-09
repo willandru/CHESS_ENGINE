@@ -14,26 +14,20 @@
 RLAgentAI::RLAgentAI()
 {
     std::cout
-        << "Creating RLAgentAI\n";
+        << "Creating RLAgentAI"
+        << std::endl;
 
-
-    //------------------------------------------------
-    // Create RL system
-    //------------------------------------------------
 
     rlSystem =
         std::make_unique<RLSystem>();
 
 
-    //------------------------------------------------
-    // Initialize RL system
-    //------------------------------------------------
-
     rlSystem->initialize();
 
 
     std::cout
-        << "RLSystem initialized\n";
+        << "RLSystem initialized"
+        << std::endl;
 }
 
 
@@ -58,16 +52,105 @@ bool RLAgentAI::decide(
     Move& move)
 {
 
-    std::cout << "[RLAgentAI] decide called\n";
+    std::cout
+        << "[RLAgentAI] decide called"
+        << std::endl;
+
 
     if(!rlSystem)
         return false;
 
 
+
     return rlSystem->decide(
         state,
-        move
-    );
+        move);
+}
+
+
+
+//====================================================
+// OBSERVE RESULT
+//
+// Called after the engine executes
+// the selected move.
+//
+//====================================================
+
+void RLAgentAI::observe(
+    const GameState& state)
+{
+    std::cout
+        << "[RLAgentAI] observe called"
+        << std::endl;
+
+
+    if(!rlSystem)
+        return;
+
+
+    rlSystem->observe(state);
+}
+
+
+
+//====================================================
+// FINISH GAME
+//
+// Called when game ends.
+//
+// victory:
+//      true  -> RL won
+//      false -> RL lost
+//
+//====================================================
+
+void RLAgentAI::finishGame(
+    bool victory)
+{
+
+    if(!rlSystem)
+        return;
+
+
+    rlSystem->finishEpisode(
+        victory);
+}
+
+
+
+//====================================================
+// SAVE MODEL
+//====================================================
+
+bool RLAgentAI::saveModel(
+    const std::string& filename)
+{
+
+    if(!rlSystem)
+        return false;
+
+
+    return rlSystem->saveModel(
+        filename);
+}
+
+
+
+//====================================================
+// LOAD MODEL
+//====================================================
+
+bool RLAgentAI::loadModel(
+    const std::string& filename)
+{
+
+    if(!rlSystem)
+        return false;
+
+
+    return rlSystem->loadModel(
+        filename);
 }
 
 

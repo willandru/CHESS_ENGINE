@@ -1,10 +1,9 @@
 #include "RLTrainer.h"
 
-#include <algorithm>
-#include <random>
-#include <iterator>
-
 #include <iostream>
+
+
+
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -12,10 +11,10 @@
 RLTrainer::RLTrainer(
     std::shared_ptr<DecisionDL> network)
 :
-decisionDL(network),
-rng(std::random_device{}())
+decisionDL(network)
 {
 }
+
 
 
 
@@ -25,7 +24,8 @@ rng(std::random_device{}())
 
 void RLTrainer::initialize()
 {
-    if (!decisionDL)
+
+    if(!decisionDL)
         return;
 
 
@@ -37,18 +37,14 @@ void RLTrainer::initialize()
 
 
     initialized = true;
+
+
+    std::cout
+        << "[RLTrainer] Initialized"
+        << std::endl;
+
 }
 
-
-
-//====================================================
-// STATUS
-//====================================================
-
-bool RLTrainer::isInitialized() const
-{
-    return initialized;
-}
 
 
 
@@ -57,347 +53,46 @@ bool RLTrainer::isInitialized() const
 //====================================================
 
 void RLTrainer::remember(
-    const RLTransition& transition)
+    const torch::Tensor& stateAction)
 {
 
-    RLTransition copy;
+    RLExperience experience;
 
 
-    //------------------------------------------------
-    // Clone tensors
-    //
-    // Avoid references to temporary tensors
-    //------------------------------------------------
+    experience.stateAction =
+        stateAction.clone();
 
-    copy.currentStateAction =
-        transition.currentStateAction.clone();
 
 
-    copy.nextStateActions =
-        transition.nextStateActions.clone();
-
-
-
-    //------------------------------------------------
-    // Copy scalar data
-    //------------------------------------------------
-
-    copy.reward =
-        transition.reward;
-
-
-    copy.done =
-        transition.done;
-
-
-
-    //------------------------------------------------
-    // Store experience
-    //------------------------------------------------
-
-    replayBuffer.push_back(
-        std::move(copy));
-
-        std::cout 
-        << "[RL] Experience stored. Replay size: "
-        << replayBuffer.size()
-        << " Reward: "
-        << transition.reward
-        << " Done: "
-        << transition.done
-        << std::endl;
-
-
-
-
-    //------------------------------------------------
-    // Maintain capacity
-    //------------------------------------------------
-
-    if(replayBuffer.size() > replayCapacity)
-    {
-        replayBuffer.erase(
-            replayBuffer.begin());
-    }
-}
-
-
-
-//====================================================
-// CLEAR REPLAY MEMORY
-//====================================================
-
-void RLTrainer::clearReplayMemory()
-{
-    replayBuffer.clear();
-}
-
-
-
-//====================================================
-// REPLAY SIZE
-//====================================================
-
-std::size_t RLTrainer::getReplaySize() const
-{
-    return replayBuffer.size();
-}
-
-
-
-//====================================================
-// COMPUTE TARGET
-//
-// target:
-//
-// done:
-//      reward
-//
-// else:
-//      reward + gamma * max(Q(next))
-//
-//====================================================
-
-torch::Tensor RLTrainer::computeTarget(
-    const RLTransition& transition)
-{
-
-    torch::NoGradGuard guard;
-
-
-
-    //------------------------------------------------
-    // Terminal state
-    //------------------------------------------------
-
-    if(transition.done)
-    {
-        return torch::tensor(
-            transition.reward,
-            torch::kFloat32);
-    }
-
-
-
-    //------------------------------------------------
-    // Evaluate next possible actions
-    //------------------------------------------------
-
-    torch::Tensor nextQ =
-        decisionDL->forward(
-            transition.nextStateActions);
-
-
-
-    //------------------------------------------------
-    // Best future action value
-    //------------------------------------------------
-
-    torch::Tensor maxNextQ =
-        nextQ.max();
-
-
-
-    //------------------------------------------------
-    // Bellman equation
-    //------------------------------------------------
-
-    return
-        torch::tensor(
-            transition.reward,
-            torch::kFloat32)
-        +
-        gamma * maxNextQ;
-}
-
-
-
-//====================================================
-// SELECT ACTION
-//
-// ε-greedy policy:
-//
-// epsilon probability:
-//      random exploration
-//
-// otherwise:
-//      best predicted Q value
-//
-//====================================================
-
-//====================================================
-// SELECT ACTION
-//
-// Selects the best candidate according to DecisionDL.
-//
-// Input:
-//      candidateStateActions [N x inputSize]
-//
-// Output:
-//      index of selected candidate
-//
-//====================================================
-
-uint32_t RLTrainer::selectAction(
-    const torch::Tensor& candidateStateActions)
-{
-    if(candidateStateActions.size(0) == 0)
-        return 0;
-
-
-    return greedyAction(
-        candidateStateActions);
-}
-
-
-
-//====================================================
-// GREEDY ACTION
-//
-// Uses neural network prediction.
-//
-// The candidate with highest Q value
-// is selected.
-//
-//====================================================
-
-uint32_t RLTrainer::greedyAction(
-    const torch::Tensor& candidateStateActions)
-{
-    torch::NoGradGuard guard;
-
-
-    decisionDL->eval();
-
-
-    torch::Tensor qValues =
-        decisionDL->forward(
-            candidateStateActions);
+    episode.push_back(
+        experience);
 
 
 
     std::cout
-        << "[RL] Q values:\n"
-        << qValues
+        << "[RLTrainer] Stored action. "
+        << "Episode size: "
+        << episode.size()
         << std::endl;
 
-
-
-    int64_t index =
-        qValues.argmax()
-        .item<int64_t>();
-
-
-
-    std::cout
-        << "[RL] Selected action index: "
-        << index
-        << std::endl;
-
-
-
-    return static_cast<uint32_t>(
-        index);
 }
 
 
 
-//====================================================
-// RANDOM ACTION
-//====================================================
-
-uint32_t RLTrainer::randomAction(
-    uint32_t actionCount)
-{
-
-    if(actionCount == 0)
-        return 0;
-
-
-    std::uniform_int_distribution<uint32_t>
-        distribution(
-            0,
-            actionCount - 1);
-
-
-    return distribution(rng);
-}
-
-//====================================================
-// UPDATE EXPLORATION
-//
-// Decays epsilon after training.
-//
-// epsilon:
-//
-// high -> more exploration
-//
-// low -> more exploitation
-//
-//====================================================
-
-//====================================================
-// UPDATE EXPLORATION
-//
-// Disabled because action selection
-// is deterministic.
-//
-//====================================================
-
-void RLTrainer::updateExploration()
-{
-}
-
 
 
 //====================================================
-// RESET EXPLORATION
+// TRAIN EPISODE
 //
-// Used when starting a new training session.
+// Supervised reinforcement update.
 //
-//====================================================
-
-//====================================================
-// RESET EXPLORATION
-//
-// Exploration disabled for deterministic policy.
+// Each action receives the final
+// episode reward.
 //
 //====================================================
 
-void RLTrainer::resetExploration()
-{
-    epsilon = 0.0f;
-}
-
-
-
-//====================================================
-// GET EXPLORATION RATE
-//====================================================
-
-float RLTrainer::getExplorationRate() const
-{
-    return epsilon;
-}
-
-
-
-//====================================================
-// TRAIN STEP
-//
-// Performs one optimization step.
-//
-// Algorithm:
-//
-// 1. Sample experience batch
-// 2. Compute Q(current)
-// 3. Compute Bellman target
-// 4. Calculate loss
-// 5. Backpropagation
-//
-//====================================================
-
-void RLTrainer::trainStep()
+void RLTrainer::trainEpisode(
+    float reward)
 {
 
     if(!initialized)
@@ -405,17 +100,10 @@ void RLTrainer::trainStep()
 
 
 
-    //------------------------------------------------
-    // Wait until enough experiences exist
-    //------------------------------------------------
-
-    if(replayBuffer.size() < batchSize)
+    if(episode.empty())
     {
         std::cout
-            << "[RL] Waiting experiences: "
-            << replayBuffer.size()
-            << "/"
-            << batchSize
+            << "[RLTrainer] Empty episode"
             << std::endl;
 
         return;
@@ -423,78 +111,52 @@ void RLTrainer::trainStep()
 
 
 
-    //------------------------------------------------
-    // Create random batch
-    //------------------------------------------------
-
-    std::vector<RLTransition> batch;
-
-
-    std::sample(
-        replayBuffer.begin(),
-        replayBuffer.end(),
-        std::back_inserter(batch),
-        batchSize,
-        rng);
-
-
-
-    //------------------------------------------------
-    // Training mode
-    //------------------------------------------------
-
     decisionDL->train();
 
 
 
-    //------------------------------------------------
-    // Iterate experiences
-    //------------------------------------------------
+    float totalLoss = 0.0f;
 
-    for(const RLTransition& transition : batch)
+
+
+    for(const RLExperience& experience :
+        episode)
     {
 
 
         //------------------------------------------------
-        // Current Q(s,a)
+        // Network prediction
         //------------------------------------------------
 
-        torch::Tensor currentQ =
+        torch::Tensor prediction =
             decisionDL->forward(
-                transition.currentStateAction);
+                experience.stateAction);
 
 
 
         //------------------------------------------------
-        // Bellman target
+        // Target reward
         //------------------------------------------------
 
         torch::Tensor target =
-            computeTarget(
-                transition);
+            torch::tensor(
+                {
+                    reward
+                },
+                torch::kFloat32);
 
 
 
         //------------------------------------------------
-        // Mean Squared Error
+        // Loss
         //------------------------------------------------
 
         torch::Tensor loss =
             torch::mse_loss(
-                currentQ.squeeze(),
-                target);
-
-            std::cout
-            << "[RL] Training step"
-            << " Loss: "
-            << loss.item<float>()
-            << std::endl;
+                prediction.squeeze(),
+                target.squeeze());
 
 
-
-        //------------------------------------------------
-        // Optimization
-        //------------------------------------------------
 
         optimizer->zero_grad();
 
@@ -504,16 +166,45 @@ void RLTrainer::trainStep()
 
         optimizer->step();
 
+
+
+        totalLoss +=
+            loss.item<float>();
+
     }
 
 
 
-    //------------------------------------------------
-    // Reduce exploration after learning step
-    //------------------------------------------------
+    std::cout
+        << "[RLTrainer] Episode trained"
+        << " Reward: "
+        << reward
+        << " Loss: "
+        << totalLoss
+        << std::endl;
 
-    updateExploration();
+
+
+    clearEpisode();
+
 }
+
+
+
+
+
+//====================================================
+// CLEAR EPISODE
+//====================================================
+
+void RLTrainer::clearEpisode()
+{
+
+    episode.clear();
+
+}
+
+
 
 
 
@@ -521,23 +212,35 @@ void RLTrainer::trainStep()
 // SAVE MODEL
 //====================================================
 
-void RLTrainer::saveModel(
-    const std::string& file)
+bool RLTrainer::saveModel(
+    const std::string& filename)
 {
+
     if(!decisionDL)
-        return;
+        return false;
 
 
-    torch::serialize::OutputArchive archive;
+    try
+    {
+
+        torch::save(
+            decisionDL,
+            filename);
+
+    }
+    catch(...)
+    {
+
+        return false;
+
+    }
 
 
-    decisionDL->save(
-        archive);
+    return true;
 
-
-    archive.save_to(
-        file);
 }
+
+
 
 
 
@@ -545,20 +248,32 @@ void RLTrainer::saveModel(
 // LOAD MODEL
 //====================================================
 
-void RLTrainer::loadModel(
-    const std::string& file)
+bool RLTrainer::loadModel(
+    const std::string& filename)
 {
+
     if(!decisionDL)
-        return;
+        return false;
 
 
-    torch::serialize::InputArchive archive;
+
+    try
+    {
+
+        torch::load(
+            decisionDL,
+            filename);
+
+    }
+    catch(...)
+    {
+
+        return false;
+
+    }
 
 
-    archive.load_from(
-        file);
 
+    return true;
 
-    decisionDL->load(
-        archive);
 }
