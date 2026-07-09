@@ -3,86 +3,98 @@
 #include <cstdint>
 
 #include "DecisionNode.h"
-#include "GameState.h"
 
-
-class DecisionTreeEngine
+class RewardSystem
 {
+
 public:
 
     //------------------------------------------------
     // Constructor
     //------------------------------------------------
 
-    DecisionTreeEngine();
+    RewardSystem();
 
-
-    //------------------------------------------------
-    // Tree generation
-    //------------------------------------------------
-
-    void build(
-        const GameState& state,
-        uint32_t depth);
-
-
-    void build(
-        const GameState& state,
-        uint8_t sourceSquare,
-        uint32_t depth);
 
 
     //------------------------------------------------
-    // Clear tree
+    // Reset episode reward
     //------------------------------------------------
 
-    void clear();
+    void reset();
 
-
-    //------------------------------------------------
-    // Root access
-    //------------------------------------------------
-
-    const DecisionNode& getRoot() const;
-
-    DecisionNode& getRoot();
 
 
     //------------------------------------------------
-    // Statistics
+    // Calculate reward
+    //
+    // node : resulting position
+    // turn : current game turn
+    //
     //------------------------------------------------
 
-    uint64_t getVisitedNodes() const;
+    float calculateReward(
+        const DecisionNode& node,
+        uint32_t turn);
 
-    uint32_t getMaxDepth() const;
+
+
+    //------------------------------------------------
+    // Current reward
+    //------------------------------------------------
+
+    float getCurrentReward() const;
+
 
 
 private:
 
     //------------------------------------------------
-    // Recursive expansion
+    // Cached reward
     //------------------------------------------------
 
-    void expand(
-        GameState& state,
-        DecisionNode& node,
-        uint32_t remainingDepth);
+    float currentReward = 0.0f;
+
 
 
 private:
 
     //------------------------------------------------
-    // Tree root
+    // Reward limits
     //------------------------------------------------
 
-    DecisionNode root;
+    static constexpr float MAX_REWARD = 100.0f;
+
+    static constexpr float MIN_REWARD = -100.0f;
+
 
 
     //------------------------------------------------
-    // Statistics
+    // Living penalty
+    //
+    // Encourages shorter games.
     //------------------------------------------------
 
-    uint64_t visitedNodes = 0;
+    static constexpr float TURN_PENALTY = 1.0f;
 
-    uint32_t maxDepth = 0;
+
+
+    //------------------------------------------------
+    // Intermediate rewards
+    //------------------------------------------------
+
+    static constexpr float CHECK_BONUS = 5.0f;
+
+
+
+    //------------------------------------------------
+    // Terminal rewards
+    //------------------------------------------------
+
+    static constexpr float CHECKMATE_BONUS = 100.0f;
+
+    static constexpr float LOSS_PENALTY = -100.0f;
+
+    static constexpr float STALEMATE_PENALTY = -25.0f;
+
 };

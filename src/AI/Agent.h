@@ -44,4 +44,9 @@ public:
         const GameState& state,
         Move& move
     ) = 0;
+
+    virtual void observe(
+    const GameState& state)
+    {
+    }
 };

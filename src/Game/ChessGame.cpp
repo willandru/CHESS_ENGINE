@@ -5,6 +5,8 @@
 #include "MoveGenerator.h"
 #include "AgentConfig.h"
 
+#include "RLAgentAI.h"
+
 #include <iostream>
 
 //====================================================
@@ -42,6 +44,8 @@ void ChessGame::reset()
     inCheckmate = false;
     inStalemate = false;
 
+    pendingRestart = false;
+
     aiTimer = 0.0f;
 }
 
@@ -49,6 +53,18 @@ void ChessGame::reset()
 
 void ChessGame::update(float dt)
 {
+
+    if(pendingRestart)
+    {
+        std::cout
+            << "NEW GAME"
+            << std::endl;
+
+        reset();
+
+        return;
+    }
+
     if (promotionPending)
         return;
 
@@ -107,7 +123,7 @@ void ChessGame::onSquareClicked(uint8_t square)
         //------------------------------------------------
         // ANALYZE CURRENT POSITION
         //------------------------------------------------
-        analyzeCurrentPosition();
+        //analyzeCurrentPosition();
 
 
         if (moves.empty())
@@ -251,6 +267,10 @@ void ChessGame::playCurrentPlayer()
 
         MoveExecutor::execute(state, m);
 
+
+        current->observe(state);
+
+
         updateGameStatus();
         return;
     }
@@ -298,6 +318,40 @@ void ChessGame::updateGameStatus()
     if (inCheckmate)
     {
         std::cout << "CHECKMATE\n";
+
+
+        //------------------------------------------------
+        // Notify AI episode result
+        //------------------------------------------------
+
+        Agent* winner =
+            (state.getTurn() == PlayerSide::White)
+            ? player2.get()
+            : player1.get();
+
+
+        if(auto rl =
+            dynamic_cast<RLAgentAI*>(winner))
+        {
+            rl->finishGame(true);
+        }
+
+
+
+        Agent* loser =
+            (state.getTurn() == PlayerSide::White)
+            ? player1.get()
+            : player2.get();
+
+
+        if(auto rl =
+            dynamic_cast<RLAgentAI*>(loser))
+        {
+            rl->finishGame(false);
+        }
+
+    pendingRestart = true;
+
     }
     else if (inCheck)
     {
@@ -305,6 +359,7 @@ void ChessGame::updateGameStatus()
     }
     else if (inStalemate)
     {
+        pendingRestart = true;
         std::cout << "STALEMATE\n";
     }
     else
@@ -322,7 +377,7 @@ void ChessGame::analyzeCurrentPosition()
 
     analyzer.analyze(
         state,
-        3,
+        1,
         selectedSquare);
 }
 
