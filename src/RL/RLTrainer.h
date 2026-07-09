@@ -4,29 +4,73 @@
 
 #include <memory>
 #include <vector>
+#include <string>
 #include <cstdint>
+#include <random>
 
 #include "DecisionDL.h"
 
+
 //====================================================
-// Experience
+// Reinforcement Learning Transition
+//
+// Represents one experience:
+//
+// (state + action, reward,
+//  next candidate actions, done)
+//
 //====================================================
 
 struct RLTransition
 {
-    torch::Tensor state;
+    //------------------------------------------------
+    // Current (state, action)
+    //
+    // Shape:
+    // [1 x inputSize]
+    //------------------------------------------------
 
-    int64_t action;
+    torch::Tensor currentStateAction;
 
-    float reward;
 
-    torch::Tensor nextState;
+    //------------------------------------------------
+    // Candidate actions of next state
+    //
+    // Shape:
+    // [N x inputSize]
+    //------------------------------------------------
 
-    bool done;
+    torch::Tensor nextStateActions;
+
+
+    //------------------------------------------------
+    // Immediate reward
+    //------------------------------------------------
+
+    float reward = 0.0f;
+
+
+    //------------------------------------------------
+    // Terminal state
+    //------------------------------------------------
+
+    bool done = false;
 };
 
+
+
 //====================================================
-// RL Trainer
+// Reinforcement Learning Trainer
+//
+// Responsibilities:
+//
+// - Experience replay
+// - Bellman target calculation
+// - Network optimization
+// - Action selection policy
+// - Exploration / exploitation control
+// - Model persistence
+//
 //====================================================
 
 class RLTrainer
@@ -34,37 +78,141 @@ class RLTrainer
 
 public:
 
+
+    //------------------------------------------------
+    // Constructor
+    //------------------------------------------------
+
     explicit RLTrainer(
         std::shared_ptr<DecisionDL> network);
 
+
+
+    //------------------------------------------------
+    // Initialize optimizer
+    //------------------------------------------------
+
     void initialize();
+
+
+
+    //------------------------------------------------
+    // Store experience
+    //------------------------------------------------
 
     void remember(
         const RLTransition& transition);
 
+
+
+    //------------------------------------------------
+    // Train one optimization step
+    //------------------------------------------------
+
     void trainStep();
 
-    bool isInitialized() const;
+
+
+    //------------------------------------------------
+    // Action Selection
+    //
+    // Uses ε-greedy policy:
+    //
+    // exploration:
+    // random action
+    //
+    // exploitation:
+    // highest Q value
+    //
+    //------------------------------------------------
+
+    uint32_t selectAction(
+        const torch::Tensor& candidateStateActions);
+
+
+
+    //------------------------------------------------
+    // Exploration control
+    //------------------------------------------------
+
+    void resetExploration();
+
+
+    float getExplorationRate() const;
+
+
+
+    //------------------------------------------------
+    // Replay memory
+    //------------------------------------------------
+
+    void clearReplayMemory();
+
+
+    std::size_t getReplaySize() const;
+
+
+
+    //------------------------------------------------
+    // Persistence
+    //------------------------------------------------
 
     void saveModel(
         const std::string& file);
+
 
     void loadModel(
         const std::string& file);
 
 
 
+    //------------------------------------------------
+    // Status
+    //------------------------------------------------
+
+    bool isInitialized() const;
+
+
+
 private:
 
-    torch::Tensor calculateTarget(
+
+    //------------------------------------------------
+    // Bellman target
+    //
+    // target =
+    // reward + gamma * max(Q(next))
+    //
+    //------------------------------------------------
+
+    torch::Tensor computeTarget(
         const RLTransition& transition);
 
 
 
+    //------------------------------------------------
+    // Policy helpers
+    //------------------------------------------------
+
+    uint32_t greedyAction(
+        const torch::Tensor& candidateStateActions);
+
+
+
+    uint32_t randomAction(
+        uint32_t actionCount);
+
+
+
+    void updateExploration();
+
+
+
 private:
 
+
     //------------------------------------------------
-    // Shared network
+    // Neural network
     //------------------------------------------------
 
     std::shared_ptr<DecisionDL> decisionDL;
@@ -88,18 +236,58 @@ private:
 
 
     //------------------------------------------------
-    // Hyperparameters
+    // Q-Learning Hyperparameters
     //------------------------------------------------
 
     float gamma = 0.99f;
 
+
     float learningRate = 0.001f;
 
-    uint32_t batchSize = 64;
+
+
+    //------------------------------------------------
+    // Training parameters
+    //------------------------------------------------
+
+    uint32_t batchSize = 4;
+
 
     uint32_t replayCapacity = 50000;
 
 
+
+    //------------------------------------------------
+    // ε-Greedy exploration parameters
+    //------------------------------------------------
+
+    // Initial exploration probability
+
+    float epsilon = 0.0f;
+
+
+    // Minimum exploration probability
+
+    float epsilonMin = 0.05f;
+
+
+    // Decay after training steps
+
+    float epsilonDecay = 0.995f;
+
+
+
+    //------------------------------------------------
+    // Random generator
+    //------------------------------------------------
+
+    std::mt19937 rng;
+
+
+
+    //------------------------------------------------
+    // Initialization state
+    //------------------------------------------------
 
     bool initialized = false;
 

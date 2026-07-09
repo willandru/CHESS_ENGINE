@@ -5,83 +5,89 @@
 #include <vector>
 #include <cstdint>
 
+#include "GameState.h"
 #include "DecisionNode.h"
-
-
 
 class DecisionDL : public torch::nn::Module
 {
-
 public:
 
-
-    static constexpr uint32_t MAX_CHILDREN = 10;
-
-
-
-public:
-
+    //------------------------------------------------
+    // Constructor
+    //------------------------------------------------
 
     DecisionDL();
 
-
+    //------------------------------------------------
+    // Creates the neural network
+    //------------------------------------------------
 
     void initialize(
         uint32_t inputSize,
-        uint32_t hiddenSize,
-        uint32_t outputSize);
+        uint32_t hiddenSize1,
+        uint32_t hiddenSize2);
 
-
+    //------------------------------------------------
+    // Forward propagation
+    //
+    // Input:
+    //     [N x inputSize]
+    //
+    // Output:
+    //     [N x 1]
+    //------------------------------------------------
 
     torch::Tensor forward(
         torch::Tensor input);
 
-
-
     //------------------------------------------------
-    // Encode selected children
+    // Encodes all candidate nodes into one
+    // input tensor.
     //
     // Output:
-    //
-    // [1,10]
-    //
+    //     [N x inputSize]
     //------------------------------------------------
 
-    torch::Tensor encodeChildren(
-        const std::vector<DecisionNode>& children);
-
-
+    torch::Tensor encodeNodes(
+        const GameState& state,
+        const std::vector<DecisionNode>& nodes);
 
     //------------------------------------------------
-    // Select random children
-    //
-    // Input:
-    // all children from current state
+    // Evaluates every candidate node.
     //
     // Output:
-    // maximum 10 random children
-    //
+    //     [N x 1]
     //------------------------------------------------
 
-    std::vector<DecisionNode> selectChildren(
-        const std::vector<DecisionNode>& children);
+    torch::Tensor evaluate(
+        const GameState& state,
+        const std::vector<DecisionNode>& nodes);
 
+    //------------------------------------------------
+    // Returns the index of the best node.
+    //------------------------------------------------
 
+    uint32_t bestMove(
+        const GameState& state,
+        const std::vector<DecisionNode>& nodes);
 
 private:
 
-
-    float encodeNode(
-        const DecisionNode& node);
-
-
-
-private:
-
+    //------------------------------------------------
+    // Neural Network
+    //------------------------------------------------
 
     torch::nn::Sequential model{nullptr};
 
+    //------------------------------------------------
+    // Network configuration
+    //------------------------------------------------
 
-    uint32_t inputSize = MAX_CHILDREN;
+    bool initialized = false;
 
+    uint32_t inputSize = 0;
+
+    uint32_t hiddenSize1 = 0;
+
+    uint32_t hiddenSize2 = 0;
 };

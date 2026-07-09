@@ -58,6 +58,8 @@ bool RLAgentAI::decide(
     Move& move)
 {
 
+    std::cout << "[RLAgentAI] decide called\n";
+
     if(!rlSystem)
         return false;
 

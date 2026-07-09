@@ -1,9 +1,10 @@
 #include "DecisionDL.h"
 
 #include <algorithm>
-#include <iostream>
-#include <random>
 
+#include "FeatureEngineering.h"
+
+#include <iostream>
 
 //====================================================
 // CONSTRUCTOR
@@ -13,108 +14,46 @@ DecisionDL::DecisionDL()
 {
 }
 
-
 //====================================================
 // INITIALIZE
 //====================================================
 
 void DecisionDL::initialize(
     uint32_t inputSize_,
-    uint32_t hiddenSize,
-    uint32_t outputSize)
+    uint32_t hiddenSize1_,
+    uint32_t hiddenSize2_)
 {
-    std::cout
-        << "[DecisionDL] initialize()"
-        << std::endl;
+    if (initialized)
+        return;
 
-    inputSize = inputSize_;
+    inputSize   = inputSize_;
+    hiddenSize1 = hiddenSize1_;
+    hiddenSize2 = hiddenSize2_;
 
-    std::cout
-        << "[DecisionDL] Input: "
-        << inputSize
-        << std::endl;
+    model = torch::nn::Sequential(
 
-    std::cout
-        << "[DecisionDL] Hidden: "
-        << hiddenSize
-        << std::endl;
+        torch::nn::Linear(
+            inputSize,
+            hiddenSize1),
 
-    std::cout
-        << "[DecisionDL] Output: "
-        << outputSize
-        << std::endl;
+        torch::nn::ReLU(),
 
+        torch::nn::Linear(
+            hiddenSize1,
+            hiddenSize2),
 
+        torch::nn::ReLU(),
 
-    //------------------------------------------------
-    // Create network
-    //------------------------------------------------
-
-    std::cout
-        << "[DecisionDL] Creating Sequential..."
-        << std::endl;
-
-    model =
-        torch::nn::Sequential(
-
-            torch::nn::Linear(
-                inputSize,
-                hiddenSize
-            ),
-
-            torch::nn::ReLU(),
-
-            torch::nn::Linear(
-                hiddenSize,
-                hiddenSize
-            ),
-
-            torch::nn::ReLU(),
-
-            torch::nn::Linear(
-                hiddenSize,
-                outputSize
-            )
-
-        );
-
-    std::cout
-        << "[DecisionDL] Sequential created"
-        << std::endl;
-
-
-
-    //------------------------------------------------
-    // Register module
-    //------------------------------------------------
-
-    std::cout
-        << "[DecisionDL] Registering module..."
-        << std::endl;
+        torch::nn::Linear(
+            hiddenSize2,
+            1)
+    );
 
     register_module(
         "model",
-        model
-    );
+        model);
 
-    std::cout
-        << "[DecisionDL] Module registered"
-        << std::endl;
-
-
-
-    //------------------------------------------------
-    // Verify network
-    //------------------------------------------------
-
-    std::cout
-        << "[DecisionDL] Number of layers: "
-        << model->size()
-        << std::endl;
-
-    std::cout
-        << "[DecisionDL] initialize() finished"
-        << std::endl;
+    initialized = true;
 }
 
 //====================================================
@@ -124,189 +63,99 @@ void DecisionDL::initialize(
 torch::Tensor DecisionDL::forward(
     torch::Tensor input)
 {
-    std::cout
-        << "[DecisionDL] forward()"
-        << std::endl;
+    return model->forward(input);
+}
 
-    std::cout
-        << "[DecisionDL] Input shape: "
-        << input.sizes()
-        << std::endl;
+//====================================================
+// ENCODE NODES
+//====================================================
 
-    std::cout
-        << "[DecisionDL] Input dtype: "
-        << input.dtype()
-        << std::endl;
+torch::Tensor DecisionDL::encodeNodes(
+    const GameState& state,
+    const std::vector<DecisionNode>& nodes)
+{
+    if (nodes.empty())
+    {
+        return torch::empty(
+            {0, static_cast<int64_t>(inputSize)});
+    }
 
-    std::cout
-        << "[DecisionDL] Input device: "
-        << input.device()
-        << std::endl;
+    std::vector<float> data;
 
-    std::cout
-        << "[DecisionDL] Input tensor:"
-        << std::endl;
+    data.reserve(
+        nodes.size() * inputSize);
 
-    std::cout
-        << input
-        << std::endl;
+    for (const DecisionNode& node : nodes)
+    {
+        std::vector<float> features =
+            FeatureEngineering::encode(
+                state,
+                node);
 
+        data.insert(
+            data.end(),
+            features.begin(),
+            features.end());
+    }
 
+    auto tensor =
+        torch::from_blob(
+            data.data(),
+            {
+                static_cast<int64_t>(nodes.size()),
+                static_cast<int64_t>(inputSize)
+            },
+            torch::kFloat);
 
-    std::cout
-        << "[DecisionDL] Executing model->forward()..."
-        << std::endl;
+    return tensor.clone();
+}
+
+//====================================================
+// EVALUATE
+//====================================================
+
+torch::Tensor DecisionDL::evaluate(
+    const GameState& state,
+    const std::vector<DecisionNode>& nodes)
+{
+    torch::Tensor input =
+        encodeNodes(
+            state,
+            nodes);
+
 
     torch::Tensor output =
-        model->forward(input);
+        forward(input);
+
 
     std::cout
-        << "[DecisionDL] Forward finished"
-        << std::endl;
-
-    std::cout
-        << "[DecisionDL] Output:"
-        << std::endl;
-
-    std::cout
+        << "[RL] Q values: "
         << output
         << std::endl;
+
 
     return output;
 }
 
-
 //====================================================
-// ENCODE CHILDREN
-//
-// Output:
-//
-// [1,10]
-//
+// BEST MOVE
 //====================================================
 
-torch::Tensor DecisionDL::encodeChildren(
-    const std::vector<DecisionNode>& children)
+uint32_t DecisionDL::bestMove(
+    const GameState& state,
+    const std::vector<DecisionNode>& nodes)
 {
+    if (nodes.empty())
+        return 0;
 
-    std::vector<float> values;
 
-    values.reserve(
-        MAX_CHILDREN
+    torch::Tensor scores =
+        evaluate(
+            state,
+            nodes);
+
+
+    return static_cast<uint32_t>(
+        scores.argmax().item<int64_t>()
     );
-
-
-
-    for(uint32_t i = 0;
-        i < MAX_CHILDREN;
-        i++)
-    {
-
-        if(i < children.size())
-        {
-            values.push_back(
-                encodeNode(
-                    children[i]
-                )
-            );
-        }
-        else
-        {
-            values.push_back(
-                0.0f
-            );
-        }
-
-    }
-
-
-
-    torch::Tensor tensor =
-        torch::tensor(
-            values,
-            torch::kFloat32
-        );
-
-
-    return tensor.unsqueeze(0);
-
-}
-
-
-
-//====================================================
-// ENCODE NODE
-//====================================================
-
-float DecisionDL::encodeNode(
-    const DecisionNode& node)
-{
-
-    return node.evaluation;
-
-}
-
-
-
-//====================================================
-// RANDOM CHILD SELECTION
-//====================================================
-
-std::vector<DecisionNode>
-DecisionDL::selectChildren(
-    const std::vector<DecisionNode>& children)
-{
-
-    std::vector<DecisionNode> selected;
-
-
-    if(children.empty())
-        return selected;
-
-
-
-    //------------------------------------------------
-    // Copy all children
-    //------------------------------------------------
-
-    selected = children;
-
-
-
-    //------------------------------------------------
-    // Shuffle randomly
-    //------------------------------------------------
-
-    std::shuffle(
-        selected.begin(),
-        selected.end(),
-        std::mt19937{
-            std::random_device{}()
-        }
-    );
-
-
-
-    //------------------------------------------------
-    // Keep maximum 10
-    //------------------------------------------------
-
-    if(selected.size() > MAX_CHILDREN)
-    {
-        selected.resize(
-            MAX_CHILDREN
-        );
-    }
-
-
-
-    std::cout
-        << "[DecisionDL] Selected "
-        << selected.size()
-        << " candidate nodes"
-        << std::endl;
-
-
-    return selected;
-
 }

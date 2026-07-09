@@ -25,20 +25,17 @@ void RewardSystem::reset()
 }
 
 
-
 //====================================================
 // CALCULATE REWARD
 //====================================================
 
 float RewardSystem::calculateReward(
-    uint32_t turn,
-    bool checkmate,
-    bool lost,
-    bool stalemate)
+    const DecisionNode& node,
+    uint32_t turn)
 {
 
     //------------------------------------------------
-    // Start with neutral reward
+    // Neutral reward
     //------------------------------------------------
 
     float reward = 0.0f;
@@ -46,7 +43,9 @@ float RewardSystem::calculateReward(
 
 
     //------------------------------------------------
-    // Encourage faster victories
+    // Penalize long games
+    //
+    // Faster victories receive higher reward.
     //------------------------------------------------
 
     reward -=
@@ -56,23 +55,52 @@ float RewardSystem::calculateReward(
 
 
     //------------------------------------------------
-    // Terminal states
+    // Intermediate reward
+    //
+    // Encourage attacking positions.
     //------------------------------------------------
 
-    if(checkmate)
+    if(node.inCheck)
     {
+        reward += CHECK_BONUS;
+    }
+
+
+
+    //------------------------------------------------
+    // Terminal game results
+    //------------------------------------------------
+
+    if(node.checkmate)
+    {
+        //------------------------------------------------
+        // Winning state
+        //------------------------------------------------
+
         reward += CHECKMATE_BONUS;
     }
-
-    if(lost)
+    else if(node.stalemate)
     {
-        reward += LOSS_PENALTY;
-    }
+        //------------------------------------------------
+        // Draw
+        //------------------------------------------------
 
-    if(stalemate)
-    {
         reward += STALEMATE_PENALTY;
     }
+
+
+
+    //------------------------------------------------
+    // IMPORTANT:
+    //
+    // node.terminal does NOT mean losing.
+    //
+    // DecisionTreeEngine also marks nodes terminal
+    // when search depth finishes.
+    //
+    // Therefore we do NOT apply LOSS_PENALTY here.
+    //
+    //------------------------------------------------
 
 
 
@@ -88,7 +116,12 @@ float RewardSystem::calculateReward(
 
 
 
+    //------------------------------------------------
+    // Store reward
+    //------------------------------------------------
+
     currentReward = reward;
+
 
     return currentReward;
 }

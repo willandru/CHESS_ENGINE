@@ -1,7 +1,6 @@
 #include "RLSystem.h"
 
 #include <iostream>
-#include <vector>
 
 
 //====================================================
@@ -10,9 +9,6 @@
 
 RLSystem::RLSystem()
 {
-    std::cout
-        << "[RLSystem] Constructor"
-        << std::endl;
 }
 
 
@@ -24,38 +20,17 @@ RLSystem::RLSystem()
 void RLSystem::initialize()
 {
 
-    std::cout
-        << "[RLSystem] initialize()"
-        << std::endl;
-
-
     if(initialized)
-    {
-        std::cout
-            << "[RLSystem] Already initialized"
-            << std::endl;
-
         return;
-    }
 
 
 
     //------------------------------------------------
-    // Create shared network
+    // Create neural network
     //------------------------------------------------
-
-    std::cout
-        << "[RLSystem] Creating DecisionDL"
-        << std::endl;
-
 
     decisionDL =
         std::make_shared<DecisionDL>();
-
-
-    std::cout
-        << "[RLSystem] DecisionDL created"
-        << std::endl;
 
 
 
@@ -63,21 +38,10 @@ void RLSystem::initialize()
     // Initialize network
     //------------------------------------------------
 
-    std::cout
-        << "[RLSystem] Initializing DecisionDL"
-        << std::endl;
-
-
     decisionDL->initialize(
-        DecisionDL::MAX_CHILDREN,
-        64,
-        DecisionDL::MAX_CHILDREN
-    );
-
-
-    std::cout
-        << "[RLSystem] DecisionDL initialized"
-        << std::endl;
+        FeatureEngineering::inputSize(),
+        128,
+        64);
 
 
 
@@ -85,72 +49,149 @@ void RLSystem::initialize()
     // Create trainer
     //------------------------------------------------
 
-    std::cout
-        << "[RLSystem] Creating RLTrainer"
-        << std::endl;
-
-
     trainer =
         std::make_unique<RLTrainer>(
-            decisionDL
-        );
-
-
-    std::cout
-        << "[RLSystem] RLTrainer created"
-        << std::endl;
+            decisionDL);
 
 
 
     //------------------------------------------------
-    // Initialize trainer
+    // Initialize optimizer
     //------------------------------------------------
-
-    std::cout
-        << "[RLSystem] Initializing RLTrainer"
-        << std::endl;
-
 
     trainer->initialize();
 
 
-    std::cout
-        << "[RLSystem] RLTrainer initialized"
-        << std::endl;
-
-
 
     //------------------------------------------------
-    // Reward system
+    // Reset episode
     //------------------------------------------------
 
-    std::cout
-        << "[RLSystem] Reset reward"
-        << std::endl;
-
-
-    rewardSystem.reset();
-
-
-    std::cout
-        << "[RLSystem] Reward initialized"
-        << std::endl;
+    newEpisode();
 
 
 
     initialized = true;
-
-
-    std::cout
-        << "[RLSystem] Initialization complete"
-        << std::endl;
-
 }
 
 
 
 //====================================================
-// DECIDE
+// NEW EPISODE
+//====================================================
+
+void RLSystem::newEpisode()
+{
+
+    turn = 0;
+
+    hasPreviousTransition = false;
+
+    previousStateAction =
+        torch::Tensor();
+
+
+
+    previousNode =
+        DecisionNode{};
+
+
+
+    rewardSystem.reset();
+
+
+
+    if(trainer)
+    {
+        trainer->resetExploration();
+    }
+}
+
+
+
+//====================================================
+// FINISH EPISODE
+//====================================================
+
+void RLSystem::finishEpisode(
+    const GameState& state)
+{
+
+    hasPreviousTransition = false;
+
+
+    currentCandidates.clear();
+
+
+    rewardSystem.reset();
+}
+
+
+
+//====================================================
+// ENCODE CANDIDATES
+//
+// Converts:
+//
+// DecisionNode[]
+//
+// into:
+//
+// Tensor [N x inputSize]
+//
+//====================================================
+
+torch::Tensor RLSystem::encodeCandidates(
+    const GameState& state)
+{
+
+    if(currentCandidates.empty())
+    {
+        return torch::empty(
+            {0, FeatureEngineering::inputSize()});
+    }
+
+
+
+    std::vector<torch::Tensor> tensors;
+
+
+    tensors.reserve(
+        currentCandidates.size());
+
+
+
+    for(const DecisionNode& node :
+        currentCandidates)
+    {
+
+        std::vector<float> features =
+            FeatureEngineering::encode(
+                state,
+                node);
+
+
+
+        tensors.push_back(
+            torch::tensor(
+                features));
+    }
+
+
+
+    return torch::stack(
+        tensors);
+}
+
+
+
+//====================================================
+// DECIDE MOVE
+//
+// Generates candidates,
+// selects action,
+// stores previous transition.
+//
 //====================================================
 
 bool RLSystem::decide(
@@ -158,40 +199,139 @@ bool RLSystem::decide(
     Move& move)
 {
 
-    std::cout
-        << "[RLSystem] decide()"
-        << std::endl;
-
-
     if(!initialized)
-    {
-        std::cout
-            << "[RLSystem] ERROR: not initialized"
-            << std::endl;
+        return false;
 
+
+
+    //------------------------------------------------
+    // Generate decision tree
+    //------------------------------------------------
+
+    tree.build(
+        state,
+        searchDepth);
+
+
+
+    //------------------------------------------------
+    // Obtain candidate nodes
+    //------------------------------------------------
+
+    const DecisionNode& root =
+        tree.getRoot();
+
+
+
+    currentCandidates =
+        root.children;
+
+
+
+    //------------------------------------------------
+    // No possible moves
+    //------------------------------------------------
+
+    if(currentCandidates.empty())
+    {
         return false;
     }
 
 
 
     //------------------------------------------------
-    // Build tree
+    // Encode candidates
     //------------------------------------------------
 
-    std::cout
-        << "[RLSystem] Building tree"
-        << std::endl;
+    torch::Tensor candidateTensor =
+        encodeCandidates(
+            state);
 
+
+
+    //------------------------------------------------
+    // Select action using RL policy
+    //------------------------------------------------
+
+    uint32_t selected =
+        trainer->selectAction(
+            candidateTensor);
+
+
+
+    if(selected >= currentCandidates.size())
+    {
+        selected = 0;
+    }
+
+
+
+    //------------------------------------------------
+    // Store transition information
+    //------------------------------------------------
+
+    previousStateAction =
+        candidateTensor[selected]
+        .unsqueeze(0);
+
+
+
+    previousNode =
+        currentCandidates[selected];
+
+
+
+    hasPreviousTransition = true;
+
+
+
+    //------------------------------------------------
+    // Return chosen move
+    //------------------------------------------------
+
+    move =
+        currentCandidates[selected]
+        .move;
+
+
+
+    return true;
+}
+
+//====================================================
+// OBSERVE ENVIRONMENT
+//
+// Called after the game engine executes
+// the selected move.
+//
+// Creates:
+//
+// (state, action, reward, nextState)
+//
+// and sends it to RLTrainer.
+//
+//====================================================
+
+void RLSystem::observe(
+    const GameState& state)
+{
+
+    std::cout 
+    << "[RL] OBSERVE CALLED"
+    << std::endl;
+
+    if(!hasPreviousTransition)
+        return;
+
+
+
+    //------------------------------------------------
+    // Generate next state candidates
+    //------------------------------------------------
 
     tree.build(
         state,
-        searchDepth
-    );
-
-
-    std::cout
-        << "[RLSystem] Tree built"
-        << std::endl;
+        searchDepth);
 
 
 
@@ -199,139 +339,275 @@ bool RLSystem::decide(
         tree.getRoot();
 
 
-    std::cout
-        << "[RLSystem] Children: "
-        << root.children.size()
-        << std::endl;
+
+    std::vector<DecisionNode> nextCandidates =
+        root.children;
 
 
 
-    if(root.children.empty())
+    //------------------------------------------------
+    // Encode next actions
+    //------------------------------------------------
+
+    torch::Tensor nextStateActions;
+
+
+
+    if(nextCandidates.empty())
     {
-        std::cout
-            << "[RLSystem] No legal moves"
-            << std::endl;
 
+        nextStateActions =
+            torch::empty(
+                {
+                    0,
+                    FeatureEngineering::inputSize()
+                });
+    }
+    else
+    {
+
+        std::vector<torch::Tensor> tensors;
+
+
+        tensors.reserve(
+            nextCandidates.size());
+
+
+
+        for(const DecisionNode& node :
+            nextCandidates)
+        {
+
+            std::vector<float> features =
+                FeatureEngineering::encode(
+                    state,
+                    node);
+
+
+
+            tensors.push_back(
+                torch::tensor(
+                    features));
+        }
+
+
+
+        nextStateActions =
+            torch::stack(
+                tensors);
+    }
+
+
+
+    //------------------------------------------------
+    // Calculate reward
+    //------------------------------------------------
+
+    float reward =
+        rewardSystem.calculateReward(
+            previousNode,
+            turn);
+
+
+
+    //------------------------------------------------
+    // Create transition
+    //------------------------------------------------
+
+    RLTransition transition;
+
+
+    transition.currentStateAction =
+        previousStateAction.clone();
+
+
+
+    transition.nextStateActions =
+        nextStateActions.clone();
+
+
+
+    transition.reward =
+        reward;
+
+
+
+    transition.done =
+        isTerminal(
+            previousNode);
+
+
+
+            std::cout
+    << "[RL] Reward generated: "
+    << reward
+    << std::endl;
+
+    //------------------------------------------------
+    // Store experience
+    //------------------------------------------------
+
+    trainer->remember(
+        transition);
+
+
+
+    //------------------------------------------------
+    // Train network
+    //------------------------------------------------
+
+    if(trainingEnabled)
+    {
+        trainer->trainStep();
+    }
+
+
+
+    //------------------------------------------------
+    // Prepare next turn
+    //------------------------------------------------
+
+    hasPreviousTransition = false;
+
+
+    ++turn;
+}
+
+
+
+//====================================================
+// TERMINAL CHECK
+//====================================================
+
+bool RLSystem::isTerminal(
+    const DecisionNode& node) const
+{
+
+    return
+        node.checkmate ||
+        node.stalemate ||
+        node.terminal;
+}
+
+
+
+//====================================================
+// TRAINING CONTROL
+//====================================================
+
+void RLSystem::setTrainingEnabled(
+    bool enabled)
+{
+    trainingEnabled = enabled;
+}
+
+
+
+//====================================================
+// IS TRAINING ENABLED
+//====================================================
+
+bool RLSystem::isTrainingEnabled() const
+{
+    return trainingEnabled;
+}
+
+
+
+//====================================================
+// SET EPSILON
+//====================================================
+
+void RLSystem::setEpsilon(
+    float value)
+{
+
+    if(!trainer)
+        return;
+
+
+    //
+    // Direct access to epsilon is intentionally
+    // controlled by RLTrainer.
+    //
+    // This is a temporary testing interface.
+    //
+
+    trainer->resetExploration();
+}
+
+
+
+//====================================================
+// GET EPSILON
+//====================================================
+
+float RLSystem::getEpsilon() const
+{
+
+    if(!trainer)
+        return 0.0f;
+
+
+    return trainer->getExplorationRate();
+}
+
+
+
+//====================================================
+// SAVE MODEL
+//====================================================
+
+bool RLSystem::saveModel(
+    const std::string& filename)
+{
+
+    if(!decisionDL)
+        return false;
+
+
+    try
+    {
+
+        trainer->saveModel(
+            filename);
+
+    }
+    catch(...)
+    {
         return false;
     }
-
-
-
-    //------------------------------------------------
-    // Random candidates
-    //------------------------------------------------
-
-    std::cout
-        << "[RLSystem] Selecting candidates"
-        << std::endl;
-
-
-    std::vector<DecisionNode> candidates =
-        decisionDL->selectChildren(
-            root.children
-        );
-
-
-    std::cout
-        << "[RLSystem] Selected "
-        << candidates.size()
-        << " candidates"
-        << std::endl;
-
-
-
-    if(candidates.empty())
-    {
-        std::cout
-            << "[RLSystem] ERROR: empty candidates"
-            << std::endl;
-
-        return false;
-    }
-
-
-
-    //------------------------------------------------
-    // Encode
-    //------------------------------------------------
-
-    std::cout
-        << "[RLSystem] Encoding"
-        << std::endl;
-
-
-    torch::Tensor input =
-        decisionDL->encodeChildren(
-            candidates
-        );
-
-
-    std::cout
-        << "[RLSystem] Input shape: "
-        << input.sizes()
-        << std::endl;
-
-
-
-    //------------------------------------------------
-    // Forward
-    //------------------------------------------------
-
-    std::cout
-        << "[RLSystem] Forward"
-        << std::endl;
-
-
-    torch::Tensor qValues =
-        decisionDL->forward(
-            input
-        );
-
-
-    std::cout
-        << "[RLSystem] Output shape: "
-        << qValues.sizes()
-        << std::endl;
-
-
-
-    //------------------------------------------------
-    // Best action
-    //------------------------------------------------
-
-    int64_t action =
-        qValues.argmax(1)
-               .item<int64_t>();
-
-
-    std::cout
-        << "[RLSystem] Best action: "
-        << action
-        << std::endl;
-
-
-
-    if(action < 0 ||
-       action >= static_cast<int64_t>(candidates.size()))
-    {
-        std::cout
-            << "[RLSystem] Invalid action -> using 0"
-            << std::endl;
-
-        action = 0;
-    }
-
-
-
-    move =
-        candidates[action].move;
-
-
-    std::cout
-        << "[RLSystem] Move selected"
-        << std::endl;
 
 
     return true;
+}
 
+
+
+//====================================================
+// LOAD MODEL
+//====================================================
+
+bool RLSystem::loadModel(
+    const std::string& filename)
+{
+
+    if(!decisionDL)
+        return false;
+
+
+    try
+    {
+
+        trainer->loadModel(
+            filename);
+
+    }
+    catch(...)
+    {
+        return false;
+    }
+
+
+    return true;
 }
