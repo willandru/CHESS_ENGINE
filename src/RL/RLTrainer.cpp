@@ -1,7 +1,7 @@
 #include "RLTrainer.h"
 
 #include <iostream>
-
+#include <filesystem>
 
 
 //====================================================
@@ -219,6 +219,15 @@ bool RLTrainer::saveModel(
     if(!decisionDL)
         return false;
 
+    std::cout
+        << "Current path: "
+        << std::filesystem::current_path()
+        << std::endl;
+
+    std::cout
+        << "Saving to: "
+        << filename
+        << std::endl;
 
     try
     {
@@ -228,13 +237,17 @@ bool RLTrainer::saveModel(
             filename);
 
     }
-    catch(...)
+    catch(const std::exception& e)
     {
+
+        std::cout
+            << "[RLTrainer] Save exception: "
+            << e.what()
+            << std::endl;
 
         return false;
 
     }
-
 
     return true;
 

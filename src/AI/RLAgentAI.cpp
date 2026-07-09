@@ -1,18 +1,17 @@
 #include "RLAgentAI.h"
 
 #include "RLSystem.h"
-#include "AgentRegistry.h"
 
 #include <iostream>
-#include <memory>
 
 
 //====================================================
-// CONSTRUCTOR
+// DEFAULT CONSTRUCTOR
 //====================================================
 
 RLAgentAI::RLAgentAI()
 {
+
     std::cout
         << "Creating RLAgentAI"
         << std::endl;
@@ -24,16 +23,104 @@ RLAgentAI::RLAgentAI()
 
     rlSystem->initialize();
 
-
-    std::cout
-        << "RLSystem initialized"
-        << std::endl;
 }
 
 
 
 //====================================================
-// AGENT TYPE
+// MODEL CONSTRUCTOR
+//====================================================
+
+RLAgentAI::RLAgentAI(
+    const char* path)
+{
+
+    std::cout
+        << "Creating RLAgentAI"
+        << std::endl;
+
+
+
+    modelPath = path;
+
+
+
+    rlSystem =
+        std::make_unique<RLSystem>();
+
+
+    //------------------------------------------------
+    // Initialize neural system
+    //------------------------------------------------
+
+    rlSystem->initialize();
+
+
+
+    std::cout
+        << "[RLAgentAI] Model path: "
+        << modelPath
+        << std::endl;
+
+
+
+    //------------------------------------------------
+    // Load existing model
+    //------------------------------------------------
+
+    if(rlSystem->loadModel(modelPath))
+    {
+
+        std::cout
+            << "[RLAgentAI] Model loaded"
+            << std::endl;
+
+    }
+
+    else
+    {
+
+        std::cout
+            << "[RLAgentAI] No model found"
+            << std::endl;
+
+
+        std::cout
+            << "[RLAgentAI] Creating new model"
+            << std::endl;
+
+
+
+        //------------------------------------------------
+        // Save initial random weights
+        //------------------------------------------------
+
+        if(rlSystem->saveModel(modelPath))
+        {
+
+            std::cout
+                << "[RLAgentAI] New model created"
+                << std::endl;
+
+        }
+
+        else
+        {
+
+            std::cout
+                << "[RLAgentAI] Failed creating model"
+                << std::endl;
+
+        }
+
+    }
+
+}
+
+
+
+//====================================================
+// AGENT
 //====================================================
 
 bool RLAgentAI::isHuman() const
@@ -44,7 +131,7 @@ bool RLAgentAI::isHuman() const
 
 
 //====================================================
-// DECIDE MOVE
+// DECISION
 //====================================================
 
 bool RLAgentAI::decide(
@@ -57,6 +144,7 @@ bool RLAgentAI::decide(
         << std::endl;
 
 
+
     if(!rlSystem)
         return false;
 
@@ -64,118 +152,104 @@ bool RLAgentAI::decide(
 
     return rlSystem->decide(
         state,
-        move);
+        move
+    );
+
 }
 
 
 
 //====================================================
-// OBSERVE RESULT
-//
-// Called after the engine executes
-// the selected move.
-//
+// OBSERVE
 //====================================================
 
 void RLAgentAI::observe(
     const GameState& state)
 {
-    std::cout
-        << "[RLAgentAI] observe called"
-        << std::endl;
-
 
     if(!rlSystem)
         return;
 
 
-    rlSystem->observe(state);
+
+    rlSystem->observe(
+        state
+    );
+
 }
 
 
 
 //====================================================
 // FINISH GAME
-//
-// Called when game ends.
-//
-// victory:
-//      true  -> RL won
-//      false -> RL lost
-//
 //====================================================
 
 void RLAgentAI::finishGame(
-    bool victory)
+    bool win)
 {
 
     if(!rlSystem)
         return;
 
 
+
+    //------------------------------------------------
+    // Finish episode + train
+    //------------------------------------------------
+
     rlSystem->finishEpisode(
-        victory);
-}
-
-
-
-//====================================================
-// SAVE MODEL
-//====================================================
-
-bool RLAgentAI::saveModel(
-    const std::string& filename)
-{
-
-    if(!rlSystem)
-        return false;
-
-
-    return rlSystem->saveModel(
-        filename);
-}
-
-
-
-//====================================================
-// LOAD MODEL
-//====================================================
-
-bool RLAgentAI::loadModel(
-    const std::string& filename)
-{
-
-    if(!rlSystem)
-        return false;
-
-
-    return rlSystem->loadModel(
-        filename);
-}
-
-
-
-//====================================================
-// REGISTRATION
-//====================================================
-
-namespace
-{
-
-const bool registered = []()
-{
-
-    AgentRegistry::registerAgent(
-        "RLAgentAI",
-        []() -> std::unique_ptr<Agent>
-        {
-            return std::make_unique<RLAgentAI>();
-        }
+        win
     );
 
 
-    return true;
 
-}();
+    //------------------------------------------------
+    // Save updated weights
+    //------------------------------------------------
 
+    if(!modelPath.empty())
+    {
+
+        if(rlSystem->saveModel(modelPath))
+        {
+
+            std::cout
+                << "[RLAgentAI] Model saved: "
+                << modelPath
+                << std::endl;
+
+        }
+
+        else
+        {
+
+            std::cout
+                << "[RLAgentAI] Failed saving model"
+                << std::endl;
+
+        }
+
+    }
+
+}
+
+
+
+//====================================================
+// MODEL PATH
+//====================================================
+
+void RLAgentAI::setModelPath(
+    const std::string& path)
+{
+
+    modelPath = path;
+
+}
+
+
+
+const std::string& RLAgentAI::getModelPath() const
+{
+    return modelPath;
 }

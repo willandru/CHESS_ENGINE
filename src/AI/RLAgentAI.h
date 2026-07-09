@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "Agent.h"
 
 #include <memory>
@@ -13,13 +14,13 @@ class RLSystem;
 //====================================================
 // RL AGENT AI
 //
-// Interface between chess engine and RLSystem.
+// Reinforcement Learning agent.
 //
-// Responsible for:
-// - Requesting actions
-// - Sending environment updates
-// - Ending episodes
-// - Model persistence
+// Responsibilities:
+//
+// - Interface between ChessGame and RLSystem
+// - Owns model path
+// - Controls model loading/saving
 //
 //====================================================
 
@@ -29,17 +30,20 @@ class RLAgentAI : public Agent
 public:
 
 
-    //================================================
-    // Constructor
-    //================================================
+    //------------------------------------------------
+    // Constructors
+    //------------------------------------------------
 
     RLAgentAI();
 
+    explicit RLAgentAI(
+        const char* path);
 
 
-    //================================================
-    // Agent interface
-    //================================================
+
+    //------------------------------------------------
+    // AGENT INTERFACE
+    //------------------------------------------------
 
     bool isHuman() const override;
 
@@ -52,56 +56,55 @@ public:
 
 
 
-    //================================================
-    // RL environment callbacks
-    //
-    // Called by game engine after:
-    //
-    // Move execution
-    //
-    //================================================
-
     void observe(
-        const GameState& state);
+        const GameState& state
+    ) override;
 
 
 
-    //================================================
-    // Episode termination
-    //
-    // victory:
-    //
-    // true  -> RL agent won
-    // false -> RL agent lost
-    //
-    //================================================
+    //------------------------------------------------
+    // RL EPISODE CONTROL
+    //------------------------------------------------
 
     void finishGame(
-        bool victory);
+        bool win);
 
 
 
-    //================================================
-    // Model persistence
-    //================================================
+    //------------------------------------------------
+    // MODEL PATH
+    //------------------------------------------------
 
-    bool saveModel(
-        const std::string& filename);
+    void setModelPath(
+        const std::string& path);
 
 
 
-    bool loadModel(
-        const std::string& filename);
+    const std::string& getModelPath() const;
 
 
 
 private:
 
 
-    //================================================
-    // Reinforcement Learning controller
-    //================================================
+    //------------------------------------------------
+    // RL CORE SYSTEM
+    //------------------------------------------------
 
     std::unique_ptr<RLSystem> rlSystem;
+
+
+
+    //------------------------------------------------
+    // Individual model file
+    //
+    // Example:
+    //
+    // player1 -> src/RL/models/player1.model
+    // player2 -> src/RL/models/player2.model
+    //
+    //------------------------------------------------
+
+    std::string modelPath;
 
 };

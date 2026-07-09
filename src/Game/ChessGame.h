@@ -101,6 +101,8 @@ private:
     bool inCheckmate = false;
     bool inStalemate = false;
 
+    bool pendingRestart = false;
+
     //------------------------------------------------
     // AI TIMING CONTROL
     //------------------------------------------------

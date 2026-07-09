@@ -44,6 +44,8 @@ void ChessGame::reset()
     inCheckmate = false;
     inStalemate = false;
 
+    pendingRestart = false;
+
     aiTimer = 0.0f;
 }
 
@@ -51,6 +53,18 @@ void ChessGame::reset()
 
 void ChessGame::update(float dt)
 {
+
+    if(pendingRestart)
+    {
+        std::cout
+            << "NEW GAME"
+            << std::endl;
+
+        reset();
+
+        return;
+    }
+
     if (promotionPending)
         return;
 
@@ -336,6 +350,8 @@ void ChessGame::updateGameStatus()
             rl->finishGame(false);
         }
 
+    pendingRestart = true;
+
     }
     else if (inCheck)
     {
@@ -343,6 +359,7 @@ void ChessGame::updateGameStatus()
     }
     else if (inStalemate)
     {
+        pendingRestart = true;
         std::cout << "STALEMATE\n";
     }
     else
