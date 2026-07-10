@@ -42,6 +42,19 @@ public:
         float aspectRatio
     ) const;
 
+        //------------------------------------------------
+    // DRAW WITH UNIFORM COLOR
+    //------------------------------------------------
+
+    void drawColored(
+        const Mesh3D& mesh,
+        const Transform3D& transform,
+        const Shader3D& shader,
+        const Camera3D& camera,
+        float aspectRatio,
+        const glm::vec3& color
+    ) const;
+
 
 
     //------------------------------------------------

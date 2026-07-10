@@ -6,6 +6,7 @@
 
 #include "ChessBoardRenderer3D.h"
 #include "ChessPieceRenderer3D.h"
+#include "HighlightRenderer3D.h"
 
 #include <string>
 
@@ -64,5 +65,6 @@ private:
     //------------------------------------------------
 
     ChessBoardRenderer3D boardRenderer;
+    HighlightRenderer3D highlightRenderer;
     ChessPieceRenderer3D pieceRenderer;
 };

@@ -9,11 +9,21 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
+uniform bool useUniformColor;
+uniform vec3 uniformColor;
+
 out vec3 Color;
 
 void main()
 {
-    Color = aColor;
+    if(useUniformColor)
+    {
+        Color = uniformColor;
+    }
+    else
+    {
+        Color = aColor;
+    }
 
     gl_Position =
         projection *

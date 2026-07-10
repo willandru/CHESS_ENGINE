@@ -42,16 +42,31 @@ void Renderer3D::endFrame() const
 //====================================================
 // DRAW
 //====================================================
+
 void Renderer3D::draw(
-    const Mesh3D& mesh,
-    const Transform3D& transform,
-    const Shader3D& shader,
-    const Camera3D& camera,
-    float aspectRatio
-) const
+        const Mesh3D& mesh,
+        const Transform3D& transform,
+        const Shader3D& shader,
+        const Camera3D& camera,
+        float aspectRatio
+    ) const
 {
     shader.bind();
 
+
+    //------------------------------------------------
+    // DEFAULT COLOR MODE
+    //------------------------------------------------
+
+    shader.setBool(
+        "useUniformColor",
+        false
+    );
+
+
+    //------------------------------------------------
+    // MATRICES
+    //------------------------------------------------
 
     shader.setMat4(
         "model",
@@ -72,6 +87,10 @@ void Renderer3D::draw(
         )
     );
 
+
+    //------------------------------------------------
+    // DRAW
+    //------------------------------------------------
 
     mesh.draw();
 
@@ -183,6 +202,70 @@ void Renderer3D::renderPiece(
 
 
     mesh.draw();
+
+
+    shader.unbind();
+}
+
+
+//====================================================
+// DRAW COLORED
+//====================================================
+//====================================================
+// DRAW COLORED
+//====================================================
+
+void Renderer3D::drawColored(
+    const Mesh3D& mesh,
+    const Transform3D& transform,
+    const Shader3D& shader,
+    const Camera3D& camera,
+    float aspectRatio,
+    const glm::vec3& color
+) const
+{
+    shader.bind();
+
+
+    shader.setBool(
+        "useUniformColor",
+        true
+    );
+
+
+    shader.setVec3(
+        "uniformColor",
+        color
+    );
+
+
+    shader.setMat4(
+        "model",
+        transform.getModelMatrix()
+    );
+
+
+    shader.setMat4(
+        "view",
+        camera.getViewMatrix()
+    );
+
+
+    shader.setMat4(
+        "projection",
+        camera.getProjectionMatrix(
+            aspectRatio
+        )
+    );
+
+
+    mesh.draw();
+
+
+    shader.setBool(
+        "useUniformColor",
+        false
+    );
 
 
     shader.unbind();

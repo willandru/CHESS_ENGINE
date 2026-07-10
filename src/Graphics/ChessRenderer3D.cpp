@@ -6,11 +6,20 @@
 
 #include <glm/glm.hpp>
 
+#include <iostream>
+
+
 extern Window gWindow;
+
+
+//====================================================
+// CONSTRUCTOR
+//====================================================
 
 ChessRenderer3D::ChessRenderer3D()
 {
 }
+
 
 //====================================================
 // INITIALIZATION
@@ -25,7 +34,7 @@ bool ChessRenderer3D::initialize(
     // BOARD SHADER
     //------------------------------------------------
 
-    if(!boardShader.load(
+    if (!boardShader.load(
         vertexShader,
         fragmentShader
     ))
@@ -33,11 +42,12 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
     //------------------------------------------------
     // PIECE SHADER
     //------------------------------------------------
 
-    if(!pieceShader.load(
+    if (!pieceShader.load(
         "Shaders/basic_piece_3d.vert",
         "Shaders/basic_piece_3d.frag"
     ))
@@ -45,30 +55,38 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
     //------------------------------------------------
     // OPENGL OPTIONS
     //------------------------------------------------
 
     renderer.enableDepthTest();
+
     renderer.enableFaceCulling();
+
+
 
     //------------------------------------------------
     // LOAD PIECES
     //------------------------------------------------
 
-    if(!pieceRenderer.initialize())
+    if (!pieceRenderer.initialize())
     {
         return false;
     }
 
+
     return true;
 }
+
 
 //====================================================
 // RENDER
 //====================================================
 
-void ChessRenderer3D::render(const ChessGame& game)
+void ChessRenderer3D::render(
+    const ChessGame& game
+)
 {
     renderer.beginFrame(
         glm::vec4(
@@ -79,9 +97,17 @@ void ChessRenderer3D::render(const ChessGame& game)
         )
     );
 
+
     float aspectRatio =
-        static_cast<float>(gWindow.getWindowWidth()) /
-        static_cast<float>(gWindow.getWindowHeight());
+        static_cast<float>(
+            gWindow.getWindowWidth()
+        )
+        /
+        static_cast<float>(
+            gWindow.getWindowHeight()
+        );
+
+
 
     //------------------------------------------------
     // BOARD
@@ -94,13 +120,34 @@ void ChessRenderer3D::render(const ChessGame& game)
         aspectRatio
     );
 
+
+
+    //------------------------------------------------
+    // HIGHLIGHTS
+    //------------------------------------------------
+
+    highlightRenderer.render(
+        renderer,
+        boardShader,
+        camera,
+        aspectRatio,
+        game
+    );
+
+
+
     //------------------------------------------------
     // PIECES
     //------------------------------------------------
 
-    const GameState& state = game.getGameState();
+    const GameState& state =
+        game.getGameState();
 
-    const Piece* board = state.getBoard();
+
+    const Piece* board =
+        state.getBoard();
+
+
 
     for(uint8_t square = 0; square < 64; ++square)
     {
@@ -114,8 +161,11 @@ void ChessRenderer3D::render(const ChessGame& game)
         );
     }
 
+
+
     renderer.endFrame();
 }
+
 
 //====================================================
 // CAMERA

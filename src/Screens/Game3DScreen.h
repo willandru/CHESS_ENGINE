@@ -7,7 +7,6 @@
 
 class Game3DScreen : public Screen
 {
-
 public:
 
     void onEnter() override;
@@ -18,11 +17,9 @@ public:
 
     void onExit() override;
 
-
 private:
 
     ChessRenderer3D renderer3D;
 
     ChessGame game;
-
 };
