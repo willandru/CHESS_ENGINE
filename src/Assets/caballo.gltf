@@ -8,40 +8,34 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cube",
-			"translation":[
+			"name":"Cylinder"
+		},
+		{
+			"name":"Empty",
+			"rotation":[
+				0.70710688829422,
 				0,
-				1,
+				0,
+				0.7071066498756409
+			],
+			"translation":[
+				-1.2150988578796387,
+				1.9857373237609863,
 				0
 			]
 		}
 	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"name":"Material",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.800000011920929,
-					0.800000011920929,
-					0.800000011920929,
-					1
-				],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
-		}
-	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"Cylinder",
 			"primitives":[
 				{
 					"attributes":{
@@ -49,8 +43,7 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3,
-					"material":0
+					"indices":3
 				}
 			]
 		}
@@ -59,67 +52,67 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":24,
+			"count":4542,
 			"max":[
-				1,
-				1,
-				1
+				0.3499999940395355,
+				1.1974806785583496,
+				0.3499999940395355
 			],
 			"min":[
-				-1,
-				-1,
-				-1
+				-0.3499999940395355,
+				-0.0025193465407937765,
+				-0.3499999940395355
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":24,
+			"count":4542,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":24,
+			"count":4542,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":36,
+			"count":7164,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":288,
+			"byteLength":54504,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
-			"byteOffset":288,
+			"byteLength":54504,
+			"byteOffset":54504,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":192,
-			"byteOffset":576,
+			"byteLength":36336,
+			"byteOffset":109008,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":72,
-			"byteOffset":768,
+			"byteLength":14328,
+			"byteOffset":145344,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":840,
+			"byteLength":159672,
 			"uri":"caballo.bin"
 		}
 	]
