@@ -37,26 +37,15 @@ const Mesh3D& ChessPieceMesh3D::getMesh() const
 }
 
 
-
-//====================================================
-// GLTF LOADER
-//====================================================
-
 bool ChessPieceMesh3D::loadGLTF(
     const std::string& path
 )
 {
-
     tinygltf::Model model;
-
     tinygltf::TinyGLTF loader;
 
-
     std::string error;
-
     std::string warning;
-
-
 
     bool result =
         loader.LoadASCIIFromFile(
@@ -66,7 +55,6 @@ bool ChessPieceMesh3D::loadGLTF(
             path
         );
 
-
     if(!warning.empty())
     {
         std::cout
@@ -74,7 +62,6 @@ bool ChessPieceMesh3D::loadGLTF(
             << warning
             << std::endl;
     }
-
 
     if(!error.empty())
     {
@@ -84,26 +71,18 @@ bool ChessPieceMesh3D::loadGLTF(
             << std::endl;
     }
 
-
     if(!result)
     {
         return false;
     }
-
-
 
     if(model.meshes.empty())
     {
         return false;
     }
 
-
-
     std::vector<Vertex3D> vertices;
-
     std::vector<uint32_t> indices;
-
-
 
     //------------------------------------------------
     // FIRST MESH
@@ -112,11 +91,8 @@ bool ChessPieceMesh3D::loadGLTF(
     const auto& gltfMesh =
         model.meshes[0];
 
-
     const auto& primitive =
         gltfMesh.primitives[0];
-
-
 
     //------------------------------------------------
     // POSITIONS
@@ -127,19 +103,15 @@ bool ChessPieceMesh3D::loadGLTF(
             primitive.attributes.at("POSITION")
         ];
 
-
     auto posView =
         model.bufferViews[
             posAccessor.bufferView
         ];
 
-
     auto& posBuffer =
         model.buffers[
             posView.buffer
         ];
-
-
 
     const float* positions =
         reinterpret_cast<const float*>(
@@ -149,37 +121,28 @@ bool ChessPieceMesh3D::loadGLTF(
             ]
         );
 
-
-
     //------------------------------------------------
     // NORMALS
     //------------------------------------------------
 
     const float* normals = nullptr;
 
-
-    if(
-        primitive.attributes.count("NORMAL")
-    )
+    if(primitive.attributes.count("NORMAL"))
     {
-
         auto normalAccessor =
             model.accessors[
                 primitive.attributes.at("NORMAL")
             ];
-
 
         auto normalView =
             model.bufferViews[
                 normalAccessor.bufferView
             ];
 
-
         auto& normalBuffer =
             model.buffers[
                 normalView.buffer
             ];
-
 
         normals =
             reinterpret_cast<const float*>(
@@ -188,10 +151,7 @@ bool ChessPieceMesh3D::loadGLTF(
                     normalView.byteOffset
                 ]
             );
-
     }
-
-
 
     //------------------------------------------------
     // CREATE VERTICES
@@ -201,9 +161,7 @@ bool ChessPieceMesh3D::loadGLTF(
         i < posAccessor.count;
         i++)
     {
-
         Vertex3D vertex;
-
 
         vertex.position =
         {
@@ -211,7 +169,6 @@ bool ChessPieceMesh3D::loadGLTF(
             positions[i*3+1],
             positions[i*3+2]
         };
-
 
         if(normals)
         {
@@ -232,15 +189,12 @@ bool ChessPieceMesh3D::loadGLTF(
             };
         }
 
-
         vertex.texCoord =
         {
             0.0f,
             0.0f
         };
 
-
-        // material después
         vertex.color =
         {
             1.0f,
@@ -248,11 +202,8 @@ bool ChessPieceMesh3D::loadGLTF(
             1.0f
         };
 
-
         vertices.push_back(vertex);
     }
-
-
 
     //------------------------------------------------
     // INDICES
@@ -260,47 +211,104 @@ bool ChessPieceMesh3D::loadGLTF(
 
     if(primitive.indices >= 0)
     {
-
-        auto indexAccessor =
+        const auto& indexAccessor =
             model.accessors[
                 primitive.indices
             ];
 
-
-        auto indexView =
+        const auto& indexView =
             model.bufferViews[
                 indexAccessor.bufferView
             ];
 
-
-        auto& indexBuffer =
+        const auto& indexBuffer =
             model.buffers[
                 indexView.buffer
             ];
 
+        const unsigned char* buffer =
+            indexBuffer.data.data()
+            + indexView.byteOffset
+            + indexAccessor.byteOffset;
 
-
-        const uint32_t* data =
-            reinterpret_cast<const uint32_t*>(
-                &indexBuffer.data[
-                    indexAccessor.byteOffset +
-                    indexView.byteOffset
-                ]
-            );
-
-
-        for(size_t i=0;
-            i<indexAccessor.count;
-            i++)
+        switch(indexAccessor.componentType)
         {
-            indices.push_back(
-                data[i]
-            );
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+            {
+                const uint8_t* data =
+                    reinterpret_cast<const uint8_t*>(buffer);
+
+                for(size_t i = 0;
+                    i < indexAccessor.count;
+                    i++)
+                {
+                    indices.push_back(data[i]);
+                }
+
+                break;
+            }
+
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+            {
+                const uint16_t* data =
+                    reinterpret_cast<const uint16_t*>(buffer);
+
+                for(size_t i = 0;
+                    i < indexAccessor.count;
+                    i++)
+                {
+                    indices.push_back(data[i]);
+                }
+
+                break;
+            }
+
+            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+            {
+                const uint32_t* data =
+                    reinterpret_cast<const uint32_t*>(buffer);
+
+                for(size_t i = 0;
+                    i < indexAccessor.count;
+                    i++)
+                {
+                    indices.push_back(data[i]);
+                }
+
+                break;
+            }
+
+            default:
+            {
+                std::cout
+                    << "Unsupported index type: "
+                    << indexAccessor.componentType
+                    << std::endl;
+
+                return false;
+            }
         }
 
+        std::cout
+            << "Model: "
+            << path
+            << std::endl;
+
+        std::cout
+            << "Vertices: "
+            << vertices.size()
+            << std::endl;
+
+        std::cout
+            << "Indices: "
+            << indices.size()
+            << std::endl;
+
+        std::cout
+            << "Index component type: "
+            << indexAccessor.componentType
+            << std::endl;
     }
-
-
 
     //------------------------------------------------
     // GPU UPLOAD
@@ -311,12 +319,10 @@ bool ChessPieceMesh3D::loadGLTF(
         indices
     );
 
-
     std::cout
         << "[ChessPieceMesh3D] Loaded "
         << path
         << std::endl;
-
 
     return true;
 }

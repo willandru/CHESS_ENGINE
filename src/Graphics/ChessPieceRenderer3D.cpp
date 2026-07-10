@@ -26,6 +26,7 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 
 bool ChessPieceRenderer3D::initialize()
 {
+    std::cout << "ENTER ChessPieceRenderer3D::initialize()" << std::endl;
     bool ok = true;
 
     ok &= pieces[0].load(
@@ -81,6 +82,9 @@ void ChessPieceRenderer3D::render(
     uint8_t square
 )
 {
+
+    std::cout << "ENTER ChessPieceRenderer3D::render()" << std::endl;
+
     if(piece == Piece::EMPTY)
         return;
 
@@ -104,6 +108,15 @@ void ChessPieceRenderer3D::render(
         0.0f,
         z
     });
+    std::cout
+    << "Drawing piece index = "
+    << index
+    << " at ("
+    << x
+    << ", "
+    << z
+    << ")"
+    << std::endl;
 
     renderer.draw(
         pieces[index].getMesh(),

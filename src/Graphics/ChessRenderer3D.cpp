@@ -4,7 +4,6 @@
 
 #include <glm/glm.hpp>
 
-
 extern Window gWindow;
 
 
@@ -12,6 +11,7 @@ extern Window gWindow;
 ChessRenderer3D::ChessRenderer3D()
 {
 }
+
 
 
 //====================================================
@@ -31,11 +31,19 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
-
     renderer.enableDepthTest();
 
     renderer.enableFaceCulling();
 
+
+    //------------------------------------------------
+    // LOAD PIECES
+    //------------------------------------------------
+
+    if(!pieceRenderer.initialize())
+    {
+        return false;
+    }
 
     return true;
 }
@@ -68,7 +76,6 @@ void ChessRenderer3D::render()
         );
 
 
-
     //------------------------------------------------
     // BOARD
     //------------------------------------------------
@@ -79,6 +86,32 @@ void ChessRenderer3D::render()
         camera,
         aspectRatio
     );
+
+    //------------------------------------------------
+    // TEST PIECE
+    //------------------------------------------------
+
+    pieceRenderer.render(
+        renderer,
+        shader,
+        camera,
+        aspectRatio,
+        Piece::WHITE_KING,
+        27          // casilla de prueba (centro)
+    );
+
+    //------------------------------------------------
+    // PIECES
+    //------------------------------------------------
+    //
+    // AÚN FALTA RECORRER EL GAMESTATE.
+    // Aquí después iremos llamando:
+    //
+    // pieceRenderer.render(...)
+    //
+    // para cada casilla ocupada.
+    //
+    //------------------------------------------------
 
 
     renderer.endFrame();

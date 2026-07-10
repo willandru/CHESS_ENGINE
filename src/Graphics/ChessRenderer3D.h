@@ -3,9 +3,12 @@
 #include "Renderer3D.h"
 #include "Shader3D.h"
 #include "Camera3D.h"
+
 #include "ChessBoardRenderer3D.h"
+#include "ChessPieceRenderer3D.h"
 
 #include <string>
+
 
 
 class ChessRenderer3D
@@ -41,11 +44,22 @@ public:
 
 private:
 
+    //------------------------------------------------
+    // CORE
+    //------------------------------------------------
+
     Renderer3D renderer;
 
     Shader3D shader;
 
     Camera3D camera;
 
+
+    //------------------------------------------------
+    // RENDERERS
+    //------------------------------------------------
+
     ChessBoardRenderer3D boardRenderer;
+
+    ChessPieceRenderer3D pieceRenderer;
 };

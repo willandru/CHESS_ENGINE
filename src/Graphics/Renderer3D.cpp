@@ -1,7 +1,7 @@
 #include "Renderer3D.h"
 
 #include <glad/glad.h>
-
+#include <iostream>
 
 Renderer3D::Renderer3D()
 {
@@ -72,6 +72,10 @@ void Renderer3D::draw(
             aspectRatio
         )
     );
+    std::cout
+    << "Mesh indices = "
+    << mesh.getIndexCount()
+    << std::endl;
 
 
     mesh.draw();
