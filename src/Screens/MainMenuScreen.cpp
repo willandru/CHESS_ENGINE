@@ -41,7 +41,7 @@ void MainMenuScreen::onEnter()
 
     btn3D.setOnClick([]()
     {
-        gScreenManager.setScreen(ScreenType::Game);
+        gScreenManager.setScreen(ScreenType::Game3D);
     });
 
     exitBtn.setOnClick([]()
