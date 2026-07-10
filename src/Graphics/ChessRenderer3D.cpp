@@ -96,7 +96,7 @@ void ChessRenderer3D::render()
         shader,
         camera,
         aspectRatio,
-        Piece::WHITE_KING,
+        Piece::WHITE_ROOK,
         27          // casilla de prueba (centro)
     );
 
