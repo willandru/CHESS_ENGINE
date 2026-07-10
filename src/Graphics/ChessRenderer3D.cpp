@@ -1,19 +1,16 @@
 #include "ChessRenderer3D.h"
 
+#include "ChessGame.h"
+#include "GameState.h"
 #include "Window.h"
 
 #include <glm/glm.hpp>
 
-
 extern Window gWindow;
-
-
 
 ChessRenderer3D::ChessRenderer3D()
 {
 }
-
-
 
 //====================================================
 // INITIALIZATION
@@ -24,7 +21,6 @@ bool ChessRenderer3D::initialize(
     const std::string& fragmentShader
 )
 {
-
     //------------------------------------------------
     // BOARD SHADER
     //------------------------------------------------
@@ -36,8 +32,6 @@ bool ChessRenderer3D::initialize(
     {
         return false;
     }
-
-
 
     //------------------------------------------------
     // PIECE SHADER
@@ -51,17 +45,12 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
-
-
     //------------------------------------------------
     // OPENGL OPTIONS
     //------------------------------------------------
 
     renderer.enableDepthTest();
-
     renderer.enableFaceCulling();
-
-
 
     //------------------------------------------------
     // LOAD PIECES
@@ -72,20 +61,15 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
-
     return true;
 }
-
-
-
 
 //====================================================
 // RENDER
 //====================================================
 
-void ChessRenderer3D::render()
+void ChessRenderer3D::render(const ChessGame& game)
 {
-
     renderer.beginFrame(
         glm::vec4(
             0.15f,
@@ -95,18 +79,9 @@ void ChessRenderer3D::render()
         )
     );
 
-
-
     float aspectRatio =
-        static_cast<float>(
-            gWindow.getWindowWidth()
-        )
-        /
-        static_cast<float>(
-            gWindow.getWindowHeight()
-        );
-
-
+        static_cast<float>(gWindow.getWindowWidth()) /
+        static_cast<float>(gWindow.getWindowHeight());
 
     //------------------------------------------------
     // BOARD
@@ -119,48 +94,28 @@ void ChessRenderer3D::render()
         aspectRatio
     );
 
-
-
     //------------------------------------------------
-    // TEST PIECES
+    // PIECES
     //------------------------------------------------
 
+    const GameState& state = game.getGameState();
 
-    pieceRenderer.render(
-        renderer,
-        pieceShader,
-        camera,
-        aspectRatio,
-        Piece::WHITE_ROOK,
-        27
-    );
+    const Piece* board = state.getBoard();
 
-
-
-    pieceRenderer.render(
-        renderer,
-        pieceShader,
-        camera,
-        aspectRatio,
-        Piece::BLACK_ROOK,
-        1
-    );
-
-
-
-    //------------------------------------------------
-    // FUTURE:
-    // recorrer GameState
-    // y renderizar todas las piezas
-    //------------------------------------------------
-
-
+    for(uint8_t square = 0; square < 64; ++square)
+    {
+        pieceRenderer.render(
+            renderer,
+            pieceShader,
+            camera,
+            aspectRatio,
+            board[square],
+            square
+        );
+    }
 
     renderer.endFrame();
 }
-
-
-
 
 //====================================================
 // CAMERA

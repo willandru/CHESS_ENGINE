@@ -9,14 +9,13 @@
 
 #include <string>
 
-
+class ChessGame;
 
 class ChessRenderer3D
 {
 public:
 
     ChessRenderer3D();
-
 
     //------------------------------------------------
     // INITIALIZATION
@@ -27,20 +26,17 @@ public:
         const std::string& fragmentShader
     );
 
-
     //------------------------------------------------
     // RENDER
     //------------------------------------------------
 
-    void render();
-
+    void render(const ChessGame& game);
 
     //------------------------------------------------
     // CAMERA
     //------------------------------------------------
 
     Camera3D& getCamera();
-
 
 private:
 
@@ -50,15 +46,12 @@ private:
 
     Renderer3D renderer;
 
-
     //------------------------------------------------
     // SHADERS
     //------------------------------------------------
 
     Shader3D boardShader;
-
     Shader3D pieceShader;
-
 
     //------------------------------------------------
     // CAMERA
@@ -66,12 +59,10 @@ private:
 
     Camera3D camera;
 
-
     //------------------------------------------------
     // RENDERERS
     //------------------------------------------------
 
     ChessBoardRenderer3D boardRenderer;
-
     ChessPieceRenderer3D pieceRenderer;
 };

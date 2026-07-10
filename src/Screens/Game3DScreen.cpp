@@ -18,7 +18,7 @@ void Game3DScreen::update(float dt)
 
 void Game3DScreen::render()
 {
-    renderer3D.render();
+    renderer3D.render(game);
 }
 
 

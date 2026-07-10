@@ -3,7 +3,7 @@
 #include "Screen.h"
 
 #include "ChessRenderer3D.h"
-
+#include "ChessGame.h"
 
 class Game3DScreen : public Screen
 {
@@ -22,5 +22,7 @@ public:
 private:
 
     ChessRenderer3D renderer3D;
+
+    ChessGame game;
 
 };

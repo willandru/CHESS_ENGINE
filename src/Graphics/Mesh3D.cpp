@@ -168,7 +168,6 @@ void Mesh3D::upload(
 
 void Mesh3D::draw() const
 {
-    std::cout << "ENTER Mesh3D::draw()" << std::endl;
     if (vao == 0)
     {
         std::cout << "VAO == 0" << std::endl;
@@ -178,11 +177,6 @@ void Mesh3D::draw() const
     glBindVertexArray(
         vao
     );
-    std::cout
-    << "glDrawElements("
-    << indexCount
-    << ")"
-    << std::endl;
 
     glDrawElements(
         GL_TRIANGLES,
