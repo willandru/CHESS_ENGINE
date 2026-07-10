@@ -42,10 +42,10 @@ include_directories(
     externals/glfw-3.4/include
     externals/glm
     externals/stb
+    externals/tinygltf
 
     ${TORCH_INCLUDE_DIRS}
 )
-
 
 # ==========================================
 # GLAD
