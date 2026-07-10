@@ -15,27 +15,21 @@
 	],
 	"nodes":[
 		{
-			"name":"Empty",
-			"rotation":[
-				0.70710688829422,
-				0,
-				0,
-				0.7071066498756409
-			],
-			"translation":[
-				0.6353878974914551,
-				2.1302225589752197,
-				0
-			]
+			"name":"Empty"
 		},
 		{
 			"mesh":0,
-			"name":"Sphere"
+			"name":"Cylinder",
+			"translation":[
+				0,
+				-0.6948323249816895,
+				0
+			]
 		}
 	],
 	"meshes":[
 		{
-			"name":"Sphere",
+			"name":"Cylinder",
 			"primitives":[
 				{
 					"attributes":{
@@ -52,68 +46,68 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":7712,
+			"count":2538,
 			"max":[
-				0.4000000059604645,
-				1.700000286102295,
-				0.4000000059604645
+				0.3469720780849457,
+				1.949843406677246,
+				0.32499998807907104
 			],
 			"min":[
-				-0.4000000059604645,
-				9.556006119737503e-08,
-				-0.4000000059604645
+				-0.3030278980731964,
+				0.6998434066772461,
+				-0.32499998807907104
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":7712,
+			"count":2538,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":7712,
+			"count":2538,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":11460,
+			"count":4116,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":92544,
+			"byteLength":30456,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":92544,
-			"byteOffset":92544,
+			"byteLength":30456,
+			"byteOffset":30456,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":61696,
-			"byteOffset":185088,
+			"byteLength":20304,
+			"byteOffset":60912,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":22920,
-			"byteOffset":246784,
+			"byteLength":8232,
+			"byteOffset":81216,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":269704,
-			"uri":"reina.bin"
+			"byteLength":89448,
+			"uri":"rook.bin"
 		}
 	]
 }
