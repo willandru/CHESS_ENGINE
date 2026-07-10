@@ -42,7 +42,6 @@ void Renderer3D::endFrame() const
 //====================================================
 // DRAW
 //====================================================
-
 void Renderer3D::draw(
     const Mesh3D& mesh,
     const Transform3D& transform,
@@ -72,10 +71,6 @@ void Renderer3D::draw(
             aspectRatio
         )
     );
-    std::cout
-    << "Mesh indices = "
-    << mesh.getIndexCount()
-    << std::endl;
 
 
     mesh.draw();
@@ -83,7 +78,6 @@ void Renderer3D::draw(
 
     shader.unbind();
 }
-
 
 
 //====================================================
@@ -147,4 +141,49 @@ void Renderer3D::setViewport(
         width,
         height
     );
+}
+
+
+void Renderer3D::renderPiece(
+    const Mesh3D& mesh,
+    const Transform3D& transform,
+    const Material3D& material,
+    const Shader3D& shader,
+    const Camera3D& camera,
+    float aspectRatio
+) const
+{
+    shader.bind();
+
+
+    shader.setMat4(
+        "model",
+        transform.getModelMatrix()
+    );
+
+
+    shader.setMat4(
+        "view",
+        camera.getViewMatrix()
+    );
+
+
+    shader.setMat4(
+        "projection",
+        camera.getProjectionMatrix(
+            aspectRatio
+        )
+    );
+
+
+    shader.setVec3(
+        "materialColor",
+        material.getColor()
+    );
+
+
+    mesh.draw();
+
+
+    shader.unbind();
 }

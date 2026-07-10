@@ -2,6 +2,7 @@
 
 #include "ChessPieceMesh3D.h"
 #include "Transform3D.h"
+#include "Material3D.h"
 
 #include "Renderer3D.h"
 #include "Shader3D.h"
@@ -10,8 +11,6 @@
 #include "ChessTypes.h"
 
 #include <array>
-
-
 
 class ChessPieceRenderer3D
 {
@@ -24,6 +23,14 @@ public:
     //------------------------------------------------
 
     bool initialize();
+
+    //------------------------------------------------
+    // MATERIAL
+    //------------------------------------------------
+
+    Material3D& getWhiteMaterial();
+
+    Material3D& getBlackMaterial();
 
     //------------------------------------------------
     // RENDER
@@ -51,6 +58,13 @@ private:
     //------------------------------------------------
 
     Transform3D transform;
+
+    //------------------------------------------------
+    // MATERIAL
+    //------------------------------------------------
+
+    Material3D whiteMaterial;
+    Material3D blackMaterial;
 
     //------------------------------------------------
     // HELPERS

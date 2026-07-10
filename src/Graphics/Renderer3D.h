@@ -5,6 +5,8 @@
 #include "Transform3D.h"
 #include "Camera3D.h"
 
+#include "Material3D.h"
+
 #include <glm/glm.hpp>
 
 
@@ -29,12 +31,27 @@ public:
 
 
     //------------------------------------------------
-    // DRAW
+    // DRAW BASIC
     //------------------------------------------------
 
     void draw(
         const Mesh3D& mesh,
         const Transform3D& transform,
+        const Shader3D& shader,
+        const Camera3D& camera,
+        float aspectRatio
+    ) const;
+
+
+
+    //------------------------------------------------
+    // DRAW PIECE
+    //------------------------------------------------
+
+    void renderPiece(
+        const Mesh3D& mesh,
+        const Transform3D& transform,
+        const Material3D& material,
         const Shader3D& shader,
         const Camera3D& camera,
         float aspectRatio

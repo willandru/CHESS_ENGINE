@@ -15,11 +15,12 @@ public:
     //------------------------------------------------
 
     void setColor(
-        const glm::vec3& color
+        const glm::vec3& value
     );
 
 
     const glm::vec3& getColor() const;
+
 
 
 private:

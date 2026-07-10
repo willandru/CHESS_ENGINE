@@ -16,6 +16,22 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
         0.8f,
         0.8f
     });
+
+
+    whiteMaterial.setColor(
+    {
+        0.9f,
+        0.9f,
+        0.9f
+    });
+
+
+    blackMaterial.setColor(
+    {
+        0.05f,
+        0.05f,
+        0.05f
+    });
 }
 
 
@@ -26,7 +42,6 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 
 bool ChessPieceRenderer3D::initialize()
 {
-    std::cout << "ENTER ChessPieceRenderer3D::initialize()" << std::endl;
     bool ok = true;
 
     ok &= pieces[0].load(
@@ -72,7 +87,6 @@ bool ChessPieceRenderer3D::initialize()
 //====================================================
 // RENDER
 //====================================================
-
 void ChessPieceRenderer3D::render(
     Renderer3D& renderer,
     Shader3D& shader,
@@ -83,18 +97,19 @@ void ChessPieceRenderer3D::render(
 )
 {
 
-    std::cout << "ENTER ChessPieceRenderer3D::render()" << std::endl;
-
     if(piece == Piece::EMPTY)
         return;
+
 
     int index = getPieceIndex(piece);
 
     if(index < 0)
         return;
 
+
     float x;
     float z;
+
 
     squareToWorld(
         square,
@@ -102,31 +117,30 @@ void ChessPieceRenderer3D::render(
         z
     );
 
+
     transform.setPosition(
     {
         x,
         0.0f,
         z
     });
-    std::cout
-    << "Drawing piece index = "
-    << index
-    << " at ("
-    << x
-    << ", "
-    << z
-    << ")"
-    << std::endl;
 
-    renderer.draw(
+
+    Material3D& currentMaterial =
+        (piece >= Piece::BLACK_PAWN)
+        ? blackMaterial
+        : whiteMaterial;
+
+
+    renderer.renderPiece(
         pieces[index].getMesh(),
         transform,
+        currentMaterial,
         shader,
         camera,
         aspectRatio
     );
 }
-
 
 
 //====================================================
@@ -192,4 +206,15 @@ void ChessPieceRenderer3D::squareToWorld(
         row
         - 4.0f
         + 0.5f;
+}
+
+Material3D& ChessPieceRenderer3D::getWhiteMaterial()
+{
+    return whiteMaterial;
+}
+
+
+Material3D& ChessPieceRenderer3D::getBlackMaterial()
+{
+    return blackMaterial;
 }

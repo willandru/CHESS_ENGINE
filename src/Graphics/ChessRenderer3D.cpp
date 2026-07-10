@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+
 extern Window gWindow;
 
 
@@ -23,7 +24,12 @@ bool ChessRenderer3D::initialize(
     const std::string& fragmentShader
 )
 {
-    if (!shader.load(
+
+    //------------------------------------------------
+    // BOARD SHADER
+    //------------------------------------------------
+
+    if(!boardShader.load(
         vertexShader,
         fragmentShader
     ))
@@ -31,9 +37,30 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
+
+    //------------------------------------------------
+    // PIECE SHADER
+    //------------------------------------------------
+
+    if(!pieceShader.load(
+        "Shaders/basic_piece_3d.vert",
+        "Shaders/basic_piece_3d.frag"
+    ))
+    {
+        return false;
+    }
+
+
+
+    //------------------------------------------------
+    // OPENGL OPTIONS
+    //------------------------------------------------
+
     renderer.enableDepthTest();
 
     renderer.enableFaceCulling();
+
 
 
     //------------------------------------------------
@@ -45,8 +72,10 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
     return true;
 }
+
 
 
 
@@ -56,6 +85,7 @@ bool ChessRenderer3D::initialize(
 
 void ChessRenderer3D::render()
 {
+
     renderer.beginFrame(
         glm::vec4(
             0.15f,
@@ -64,6 +94,7 @@ void ChessRenderer3D::render()
             1.0f
         )
     );
+
 
 
     float aspectRatio =
@@ -76,46 +107,58 @@ void ChessRenderer3D::render()
         );
 
 
+
     //------------------------------------------------
     // BOARD
     //------------------------------------------------
 
     boardRenderer.render(
         renderer,
-        shader,
+        boardShader,
         camera,
         aspectRatio
     );
 
+
+
     //------------------------------------------------
-    // TEST PIECE
+    // TEST PIECES
     //------------------------------------------------
+
 
     pieceRenderer.render(
         renderer,
-        shader,
+        pieceShader,
         camera,
         aspectRatio,
         Piece::WHITE_ROOK,
-        27          // casilla de prueba (centro)
+        27
     );
 
+
+
+    pieceRenderer.render(
+        renderer,
+        pieceShader,
+        camera,
+        aspectRatio,
+        Piece::BLACK_ROOK,
+        1
+    );
+
+
+
     //------------------------------------------------
-    // PIECES
+    // FUTURE:
+    // recorrer GameState
+    // y renderizar todas las piezas
     //------------------------------------------------
-    //
-    // AÚN FALTA RECORRER EL GAMESTATE.
-    // Aquí después iremos llamando:
-    //
-    // pieceRenderer.render(...)
-    //
-    // para cada casilla ocupada.
-    //
-    //------------------------------------------------
+
 
 
     renderer.endFrame();
 }
+
 
 
 
