@@ -7,6 +7,10 @@
 
 #include "tiny_gltf.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <cfloat>
+
 
 ChessPieceMesh3D::ChessPieceMesh3D()
 {
@@ -47,6 +51,7 @@ bool ChessPieceMesh3D::loadGLTF(
     std::string error;
     std::string warning;
 
+
     bool result =
         loader.LoadASCIIFromFile(
             &model,
@@ -55,47 +60,36 @@ bool ChessPieceMesh3D::loadGLTF(
             path
         );
 
+
     if(!warning.empty())
-    {
-        std::cout
-            << "[GLTF WARNING] "
-            << warning
-            << std::endl;
-    }
+        std::cout << "[GLTF WARNING] " << warning << std::endl;
+
 
     if(!error.empty())
-    {
-        std::cout
-            << "[GLTF ERROR] "
-            << error
-            << std::endl;
-    }
+        std::cout << "[GLTF ERROR] " << error << std::endl;
+
 
     if(!result)
-    {
         return false;
-    }
+
 
     if(model.meshes.empty())
-    {
         return false;
-    }
+
+
 
     std::vector<Vertex3D> vertices;
     std::vector<uint32_t> indices;
 
-    //------------------------------------------------
-    // FIRST MESH
-    //------------------------------------------------
 
-    const auto& gltfMesh =
-        model.meshes[0];
 
     const auto& primitive =
-        gltfMesh.primitives[0];
+        model.meshes[0].primitives[0];
+
+
 
     //------------------------------------------------
-    // POSITIONS
+    // POSITION DATA
     //------------------------------------------------
 
     auto posAccessor =
@@ -103,15 +97,18 @@ bool ChessPieceMesh3D::loadGLTF(
             primitive.attributes.at("POSITION")
         ];
 
+
     auto posView =
         model.bufferViews[
             posAccessor.bufferView
         ];
 
+
     auto& posBuffer =
         model.buffers[
             posView.buffer
         ];
+
 
     const float* positions =
         reinterpret_cast<const float*>(
@@ -121,11 +118,14 @@ bool ChessPieceMesh3D::loadGLTF(
             ]
         );
 
+
+
     //------------------------------------------------
-    // NORMALS
+    // NORMAL DATA
     //------------------------------------------------
 
     const float* normals = nullptr;
+
 
     if(primitive.attributes.count("NORMAL"))
     {
@@ -134,15 +134,18 @@ bool ChessPieceMesh3D::loadGLTF(
                 primitive.attributes.at("NORMAL")
             ];
 
+
         auto normalView =
             model.bufferViews[
                 normalAccessor.bufferView
             ];
 
+
         auto& normalBuffer =
             model.buffers[
                 normalView.buffer
             ];
+
 
         normals =
             reinterpret_cast<const float*>(
@@ -153,22 +156,155 @@ bool ChessPieceMesh3D::loadGLTF(
             );
     }
 
+
+
     //------------------------------------------------
-    // CREATE VERTICES
+    // APPLY GLTF NODE TRANSFORM
     //------------------------------------------------
+
+    glm::mat4 nodeTransform(1.0f);
+
+
+    for(const auto& node : model.nodes)
+    {
+        if(node.mesh == 0)
+        {
+
+            if(node.translation.size() == 3)
+            {
+                nodeTransform =
+                    glm::translate(
+                        nodeTransform,
+                        glm::vec3(
+                            node.translation[0],
+                            node.translation[1],
+                            node.translation[2]
+                        )
+                    );
+            }
+
+
+            if(node.scale.size() == 3)
+            {
+                nodeTransform =
+                    glm::scale(
+                        nodeTransform,
+                        glm::vec3(
+                            node.scale[0],
+                            node.scale[1],
+                            node.scale[2]
+                        )
+                    );
+            }
+
+            break;
+        }
+    }
+
+
+
+
+    //------------------------------------------------
+    // CREATE TEMP POSITIONS
+    //------------------------------------------------
+
+    std::vector<glm::vec3> transformedPositions;
+
+    transformedPositions.reserve(
+        posAccessor.count
+    );
+
+
+
+    glm::vec3 minBounds(
+        FLT_MAX
+    );
+
+    glm::vec3 maxBounds(
+        -FLT_MAX
+    );
+
+
 
     for(size_t i = 0;
         i < posAccessor.count;
         i++)
     {
+
+        glm::vec4 p =
+            nodeTransform *
+            glm::vec4(
+                positions[i*3+0],
+                positions[i*3+1],
+                positions[i*3+2],
+                1.0f
+            );
+
+
+        glm::vec3 pos(
+            p.x,
+            p.y,
+            p.z
+        );
+
+
+        transformedPositions.push_back(
+            pos
+        );
+
+
+        minBounds =
+            glm::min(
+                minBounds,
+                pos
+            );
+
+
+        maxBounds =
+            glm::max(
+                maxBounds,
+                pos
+            );
+    }
+
+
+
+    //------------------------------------------------
+    // CENTER ONLY X Z
+    //------------------------------------------------
+
+    glm::vec3 center =
+        (minBounds + maxBounds)
+        * 0.5f;
+
+
+
+    //------------------------------------------------
+    // BUILD VERTICES
+    //------------------------------------------------
+
+    for(size_t i = 0;
+        i < transformedPositions.size();
+        i++)
+    {
+
         Vertex3D vertex;
 
+
+        glm::vec3 position =
+            transformedPositions[i];
+
+
+        // SOLO CENTRAMOS LA BASE HORIZONTAL
+        position.x -= center.x;
+        position.z -= center.z;
+
+
+
         vertex.position =
-        {
-            positions[i*3+0],
-            positions[i*3+1],
-            positions[i*3+2]
-        };
+            position;
+
+
 
         if(normals)
         {
@@ -189,11 +325,14 @@ bool ChessPieceMesh3D::loadGLTF(
             };
         }
 
+
+
         vertex.texCoord =
         {
             0.0f,
             0.0f
         };
+
 
         vertex.color =
         {
@@ -202,8 +341,11 @@ bool ChessPieceMesh3D::loadGLTF(
             1.0f
         };
 
+
         vertices.push_back(vertex);
     }
+
+
 
     //------------------------------------------------
     // INDICES
@@ -211,107 +353,85 @@ bool ChessPieceMesh3D::loadGLTF(
 
     if(primitive.indices >= 0)
     {
-        const auto& indexAccessor =
+
+        const auto& accessor =
             model.accessors[
                 primitive.indices
             ];
 
-        const auto& indexView =
+
+        const auto& view =
             model.bufferViews[
-                indexAccessor.bufferView
+                accessor.bufferView
             ];
 
-        const auto& indexBuffer =
+
+        const auto& buffer =
             model.buffers[
-                indexView.buffer
+                view.buffer
             ];
 
-        const unsigned char* buffer =
-            indexBuffer.data.data()
-            + indexView.byteOffset
-            + indexAccessor.byteOffset;
 
-        switch(indexAccessor.componentType)
+        const unsigned char* data =
+            buffer.data.data()
+            +
+            view.byteOffset
+            +
+            accessor.byteOffset;
+
+
+
+        switch(accessor.componentType)
         {
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
-            {
-                const uint8_t* data =
-                    reinterpret_cast<const uint8_t*>(buffer);
 
-                for(size_t i = 0;
-                    i < indexAccessor.count;
-                    i++)
-                {
-                    indices.push_back(data[i]);
-                }
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_BYTE:
+        {
+            auto ptr =
+                reinterpret_cast<const uint8_t*>(data);
 
-                break;
-            }
 
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
-            {
-                const uint16_t* data =
-                    reinterpret_cast<const uint16_t*>(buffer);
+            for(size_t i=0;i<accessor.count;i++)
+                indices.push_back(ptr[i]);
 
-                for(size_t i = 0;
-                    i < indexAccessor.count;
-                    i++)
-                {
-                    indices.push_back(data[i]);
-                }
-
-                break;
-            }
-
-            case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
-            {
-                const uint32_t* data =
-                    reinterpret_cast<const uint32_t*>(buffer);
-
-                for(size_t i = 0;
-                    i < indexAccessor.count;
-                    i++)
-                {
-                    indices.push_back(data[i]);
-                }
-
-                break;
-            }
-
-            default:
-            {
-                std::cout
-                    << "Unsupported index type: "
-                    << indexAccessor.componentType
-                    << std::endl;
-
-                return false;
-            }
+            break;
         }
 
-        std::cout
-            << "Model: "
-            << path
-            << std::endl;
 
-        std::cout
-            << "Vertices: "
-            << vertices.size()
-            << std::endl;
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_SHORT:
+        {
+            auto ptr =
+                reinterpret_cast<const uint16_t*>(data);
 
-        std::cout
-            << "Indices: "
-            << indices.size()
-            << std::endl;
 
-        std::cout
-            << "Index component type: "
-            << indexAccessor.componentType
-            << std::endl;
+            for(size_t i=0;i<accessor.count;i++)
+                indices.push_back(ptr[i]);
+
+            break;
+        }
+
+
+        case TINYGLTF_COMPONENT_TYPE_UNSIGNED_INT:
+        {
+            auto ptr =
+                reinterpret_cast<const uint32_t*>(data);
+
+
+            for(size_t i=0;i<accessor.count;i++)
+                indices.push_back(ptr[i]);
+
+            break;
+        }
+
+
+        default:
+            return false;
+        }
     }
 
+
+
     //------------------------------------------------
-    // GPU UPLOAD
+    // UPLOAD
     //------------------------------------------------
 
     mesh.upload(
@@ -319,10 +439,12 @@ bool ChessPieceMesh3D::loadGLTF(
         indices
     );
 
+
     std::cout
-        << "[ChessPieceMesh3D] Loaded "
+        << "[ChessPieceMesh3D] Correctly centered: "
         << path
         << std::endl;
+
 
     return true;
 }

@@ -16,14 +16,17 @@
 
 #include <glad/glad.h>
 #include <iostream>
+#include <vector>
 
 
 namespace
 {
+
     Mesh3D gHighlightMesh;
     Transform3D gTransform;
 
     bool gInitialized = false;
+
 
 
     //------------------------------------------------
@@ -36,21 +39,71 @@ namespace
             return;
 
 
+
         std::vector<Vertex3D> vertices(4);
 
 
-        vertices[0].position = {-0.5f,0.0f,-0.5f};
-        vertices[1].position = { 0.5f,0.0f,-0.5f};
-        vertices[2].position = { 0.5f,0.0f, 0.5f};
-        vertices[3].position = {-0.5f,0.0f, 0.5f};
+
+        // Casilla 1x1 centrada en el origen
+
+        vertices[0].position =
+        {
+            -0.5f,
+            0.0f,
+            -0.5f
+        };
+
+
+        vertices[1].position =
+        {
+             0.5f,
+             0.0f,
+            -0.5f
+        };
+
+
+        vertices[2].position =
+        {
+             0.5f,
+             0.0f,
+             0.5f
+        };
+
+
+        vertices[3].position =
+        {
+            -0.5f,
+             0.0f,
+             0.5f
+        };
+
 
 
         for(Vertex3D& v : vertices)
         {
-            v.normal   = {0.0f,1.0f,0.0f};
-            v.texCoord = {0.0f,0.0f};
-            v.color    = {1.0f,1.0f,1.0f};
+            v.normal =
+            {
+                0.0f,
+                1.0f,
+                0.0f
+            };
+
+
+            v.texCoord =
+            {
+                0.0f,
+                0.0f
+            };
+
+
+            v.color =
+            {
+                1.0f,
+                1.0f,
+                1.0f
+            };
         }
+
 
 
         std::vector<uint32_t> indices =
@@ -60,27 +113,33 @@ namespace
         };
 
 
+
         gHighlightMesh.upload(
             vertices,
             indices
         );
 
 
+
         gTransform.setScale(
         {
-            0.95f,
             1.0f,
-            0.95f
+            1.0f,
+            1.0f
         });
 
 
+
         gInitialized = true;
+
 
 
         std::cout
             << "[Highlight] Mesh created"
             << std::endl;
     }
+
+
 
 
 
@@ -94,14 +153,41 @@ namespace
         float& z
     )
     {
-        int row = square / 8;
-        int col = square % 8;
+
+        constexpr float squareSize = 1.0f;
+        constexpr float boardCenter = 4.0f;
 
 
-        x = col - 4.0f + 0.5f;
-        z = row - 4.0f + 0.5f;
+
+        int row =
+            square / 8;
+
+
+        int col =
+            square % 8;
+
+
+
+        x =
+            (col * squareSize)
+            -
+            boardCenter
+            +
+            squareSize * 0.5f;
+
+
+
+        z =
+            (row * squareSize)
+            -
+            boardCenter
+            +
+            squareSize * 0.5f;
     }
+
 }
+
+
 
 
 
@@ -117,11 +203,6 @@ void HighlightRenderer3D::render(
     const ChessGame& game
 )
 {
-
-    std::cout
-        << "HIGHLIGHT RENDER"
-        << std::endl;
-
 
     buildMesh();
 
@@ -151,22 +232,17 @@ void HighlightRenderer3D::render(
         );
 
 
+
     uint8_t king =
         state.findKing(side);
 
 
 
-    std::cout
-        << "CHECK "
-        << check
-        << " MATE "
-        << mate
-        << std::endl;
-
 
 
     if(king != 255)
     {
+
         if(mate)
         {
             renderSquare(
@@ -180,6 +256,7 @@ void HighlightRenderer3D::render(
                 0.0f
             );
         }
+
         else if(check)
         {
             renderSquare(
@@ -197,14 +274,10 @@ void HighlightRenderer3D::render(
 
 
 
+
+
     if(game.hasSelection())
     {
-
-        std::cout
-            << "SELECTED "
-            << (int)game.getSelectedSquare()
-            << std::endl;
-
 
         renderSquare(
             renderer,
@@ -230,7 +303,10 @@ void HighlightRenderer3D::render(
             0.15f
         );
     }
+
 }
+
+
 
 
 
@@ -254,6 +330,7 @@ void HighlightRenderer3D::renderSquare(
     float z;
 
 
+
     squareToWorld(
         square,
         x,
@@ -261,28 +338,21 @@ void HighlightRenderer3D::renderSquare(
     );
 
 
-    std::cout
-        << "DRAW HIGHLIGHT "
-        << (int)square
-        << " POS "
-        << x
-        << ","
-        << z
-        << std::endl;
-
-
 
     gTransform.setPosition(
     {
         x,
-        0.05f,
+        0.251f,
         z
     });
 
 
 
-    // prueba contra culling
-    glDisable(GL_CULL_FACE);
+
+
+    glDisable(
+        GL_CULL_FACE
+    );
 
 
 
@@ -300,8 +370,14 @@ void HighlightRenderer3D::renderSquare(
     );
 
 
-    glEnable(GL_CULL_FACE);
+
+    glEnable(
+        GL_CULL_FACE
+    );
+
 }
+
+
 
 
 
@@ -323,6 +399,7 @@ void HighlightRenderer3D::renderMoves(
 
     for(const Move& move : moves)
     {
+
         renderSquare(
             renderer,
             shader,
@@ -333,5 +410,7 @@ void HighlightRenderer3D::renderMoves(
             g,
             b
         );
+
     }
+
 }

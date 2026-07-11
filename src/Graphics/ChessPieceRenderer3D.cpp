@@ -10,6 +10,7 @@
 
 ChessPieceRenderer3D::ChessPieceRenderer3D()
 {
+
     transform.setScale(
     {
         0.8f,
@@ -32,6 +33,7 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
         0.05f,
         0.05f
     });
+
 }
 
 
@@ -42,31 +44,40 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 
 bool ChessPieceRenderer3D::initialize()
 {
+
     bool ok = true;
+
 
     ok &= pieces[0].load(
         "Assets/peon.gltf"
     );
 
+
     ok &= pieces[1].load(
         "Assets/caballo.gltf"
     );
+
 
     ok &= pieces[2].load(
         "Assets/alfil.gltf"
     );
 
+
     ok &= pieces[3].load(
         "Assets/torre.gltf"
     );
+
 
     ok &= pieces[4].load(
         "Assets/dama.gltf"
     );
 
+
     ok &= pieces[5].load(
         "Assets/rey.gltf"
     );
+
+
 
     if(!ok)
     {
@@ -79,6 +90,8 @@ bool ChessPieceRenderer3D::initialize()
             << "[ChessPieceRenderer3D] pieces loaded\n";
     }
 
+
+
     return ok;
 }
 
@@ -87,6 +100,7 @@ bool ChessPieceRenderer3D::initialize()
 //====================================================
 // RENDER
 //====================================================
+
 void ChessPieceRenderer3D::render(
     Renderer3D& renderer,
     Shader3D& shader,
@@ -101,14 +115,24 @@ void ChessPieceRenderer3D::render(
         return;
 
 
-    int index = getPieceIndex(piece);
+
+    int index =
+        getPieceIndex(piece);
+
+
 
     if(index < 0)
         return;
 
 
+
+    //------------------------------------------------
+    // SQUARE POSITION
+    //------------------------------------------------
+
     float x;
     float z;
+
 
 
     squareToWorld(
@@ -118,29 +142,61 @@ void ChessPieceRenderer3D::render(
     );
 
 
-    transform.setPosition(
+
+    //------------------------------------------------
+    // PIECE TRANSFORM
+    //------------------------------------------------
+
+    Transform3D pieceTransform;
+
+
+
+    pieceTransform.setPosition(
     {
         x,
-        0.0f,
+        0.25f,
         z
     });
 
 
+
+    pieceTransform.setScale(
+    {
+        0.8f,
+        0.8f,
+        0.8f
+    });
+
+
+
+    //------------------------------------------------
+    // MATERIAL
+    //------------------------------------------------
+
     Material3D& currentMaterial =
         (piece >= Piece::BLACK_PAWN)
-        ? blackMaterial
-        : whiteMaterial;
+        ?
+        blackMaterial
+        :
+        whiteMaterial;
 
+
+
+    //------------------------------------------------
+    // DRAW
+    //------------------------------------------------
 
     renderer.renderPiece(
         pieces[index].getMesh(),
-        transform,
+        pieceTransform,
         currentMaterial,
         shader,
         camera,
         aspectRatio
     );
+
 }
+
 
 
 //====================================================
@@ -151,35 +207,44 @@ int ChessPieceRenderer3D::getPieceIndex(
     Piece piece
 ) const
 {
+
     switch(piece)
     {
+
         case Piece::WHITE_PAWN:
         case Piece::BLACK_PAWN:
             return 0;
+
 
         case Piece::WHITE_KNIGHT:
         case Piece::BLACK_KNIGHT:
             return 1;
 
+
         case Piece::WHITE_BISHOP:
         case Piece::BLACK_BISHOP:
             return 2;
+
 
         case Piece::WHITE_ROOK:
         case Piece::BLACK_ROOK:
             return 3;
 
+
         case Piece::WHITE_QUEEN:
         case Piece::BLACK_QUEEN:
             return 4;
+
 
         case Piece::WHITE_KING:
         case Piece::BLACK_KING:
             return 5;
 
+
         default:
             return -1;
     }
+
 }
 
 
@@ -194,24 +259,51 @@ void ChessPieceRenderer3D::squareToWorld(
     float& z
 )
 {
-    int row = square / 8;
-    int col = square % 8;
+
+    int row =
+        square / 8;
+
+
+    int col =
+        square % 8;
+
+
+
+    constexpr float squareSize = 1.0f;
+
+    constexpr float boardCenter = 4.0f;
+
+
 
     x =
-        col
-        - 4.0f
-        + 0.5f;
+        (col * squareSize)
+        -
+        boardCenter
+        +
+        (squareSize * 0.5f);
+
+
 
     z =
-        row
-        - 4.0f
-        + 0.5f;
+        (row * squareSize)
+        -
+        boardCenter
+        +
+        (squareSize * 0.5f);
+
 }
+
+
+
+//====================================================
+// MATERIALS
+//====================================================
 
 Material3D& ChessPieceRenderer3D::getWhiteMaterial()
 {
     return whiteMaterial;
 }
+
 
 
 Material3D& ChessPieceRenderer3D::getBlackMaterial()
