@@ -121,9 +121,6 @@ void Mesh3D::upload(
         sizeof(Vertex3D),
         (void*)offsetof(Vertex3D, normal)
     );
-
-
-
     //------------------------------------------------
     // UV
     //------------------------------------------------
@@ -161,11 +158,6 @@ void Mesh3D::upload(
     glBindVertexArray(0);
 }
 
-
-
-
-
-
 void Mesh3D::draw() const
 {
     if (vao == 0)
@@ -187,11 +179,6 @@ void Mesh3D::draw() const
 
     glBindVertexArray(0);
 }
-
-
-
-
-
 
 void Mesh3D::clear()
 {

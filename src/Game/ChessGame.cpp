@@ -120,12 +120,6 @@ void ChessGame::onSquareClicked(uint8_t square)
         MoveGenerator::generatePieceMoves(state, selectedSquare, moves);
         MoveFilter::filterLegalMoves(state, moves);
 
-        //------------------------------------------------
-        // ANALYZE CURRENT POSITION
-        //------------------------------------------------
-        //analyzeCurrentPosition();
-
-
         if (moves.empty())
         {
             waitingDestination = false;
@@ -140,6 +134,8 @@ void ChessGame::onSquareClicked(uint8_t square)
     //------------------------------------------------
     // SECOND CLICK
     //------------------------------------------------
+
+    // ¿Es un movimiento legal?
     for (const Move& m : moves)
     {
         if (m.to != square)
@@ -153,8 +149,10 @@ void ChessGame::onSquareClicked(uint8_t square)
             promotionPending = true;
             promotionMoves.clear();
 
-            // 🔥 SNAPSHOT DEL LADO EN EL MOMENTO EXACTO
-            promotionSide = (state.getTurn() == PlayerSide::White) ? 0 : 1;
+            promotionSide =
+                (state.getTurn() == PlayerSide::White)
+                    ? 0
+                    : 1;
 
             Move base = m;
             base.setFlag(Move::PROMOTION);
@@ -179,16 +177,13 @@ void ChessGame::onSquareClicked(uint8_t square)
             return;
         }
 
-            std::cout
-        << "Human: "
-        << GameState::squareToNotation(m.from)
-        << " -> "
-        << GameState::squareToNotation(m.to)
-        << '\n';
+        std::cout
+            << "Human: "
+            << GameState::squareToNotation(m.from)
+            << " -> "
+            << GameState::squareToNotation(m.to)
+            << '\n';
 
-        //------------------------------------------------
-        // NORMAL MOVE
-        //------------------------------------------------
         MoveExecutor::execute(state, m);
 
         waitingDestination = false;
@@ -200,8 +195,27 @@ void ChessGame::onSquareClicked(uint8_t square)
     }
 
     //------------------------------------------------
-    // INVALID CLICK RESET
+    // NO ERA UN MOVIMIENTO.
+    // ¿LA CASILLA CONTIENE OTRA PIEZA JUGABLE?
     //------------------------------------------------
+
+    std::vector<Move> newMoves;
+
+    MoveGenerator::generatePieceMoves(state, square, newMoves);
+    MoveFilter::filterLegalMoves(state, newMoves);
+
+    if (!newMoves.empty())
+    {
+        selectedSquare = square;
+        moves = std::move(newMoves);
+        waitingDestination = true;
+        return;
+    }
+
+    //------------------------------------------------
+    // CLICK EN CASILLA VACÍA O PIEZA ENEMIGA
+    //------------------------------------------------
+
     waitingDestination = false;
     selectedSquare = 0;
     moves.clear();

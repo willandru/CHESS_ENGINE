@@ -76,7 +76,7 @@ void ChessBoardMesh3D::build()
 
             glm::vec3 color;
 
-
+/*
                 if ((row + col) % 2 == 0)
             {
                 // Beige
@@ -94,7 +94,19 @@ void ChessBoardMesh3D::build()
                     0.35f,
                     0.58f
                 );
+            }*/
+
+            if ((row + col) % 2 == 0)
+            {
+                // Red
+                color = glm::vec3(0.541, 0.043, 0.086);
             }
+            else
+            {
+                // Green
+                color = glm::vec3(0.090, 0.271, 0.067);
+            }
+            
 
 
             addCube(
