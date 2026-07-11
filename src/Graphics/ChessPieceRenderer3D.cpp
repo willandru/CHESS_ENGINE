@@ -10,14 +10,12 @@
 
 ChessPieceRenderer3D::ChessPieceRenderer3D()
 {
-
     transform.setScale(
     {
         0.8f,
         0.8f,
         0.8f
     });
-
 
     whiteMaterial.setColor(
     {
@@ -26,14 +24,12 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
         0.9f
     });
 
-
     blackMaterial.setColor(
     {
         0.05f,
         0.05f,
         0.05f
     });
-
 }
 
 
@@ -44,40 +40,31 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 
 bool ChessPieceRenderer3D::initialize()
 {
-
     bool ok = true;
-
 
     ok &= pieces[0].load(
         "Assets/peon.gltf"
     );
 
-
     ok &= pieces[1].load(
         "Assets/caballo.gltf"
     );
-
 
     ok &= pieces[2].load(
         "Assets/alfil.gltf"
     );
 
-
     ok &= pieces[3].load(
         "Assets/torre.gltf"
     );
-
 
     ok &= pieces[4].load(
         "Assets/dama.gltf"
     );
 
-
     ok &= pieces[5].load(
         "Assets/rey.gltf"
     );
-
-
 
     if(!ok)
     {
@@ -90,9 +77,60 @@ bool ChessPieceRenderer3D::initialize()
             << "[ChessPieceRenderer3D] pieces loaded\n";
     }
 
-
-
     return ok;
+}
+
+
+
+//====================================================
+// GET MESH
+//====================================================
+
+const Mesh3D& ChessPieceRenderer3D::getMesh(
+    Piece piece
+) const
+{
+    return pieces[
+        getPieceIndex(piece)
+    ].getMesh();
+}
+
+
+
+//====================================================
+// BUILD TRANSFORM
+//====================================================
+
+Transform3D ChessPieceRenderer3D::buildTransform(
+    uint8_t square
+) const
+{
+    float x;
+    float z;
+
+    squareToWorld(
+        square,
+        x,
+        z
+    );
+
+    Transform3D pieceTransform;
+
+    pieceTransform.setPosition(
+    {
+        x,
+        0.25f,
+        z
+    });
+
+    pieceTransform.setScale(
+    {
+        0.8f,
+        0.8f,
+        0.8f
+    });
+
+    return pieceTransform;
 }
 
 
@@ -110,68 +148,17 @@ void ChessPieceRenderer3D::render(
     uint8_t square
 )
 {
-
     if(piece == Piece::EMPTY)
         return;
-
-
 
     int index =
         getPieceIndex(piece);
 
-
-
     if(index < 0)
         return;
 
-
-
-    //------------------------------------------------
-    // SQUARE POSITION
-    //------------------------------------------------
-
-    float x;
-    float z;
-
-
-
-    squareToWorld(
-        square,
-        x,
-        z
-    );
-
-
-
-    //------------------------------------------------
-    // PIECE TRANSFORM
-    //------------------------------------------------
-
-    Transform3D pieceTransform;
-
-
-
-    pieceTransform.setPosition(
-    {
-        x,
-        0.25f,
-        z
-    });
-
-
-
-    pieceTransform.setScale(
-    {
-        0.8f,
-        0.8f,
-        0.8f
-    });
-
-
-
-    //------------------------------------------------
-    // MATERIAL
-    //------------------------------------------------
+    Transform3D pieceTransform =
+        buildTransform(square);
 
     Material3D& currentMaterial =
         (piece >= Piece::BLACK_PAWN)
@@ -179,12 +166,6 @@ void ChessPieceRenderer3D::render(
         blackMaterial
         :
         whiteMaterial;
-
-
-
-    //------------------------------------------------
-    // DRAW
-    //------------------------------------------------
 
     renderer.renderPiece(
         pieces[index].getMesh(),
@@ -194,10 +175,7 @@ void ChessPieceRenderer3D::render(
         camera,
         aspectRatio
     );
-
 }
-
-
 
 //====================================================
 // PIECE INDEX
@@ -207,44 +185,35 @@ int ChessPieceRenderer3D::getPieceIndex(
     Piece piece
 ) const
 {
-
     switch(piece)
     {
-
         case Piece::WHITE_PAWN:
         case Piece::BLACK_PAWN:
             return 0;
-
 
         case Piece::WHITE_KNIGHT:
         case Piece::BLACK_KNIGHT:
             return 1;
 
-
         case Piece::WHITE_BISHOP:
         case Piece::BLACK_BISHOP:
             return 2;
-
 
         case Piece::WHITE_ROOK:
         case Piece::BLACK_ROOK:
             return 3;
 
-
         case Piece::WHITE_QUEEN:
         case Piece::BLACK_QUEEN:
             return 4;
-
 
         case Piece::WHITE_KING:
         case Piece::BLACK_KING:
             return 5;
 
-
         default:
             return -1;
     }
-
 }
 
 
@@ -257,23 +226,16 @@ void ChessPieceRenderer3D::squareToWorld(
     uint8_t square,
     float& x,
     float& z
-)
+) const
 {
-
     int row =
         square / 8;
-
 
     int col =
         square % 8;
 
-
-
     constexpr float squareSize = 1.0f;
-
     constexpr float boardCenter = 4.0f;
-
-
 
     x =
         (col * squareSize)
@@ -282,15 +244,12 @@ void ChessPieceRenderer3D::squareToWorld(
         +
         (squareSize * 0.5f);
 
-
-
     z =
         (row * squareSize)
         -
         boardCenter
         +
         (squareSize * 0.5f);
-
 }
 
 

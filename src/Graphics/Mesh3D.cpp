@@ -1,35 +1,46 @@
 #include "Mesh3D.h"
+
 #include <iostream>
-
-
 
 Mesh3D::Mesh3D()
 {
 }
-
-
 
 Mesh3D::~Mesh3D()
 {
     clear();
 }
 
-
-
-
+//====================================================
+// UPLOAD
+//====================================================
 
 void Mesh3D::upload(
-    const std::vector<Vertex3D>& vertices,
-    const std::vector<uint32_t>& indices
+    const std::vector<Vertex3D>& newVertices,
+    const std::vector<uint32_t>& newIndices
 )
 {
+    //------------------------------------------------
+    // REMOVE PREVIOUS GPU DATA
+    //------------------------------------------------
+
     clear();
 
-    indexCount = static_cast<uint32_t>(
-        indices.size()
-    );
+    //------------------------------------------------
+    // STORE CPU COPY
+    //------------------------------------------------
 
+    vertices = newVertices;
+    indices  = newIndices;
 
+    indexCount =
+        static_cast<uint32_t>(
+            indices.size()
+        );
+
+    //------------------------------------------------
+    // CREATE GPU OBJECTS
+    //------------------------------------------------
 
     glGenVertexArrays(
         1,
@@ -46,13 +57,9 @@ void Mesh3D::upload(
         &ebo
     );
 
-
-
     glBindVertexArray(
         vao
     );
-
-
 
     //------------------------------------------------
     // VBO
@@ -70,8 +77,6 @@ void Mesh3D::upload(
         GL_STATIC_DRAW
     );
 
-
-
     //------------------------------------------------
     // EBO
     //------------------------------------------------
@@ -88,8 +93,6 @@ void Mesh3D::upload(
         GL_STATIC_DRAW
     );
 
-
-
     //------------------------------------------------
     // POSITION
     //------------------------------------------------
@@ -105,8 +108,6 @@ void Mesh3D::upload(
         (void*)offsetof(Vertex3D, position)
     );
 
-
-
     //------------------------------------------------
     // NORMAL
     //------------------------------------------------
@@ -121,8 +122,9 @@ void Mesh3D::upload(
         sizeof(Vertex3D),
         (void*)offsetof(Vertex3D, normal)
     );
+
     //------------------------------------------------
-    // UV
+    // TEXCOORD
     //------------------------------------------------
 
     glEnableVertexAttribArray(2);
@@ -135,8 +137,6 @@ void Mesh3D::upload(
         sizeof(Vertex3D),
         (void*)offsetof(Vertex3D, texCoord)
     );
-
-
 
     //------------------------------------------------
     // COLOR
@@ -153,16 +153,21 @@ void Mesh3D::upload(
         (void*)offsetof(Vertex3D, color)
     );
 
-
-
     glBindVertexArray(0);
 }
+
+//====================================================
+// DRAW
+//====================================================
 
 void Mesh3D::draw() const
 {
     if (vao == 0)
     {
-        std::cout << "VAO == 0" << std::endl;
+        std::cout
+            << "VAO == 0"
+            << std::endl;
+
         return;
     }
 
@@ -180,9 +185,13 @@ void Mesh3D::draw() const
     glBindVertexArray(0);
 }
 
+//====================================================
+// CLEAR
+//====================================================
+
 void Mesh3D::clear()
 {
-    if (ebo)
+    if (ebo != 0)
     {
         glDeleteBuffers(
             1,
@@ -192,7 +201,7 @@ void Mesh3D::clear()
         ebo = 0;
     }
 
-    if (vbo)
+    if (vbo != 0)
     {
         glDeleteBuffers(
             1,
@@ -202,7 +211,7 @@ void Mesh3D::clear()
         vbo = 0;
     }
 
-    if (vao)
+    if (vao != 0)
     {
         glDeleteVertexArrays(
             1,
@@ -215,11 +224,21 @@ void Mesh3D::clear()
     indexCount = 0;
 }
 
-
-
-
+//====================================================
+// INFO
+//====================================================
 
 uint32_t Mesh3D::getIndexCount() const
 {
     return indexCount;
+}
+
+const std::vector<Vertex3D>& Mesh3D::getVertices() const
+{
+    return vertices;
+}
+
+const std::vector<uint32_t>& Mesh3D::getIndices() const
+{
+    return indices;
 }

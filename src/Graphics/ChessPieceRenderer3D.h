@@ -33,6 +33,22 @@ public:
     Material3D& getBlackMaterial();
 
     //------------------------------------------------
+    // MESH
+    //------------------------------------------------
+
+    const Mesh3D& getMesh(
+        Piece piece
+    ) const;
+
+    //------------------------------------------------
+    // TRANSFORM
+    //------------------------------------------------
+
+    Transform3D buildTransform(
+        uint8_t square
+    ) const;
+
+    //------------------------------------------------
     // RENDER
     //------------------------------------------------
 
@@ -54,7 +70,7 @@ private:
     std::array<ChessPieceMesh3D,6> pieces;
 
     //------------------------------------------------
-    // TRANSFORM
+    // DEFAULT TRANSFORM
     //------------------------------------------------
 
     Transform3D transform;
@@ -64,6 +80,7 @@ private:
     //------------------------------------------------
 
     Material3D whiteMaterial;
+
     Material3D blackMaterial;
 
     //------------------------------------------------
@@ -78,5 +95,5 @@ private:
         uint8_t square,
         float& x,
         float& z
-    );
+    ) const;
 };

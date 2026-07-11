@@ -7,9 +7,10 @@
 #include <glm/glm.hpp>
 
 #include <iostream>
-
+#include <cfloat>
 
 extern Window gWindow;
+
 
 
 //====================================================
@@ -19,6 +20,7 @@ extern Window gWindow;
 ChessRenderer3D::ChessRenderer3D()
 {
 }
+
 
 
 //====================================================
@@ -34,50 +36,51 @@ bool ChessRenderer3D::initialize(
     // BOARD SHADER
     //------------------------------------------------
 
-    if (!boardShader.load(
-        vertexShader,
-        fragmentShader
-    ))
+    if(
+        !boardShader.load(
+            vertexShader,
+            fragmentShader
+        )
+    )
     {
         return false;
     }
-
 
     //------------------------------------------------
     // PIECE SHADER
     //------------------------------------------------
 
-    if (!pieceShader.load(
-        "Shaders/basic_piece_3d.vert",
-        "Shaders/basic_piece_3d.frag"
-    ))
+    if(
+        !pieceShader.load(
+            "Shaders/basic_piece_3d.vert",
+            "Shaders/basic_piece_3d.frag"
+        )
+    )
     {
         return false;
     }
 
-
     //------------------------------------------------
-    // OPENGL OPTIONS
+    // OPENGL
     //------------------------------------------------
 
     renderer.enableDepthTest();
-
     renderer.enableFaceCulling();
-
-
 
     //------------------------------------------------
     // LOAD PIECES
     //------------------------------------------------
 
-    if (!pieceRenderer.initialize())
+    if(
+        !pieceRenderer.initialize()
+    )
     {
         return false;
     }
 
-
     return true;
 }
+
 
 
 //====================================================
@@ -97,7 +100,6 @@ void ChessRenderer3D::render(
         )
     );
 
-
     float aspectRatio =
         static_cast<float>(
             gWindow.getWindowWidth()
@@ -106,8 +108,6 @@ void ChessRenderer3D::render(
         static_cast<float>(
             gWindow.getWindowHeight()
         );
-
-
 
     //------------------------------------------------
     // BOARD
@@ -119,8 +119,6 @@ void ChessRenderer3D::render(
         camera,
         aspectRatio
     );
-
-
 
     //------------------------------------------------
     // HIGHLIGHTS
@@ -134,8 +132,6 @@ void ChessRenderer3D::render(
         game
     );
 
-
-
     //------------------------------------------------
     // PIECES
     //------------------------------------------------
@@ -143,13 +139,14 @@ void ChessRenderer3D::render(
     const GameState& state =
         game.getGameState();
 
-
     const Piece* board =
         state.getBoard();
 
-
-
-    for(uint8_t square = 0; square < 64; ++square)
+    for(
+        uint8_t square = 0;
+        square < 64;
+        ++square
+    )
     {
         pieceRenderer.render(
             renderer,
@@ -161,10 +158,78 @@ void ChessRenderer3D::render(
         );
     }
 
-
-
     renderer.endFrame();
 }
+
+
+//====================================================
+// PICK PIECE
+//====================================================
+
+int ChessRenderer3D::pickPiece(
+    const ChessGame& game,
+    float mouseX,
+    float mouseY
+)
+{
+    const GameState& state =
+        game.getGameState();
+
+    const Piece* board =
+        state.getBoard();
+
+    float bestDistance =
+        FLT_MAX;
+
+    int pickedSquare =
+        -1;
+
+    for(
+        uint8_t square = 0;
+        square < 64;
+        ++square
+    )
+    {
+        Piece piece =
+            board[square];
+
+        if(piece == Piece::EMPTY)
+            continue;
+
+        Transform3D transform =
+            pieceRenderer.buildTransform(
+                square
+            );
+
+        float distance;
+
+        if(
+            PiecePicker3D::intersectMesh(
+                mouseX,
+                mouseY,
+                gWindow.getWindowWidth(),
+                gWindow.getWindowHeight(),
+                camera,
+                pieceRenderer.getMesh(piece),
+                transform,
+                distance
+            )
+        )
+        {
+            if(distance < bestDistance)
+            {
+                bestDistance =
+                    distance;
+
+                pickedSquare =
+                    square;
+            }
+        }
+    }
+
+    return pickedSquare;
+}
+
 
 
 //====================================================

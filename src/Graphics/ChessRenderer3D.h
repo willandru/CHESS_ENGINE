@@ -7,6 +7,7 @@
 #include "ChessBoardRenderer3D.h"
 #include "ChessPieceRenderer3D.h"
 #include "HighlightRenderer3D.h"
+#include "PiecePicker3D.h"
 
 #include <string>
 
@@ -31,7 +32,19 @@ public:
     // RENDER
     //------------------------------------------------
 
-    void render(const ChessGame& game);
+    void render(
+        const ChessGame& game
+    );
+
+    //------------------------------------------------
+    // PICKING
+    //------------------------------------------------
+
+    int pickPiece(
+        const ChessGame& game,
+        float mouseX,
+        float mouseY
+    );
 
     //------------------------------------------------
     // CAMERA

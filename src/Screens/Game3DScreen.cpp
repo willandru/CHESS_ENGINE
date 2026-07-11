@@ -32,14 +32,12 @@ void Game3DScreen::update(float dt)
 {
     game.update(dt);
 
-
     //------------------------------------------------
     // MOUSE CLICK
     //------------------------------------------------
 
     if(!InputMouse::isButtonPressed(0))
         return;
-
 
     float mx;
     float my;
@@ -49,6 +47,31 @@ void Game3DScreen::update(float dt)
         my
     );
 
+    //------------------------------------------------
+    // TRY PICK PIECE
+    //------------------------------------------------
+
+    int pickedSquare =
+        renderer3D.pickPiece(
+            game,
+            mx,
+            my
+        );
+
+    if(pickedSquare != -1)
+    {
+        game.onSquareClicked(
+            static_cast<uint8_t>(
+                pickedSquare
+            )
+        );
+
+        return;
+    }
+
+    //------------------------------------------------
+    // PICK BOARD
+    //------------------------------------------------
 
     uint8_t square;
 
