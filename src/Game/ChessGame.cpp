@@ -104,6 +104,35 @@ void ChessGame::onSquareClicked(uint8_t square)
             ? player1.get()
             : player2.get();
 
+            
+
+    std::cout
+        << "CLICK RECEIVED: "
+        << (int)square
+        << std::endl;
+
+
+    std::cout
+        << "TURN: "
+        << (state.getTurn() == PlayerSide::White ? "WHITE" : "BLACK")
+        << std::endl;
+
+
+            if(current)
+    {
+        std::cout
+            << "IS HUMAN: "
+            << current->isHuman()
+            << std::endl;
+    }
+    else
+    {
+        std::cout
+            << "CURRENT PLAYER NULL"
+            << std::endl;
+    }
+
+
     if (!current || !current->isHuman())
         return;
 
