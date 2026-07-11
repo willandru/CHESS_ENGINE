@@ -45,7 +45,7 @@ void Game3DScreen::update(float dt)
     // INPUT CONSOLE
     //------------------------------------------------
 
-    InputConsole::update();
+    InputConsole::update(game);
 
 
     if(InputConsole::hasSquareSelection())

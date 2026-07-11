@@ -91,6 +91,20 @@ void ChessGame::update(float dt)
 
 //====================================================
 
+
+void ChessGame::cancelSelection()
+{
+    waitingDestination = false;
+
+    selectedSquare = 0;
+
+    moves.clear();
+
+    std::cout
+        << "SELECTION CANCELLED"
+        << std::endl;
+}
+
 void ChessGame::onSquareClicked(uint8_t square)
 {
     if (promotionPending)

@@ -27,6 +27,8 @@ public:
     void onSquareClicked(uint8_t square);
     void onPromotionSelected(uint8_t option);
 
+    void cancelSelection();
+
     //------------------------------------------------
     // STATE ACCESS
     //------------------------------------------------

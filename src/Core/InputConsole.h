@@ -4,6 +4,9 @@
 #include <cstdint>
 
 
+class ChessGame;
+
+
 class InputConsole
 {
 public:
@@ -12,11 +15,13 @@ public:
     // UPDATE
     //------------------------------------------------
 
-    static void update();
+    static void update(
+        ChessGame& game
+    );
 
 
     //------------------------------------------------
-    // SELECTION
+    // RESULT
     //------------------------------------------------
 
     static bool hasSquareSelection();
@@ -25,14 +30,49 @@ public:
     static uint8_t getSelectedSquare();
 
 
+
 private:
 
     //------------------------------------------------
-    // BUFFER
+    // CONSOLE STATE
+    //------------------------------------------------
+
+    enum class ConsoleMode
+    {
+        Origin,
+        Destination
+    };
+
+
+    static ConsoleMode mode;
+
+
+
+    //------------------------------------------------
+    // INPUT BUFFER
     //------------------------------------------------
 
     static std::string buffer;
 
+
+
+    //------------------------------------------------
+    // CURRENT SELECTION
+    //------------------------------------------------
+
+    static bool hasOrigin;
+
+
+    static uint8_t originSquare;
+
+
+    static uint8_t destinationSquare;
+
+
+
+    //------------------------------------------------
+    // OUTPUT EVENT
+    //------------------------------------------------
 
     static bool selectionReady;
 
@@ -40,8 +80,9 @@ private:
     static uint8_t selectedSquare;
 
 
+
     //------------------------------------------------
-    // PARSE
+    // INTERNAL
     //------------------------------------------------
 
     static void processKey(
@@ -49,9 +90,22 @@ private:
     );
 
 
+    static void processBuffer(
+        ChessGame& game
+    );
+
+
     static bool parseSquare(
         const std::string& text,
         uint8_t& square
+    );
+
+
+    static void resetBuffer();
+
+
+    static void cancel(
+        ChessGame& game
     );
 
 };
