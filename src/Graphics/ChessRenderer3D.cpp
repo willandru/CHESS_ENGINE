@@ -275,41 +275,20 @@ void ChessRenderer3D::focusCameraOnSquare(
             square
         );
 
-    glm::vec3 eye =
-        position +
-        glm::vec3(
-            0.0f,
-            1.35f,
-            0.0f
-        );
-
-    glm::vec3 target;
+   glm::vec3 eye;
 
     if(piece >= Piece::BLACK_PAWN)
     {
-        target =
-            eye +
-            glm::vec3(
-                0.0f,
-                0.0f,
-                10.0f
-            );
+        eye = position + glm::vec3(0.0f, 3.0f, -5.0f);
     }
     else
     {
-        target =
-            eye +
-            glm::vec3(
-                0.0f,
-                0.0f,
-                -10.0f
-            );
+        eye = position + glm::vec3(0.0f, 3.0f, 5.0f);
     }
 
-    camera.lookAt(
-        eye,
-        target
-    );
+    glm::vec3 target = position;
+
+    camera.lookAt(eye, target);
 }
 
 //====================================================
