@@ -61,6 +61,10 @@ public:
         uint8_t square
     );
 
+    glm::vec3 getWorldPosition(
+        uint8_t square
+    ) const;
+
 private:
 
     //------------------------------------------------

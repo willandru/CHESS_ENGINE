@@ -269,3 +269,25 @@ Material3D& ChessPieceRenderer3D::getBlackMaterial()
 {
     return blackMaterial;
 }
+
+
+glm::vec3 ChessPieceRenderer3D::getWorldPosition(
+    uint8_t square
+) const
+{
+    float x;
+    float z;
+
+    squareToWorld(
+        square,
+        x,
+        z
+    );
+
+    return
+    {
+        x,
+        0.25f,
+        z
+    };
+}

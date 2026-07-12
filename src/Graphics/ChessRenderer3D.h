@@ -10,6 +10,7 @@
 #include "PiecePicker3D.h"
 
 #include <string>
+#include <cstdint>
 
 class ChessGame;
 
@@ -50,9 +51,22 @@ public:
     // CAMERA
     //------------------------------------------------
 
+    void updateCamera(
+        const ChessGame& game
+    );
+
     Camera3D& getCamera();
 
 private:
+
+    //------------------------------------------------
+    // CAMERA HELPERS
+    //------------------------------------------------
+
+    void focusCameraOnSquare(
+        const ChessGame& game,
+        uint8_t square
+    );
 
     //------------------------------------------------
     // CORE
@@ -72,6 +86,14 @@ private:
     //------------------------------------------------
 
     Camera3D camera;
+
+    //------------------------------------------------
+    // CAMERA FOLLOW STATE
+    //------------------------------------------------
+
+    bool followingPiece = false;
+
+    uint8_t followedSquare = 0;
 
     //------------------------------------------------
     // RENDERERS

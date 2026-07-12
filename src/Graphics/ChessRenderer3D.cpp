@@ -110,6 +110,14 @@ void ChessRenderer3D::render(
         );
 
     //------------------------------------------------
+    // CAMERA
+    //------------------------------------------------
+
+    updateCamera(
+        game
+    );
+
+    //------------------------------------------------
     // BOARD
     //------------------------------------------------
 
@@ -239,4 +247,127 @@ int ChessRenderer3D::pickPiece(
 Camera3D& ChessRenderer3D::getCamera()
 {
     return camera;
+}
+
+//====================================================
+// FOCUS CAMERA
+//====================================================
+void ChessRenderer3D::focusCameraOnSquare(
+    const ChessGame& game,
+    uint8_t square
+)
+{
+    const GameState& state =
+        game.getGameState();
+
+    Piece piece =
+        state.getPiece(
+            square
+        );
+
+    if(piece == Piece::EMPTY)
+    {
+        return;
+    }
+
+    glm::vec3 position =
+        pieceRenderer.getWorldPosition(
+            square
+        );
+
+    glm::vec3 eye =
+        position +
+        glm::vec3(
+            0.0f,
+            1.35f,
+            0.0f
+        );
+
+    glm::vec3 target;
+
+    if(piece >= Piece::BLACK_PAWN)
+    {
+        target =
+            eye +
+            glm::vec3(
+                0.0f,
+                0.0f,
+                10.0f
+            );
+    }
+    else
+    {
+        target =
+            eye +
+            glm::vec3(
+                0.0f,
+                0.0f,
+                -10.0f
+            );
+    }
+
+    camera.lookAt(
+        eye,
+        target
+    );
+}
+
+//====================================================
+// UPDATE CAMERA
+//====================================================
+
+void ChessRenderer3D::updateCamera(
+    const ChessGame& game
+)
+{
+    //------------------------------------------------
+    // NO PIECE SELECTED
+    //------------------------------------------------
+
+    if(!game.hasSelection())
+    {
+        if(followingPiece)
+        {
+            followingPiece = false;
+
+            camera.resetOverview();
+        }
+
+        return;
+    }
+
+    //------------------------------------------------
+    // CURRENT SELECTED SQUARE
+    //------------------------------------------------
+
+    uint8_t square =
+        game.getSelectedSquare();
+
+    //------------------------------------------------
+    // NEW PIECE SELECTED
+    //------------------------------------------------
+
+    if(
+        !followingPiece
+        ||
+        square != followedSquare
+    )
+    {
+        followingPiece = true;
+
+        followedSquare = square;
+
+        camera.setMode(
+            Camera3D::Mode::FirstPerson
+        );
+    }
+
+    //------------------------------------------------
+    // FOLLOW CURRENT PIECE
+    //------------------------------------------------
+
+    focusCameraOnSquare(
+        game,
+        followedSquare
+    );
 }
