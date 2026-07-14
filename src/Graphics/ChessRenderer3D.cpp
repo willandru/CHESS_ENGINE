@@ -4,10 +4,8 @@
 #include "GameState.h"
 #include "Window.h"
 
-#include <glm/glm.hpp>
-
-#include <iostream>
 #include <cfloat>
+
 
 extern Window gWindow;
 
@@ -32,6 +30,7 @@ bool ChessRenderer3D::initialize(
     const std::string& fragmentShader
 )
 {
+
     //------------------------------------------------
     // BOARD SHADER
     //------------------------------------------------
@@ -45,6 +44,8 @@ bool ChessRenderer3D::initialize(
     {
         return false;
     }
+
+
 
     //------------------------------------------------
     // PIECE SHADER
@@ -60,15 +61,20 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
+
     //------------------------------------------------
-    // OPENGL
+    // OPENGL STATE
     //------------------------------------------------
 
     renderer.enableDepthTest();
+
     renderer.enableFaceCulling();
 
+
+
     //------------------------------------------------
-    // LOAD PIECES
+    // LOAD CHESS PIECES
     //------------------------------------------------
 
     if(
@@ -78,8 +84,12 @@ bool ChessRenderer3D::initialize(
         return false;
     }
 
+
+
     return true;
 }
+
+
 
 
 
@@ -88,17 +98,10 @@ bool ChessRenderer3D::initialize(
 //====================================================
 
 void ChessRenderer3D::render(
-    const ChessGame& game
+    const ChessGame& game,
+    Camera3D& camera
 )
 {
-    renderer.beginFrame(
-        glm::vec4(
-            0.15f,
-            0.15f,
-            0.18f,
-            1.0f
-        )
-    );
 
     float aspectRatio =
         static_cast<float>(
@@ -109,13 +112,7 @@ void ChessRenderer3D::render(
             gWindow.getWindowHeight()
         );
 
-    //------------------------------------------------
-    // CAMERA
-    //------------------------------------------------
 
-    updateCamera(
-        game
-    );
 
     //------------------------------------------------
     // BOARD
@@ -127,6 +124,8 @@ void ChessRenderer3D::render(
         camera,
         aspectRatio
     );
+
+
 
     //------------------------------------------------
     // HIGHLIGHTS
@@ -140,6 +139,8 @@ void ChessRenderer3D::render(
         game
     );
 
+
+
     //------------------------------------------------
     // PIECES
     //------------------------------------------------
@@ -147,8 +148,12 @@ void ChessRenderer3D::render(
     const GameState& state =
         game.getGameState();
 
+
+
     const Piece* board =
         state.getBoard();
+
+
 
     for(
         uint8_t square = 0;
@@ -156,6 +161,7 @@ void ChessRenderer3D::render(
         ++square
     )
     {
+
         pieceRenderer.render(
             renderer,
             pieceShader,
@@ -164,10 +170,14 @@ void ChessRenderer3D::render(
             board[square],
             square
         );
+
     }
 
-    renderer.endFrame();
 }
+
+
+
+
 
 
 //====================================================
@@ -176,21 +186,31 @@ void ChessRenderer3D::render(
 
 int ChessRenderer3D::pickPiece(
     const ChessGame& game,
+    Camera3D& camera,
     float mouseX,
     float mouseY
 )
 {
+
     const GameState& state =
         game.getGameState();
+
+
 
     const Piece* board =
         state.getBoard();
 
+
+
     float bestDistance =
         FLT_MAX;
 
+
+
     int pickedSquare =
         -1;
+
+
 
     for(
         uint8_t square = 0;
@@ -198,18 +218,31 @@ int ChessRenderer3D::pickPiece(
         ++square
     )
     {
+
         Piece piece =
             board[square];
 
-        if(piece == Piece::EMPTY)
+
+
+        if(
+            piece == Piece::EMPTY
+        )
+        {
             continue;
+        }
+
+
 
         Transform3D transform =
             pieceRenderer.buildTransform(
                 square
             );
 
+
+
         float distance;
+
+
 
         if(
             PiecePicker3D::intersectMesh(
@@ -224,129 +257,27 @@ int ChessRenderer3D::pickPiece(
             )
         )
         {
-            if(distance < bestDistance)
+
+            if(
+                distance < bestDistance
+            )
             {
+
                 bestDistance =
                     distance;
 
+
                 pickedSquare =
                     square;
+
             }
+
         }
+
     }
+
+
 
     return pickedSquare;
-}
 
-
-
-//====================================================
-// CAMERA
-//====================================================
-
-Camera3D& ChessRenderer3D::getCamera()
-{
-    return camera;
-}
-
-//====================================================
-// FOCUS CAMERA
-//====================================================
-void ChessRenderer3D::focusCameraOnSquare(
-    const ChessGame& game,
-    uint8_t square
-)
-{
-    const GameState& state =
-        game.getGameState();
-
-    Piece piece =
-        state.getPiece(
-            square
-        );
-
-    if(piece == Piece::EMPTY)
-    {
-        return;
-    }
-
-    glm::vec3 position =
-        pieceRenderer.getWorldPosition(
-            square
-        );
-
-   glm::vec3 eye;
-
-    if(piece >= Piece::BLACK_PAWN)
-    {
-        eye = position + glm::vec3(0.0f, 3.0f, -5.0f);
-    }
-    else
-    {
-        eye = position + glm::vec3(0.0f, 3.0f, 5.0f);
-    }
-
-    glm::vec3 target = position;
-
-    camera.lookAt(eye, target);
-}
-
-//====================================================
-// UPDATE CAMERA
-//====================================================
-
-void ChessRenderer3D::updateCamera(
-    const ChessGame& game
-)
-{
-    //------------------------------------------------
-    // NO PIECE SELECTED
-    //------------------------------------------------
-
-    if(!game.hasSelection())
-    {
-        if(followingPiece)
-        {
-            followingPiece = false;
-
-            camera.resetOverview();
-        }
-
-        return;
-    }
-
-    //------------------------------------------------
-    // CURRENT SELECTED SQUARE
-    //------------------------------------------------
-
-    uint8_t square =
-        game.getSelectedSquare();
-
-    //------------------------------------------------
-    // NEW PIECE SELECTED
-    //------------------------------------------------
-
-    if(
-        !followingPiece
-        ||
-        square != followedSquare
-    )
-    {
-        followingPiece = true;
-
-        followedSquare = square;
-
-        camera.setMode(
-            Camera3D::Mode::FirstPerson
-        );
-    }
-
-    //------------------------------------------------
-    // FOLLOW CURRENT PIECE
-    //------------------------------------------------
-
-    focusCameraOnSquare(
-        game,
-        followedSquare
-    );
 }

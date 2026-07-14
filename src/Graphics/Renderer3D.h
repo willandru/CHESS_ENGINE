@@ -4,7 +4,6 @@
 #include "Shader3D.h"
 #include "Transform3D.h"
 #include "Camera3D.h"
-
 #include "Material3D.h"
 
 #include <glm/glm.hpp>
@@ -31,7 +30,7 @@ public:
 
 
     //------------------------------------------------
-    // DRAW BASIC
+    // BASIC DRAW
     //------------------------------------------------
 
     void draw(
@@ -42,8 +41,10 @@ public:
         float aspectRatio
     ) const;
 
-        //------------------------------------------------
-    // DRAW WITH UNIFORM COLOR
+
+
+    //------------------------------------------------
+    // DRAW COLOR
     //------------------------------------------------
 
     void drawColored(
@@ -58,7 +59,7 @@ public:
 
 
     //------------------------------------------------
-    // DRAW PIECE
+    // CHESS PIECES
     //------------------------------------------------
 
     void renderPiece(
@@ -73,7 +74,39 @@ public:
 
 
     //------------------------------------------------
-    // OPTIONS
+    // ENVIRONMENT OBJECTS
+    // Tables, chairs, lamps, decorations
+    //------------------------------------------------
+
+    void renderObject(
+        const Mesh3D& mesh,
+        const Transform3D& transform,
+        const glm::vec3& color,
+        const Shader3D& shader,
+        const Camera3D& camera,
+        float aspectRatio
+    ) const;
+
+
+
+    //------------------------------------------------
+    // ENVIRONMENT BACKGROUND
+    // Walls, floors, ceilings
+    //------------------------------------------------
+
+    void renderWall(
+        const Mesh3D& mesh,
+        const Transform3D& transform,
+        const glm::vec3& color,
+        const Shader3D& shader,
+        const Camera3D& camera,
+        float aspectRatio
+    ) const;
+
+
+
+    //------------------------------------------------
+    // OPENGL OPTIONS
     //------------------------------------------------
 
     void enableDepthTest() const;

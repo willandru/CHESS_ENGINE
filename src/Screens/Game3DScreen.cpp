@@ -1,12 +1,21 @@
 #include "Game3DScreen.h"
 
+#include "BasicRoom3D.h"
+
 #include "BoardPicker3D.h"
 #include "InputMouse.h"
 #include "InputConsole.h"
 #include "Window.h"
+
+#include <glad/glad.h>
+
 #include <iostream>
+#include <memory>
+
 
 extern Window gWindow;
+
+
 
 
 
@@ -16,75 +25,113 @@ extern Window gWindow;
 
 void Game3DScreen::onEnter()
 {
-    renderer3D.initialize(
+
+    //------------------------------------------------
+    // CAMERA
+    //------------------------------------------------
+
+    camera.resetOverview();
+
+
+
+    //------------------------------------------------
+    // SCENE
+    //------------------------------------------------
+
+    sceneRenderer.initialize(
         "Shaders/basic_3d.vert",
         "Shaders/basic_3d.frag"
     );
 
 
+    sceneRenderer.setEnvironment(
+        std::make_unique<BasicRoom3D>()
+    );
+
+
+
+    //------------------------------------------------
+    // CHESS
+    //------------------------------------------------
+
+    chessRenderer.initialize(
+        "Shaders/basic_3d.vert",
+        "Shaders/basic_3d.frag"
+    );
+
+
+
+    //------------------------------------------------
+    // GAME
+    //------------------------------------------------
+
     game.reset();
+
 }
 
 
 
-//====================================================
-// UPDATE
-//====================================================
+
+
+
 //====================================================
 // UPDATE
 //====================================================
 
-void Game3DScreen::update(float dt)
+void Game3DScreen::update(
+    float dt
+)
 {
 
-    game.update(dt);
+    //------------------------------------------------
+    // ENVIRONMENT
+    //------------------------------------------------
+
+    sceneRenderer.update(
+        dt
+    );
 
 
 
     //------------------------------------------------
-    // INPUT CONSOLE
+    // GAME
     //------------------------------------------------
 
-    InputConsole::update(game);
+    game.update(
+        dt
+    );
 
 
-    if(InputConsole::hasSquareSelection())
+
+    //------------------------------------------------
+    // CONSOLE INPUT
+    //------------------------------------------------
+
+    InputConsole::update(
+        game
+    );
+
+
+    if(
+        InputConsole::hasSquareSelection()
+    )
     {
 
-        uint8_t sq =
+        uint8_t square =
             InputConsole::getSelectedSquare();
+
 
 
         std::cout
             << "CONSOLE SELECT SQUARE = "
-            << static_cast<int>(sq)
+            << static_cast<int>(square)
             << std::endl;
 
 
 
         game.onSquareClicked(
-            sq
+            square
         );
-
-
-        std::cout
-            << "HAS SELECTION = "
-            << game.hasSelection()
-            << std::endl;
-
-
-        std::cout
-            << "SELECTED SQUARE = "
-            << static_cast<int>(
-                game.getSelectedSquare()
-            )
-            << std::endl;
-
-
-        std::cout
-            << "LEGAL MOVES = "
-            << game.getMoves().size()
-            << std::endl;
 
     }
 
@@ -92,16 +139,21 @@ void Game3DScreen::update(float dt)
 
 
     //------------------------------------------------
-    // MOUSE INPUT
+    // MOUSE
     //------------------------------------------------
 
-    if(!InputMouse::isButtonPressed(0))
+    if(
+        !InputMouse::isButtonPressed(0)
+    )
+    {
         return;
+    }
 
 
 
     float mx;
     float my;
+
 
 
     InputMouse::getUIPosition(
@@ -111,28 +163,24 @@ void Game3DScreen::update(float dt)
 
 
 
-
     //------------------------------------------------
-    // TRY PICK PIECE
+    // PICK PIECE
     //------------------------------------------------
 
     int pickedSquare =
-        renderer3D.pickPiece(
+        chessRenderer.pickPiece(
             game,
+            camera,
             mx,
             my
         );
 
 
 
-    if(pickedSquare != -1)
+    if(
+        pickedSquare != -1
+    )
     {
-
-        std::cout
-            << "MOUSE PIECE PICKED = "
-            << pickedSquare
-            << std::endl;
-
 
         game.onSquareClicked(
             static_cast<uint8_t>(
@@ -142,6 +190,7 @@ void Game3DScreen::update(float dt)
 
 
         return;
+
     }
 
 
@@ -161,18 +210,11 @@ void Game3DScreen::update(float dt)
             my,
             gWindow.getWindowWidth(),
             gWindow.getWindowHeight(),
-            renderer3D.getCamera(),
+            camera,
             square
         )
     )
     {
-
-        std::cout
-            << "BOARD SQUARE PICKED = "
-            << static_cast<int>(square)
-            << std::endl;
-
-
 
         game.onSquareClicked(
             square
@@ -182,6 +224,11 @@ void Game3DScreen::update(float dt)
 
 }
 
+
+
+
+
+
 //====================================================
 // RENDER
 //====================================================
@@ -189,11 +236,60 @@ void Game3DScreen::update(float dt)
 void Game3DScreen::render()
 {
 
-    renderer3D.render(
-        game
+    float aspectRatio =
+        static_cast<float>(
+            gWindow.getWindowWidth()
+        )
+        /
+        static_cast<float>(
+            gWindow.getWindowHeight()
+        );
+
+
+
+    //------------------------------------------------
+    // CLEAR FRAME
+    //------------------------------------------------
+
+    glClearColor(
+        0.15f,
+        0.15f,
+        0.18f,
+        1.0f
+    );
+
+
+    glClear(
+        GL_COLOR_BUFFER_BIT |
+        GL_DEPTH_BUFFER_BIT
+    );
+
+
+
+    //------------------------------------------------
+    // ROOM
+    //------------------------------------------------
+
+    sceneRenderer.render(
+        camera,
+        aspectRatio
+    );
+
+
+
+    //------------------------------------------------
+    // CHESS
+    //------------------------------------------------
+
+    chessRenderer.render(
+        game,
+        camera
     );
 
 }
+
+
+
 
 
 

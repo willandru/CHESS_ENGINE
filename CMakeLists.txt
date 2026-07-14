@@ -37,6 +37,7 @@ include_directories(
     src/AI
     src/Analysis
     src/RL
+    src/Environment
 
     externals/glad/include
     externals/glfw-3.4/include
