@@ -178,6 +178,22 @@ void ChessGame::onSquareClicked(uint8_t square)
     // SECOND CLICK
     //------------------------------------------------
 
+    std::cout
+    << "AVAILABLE MOVES: "
+    << moves.size()
+    << std::endl;
+
+
+for(const Move& m : moves)
+{
+    std::cout
+        << "MOVE "
+        << (int)m.from
+        << " -> "
+        << (int)m.to
+        << std::endl;
+}
+
     // ¿Es un movimiento legal?
     for (const Move& m : moves)
     {

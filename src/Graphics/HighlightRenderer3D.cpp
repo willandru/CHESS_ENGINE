@@ -33,113 +33,130 @@ namespace
     // BUILD MESH
     //------------------------------------------------
 
-    void buildMesh()
+void buildMesh()
+{
+    if(gInitialized)
+        return;
+
+
+
+    std::vector<Vertex3D> vertices(4);
+
+
+
+    //------------------------------------------------
+    // HIGHLIGHT SIZE FROM SCENE CONSTANTS
+    //------------------------------------------------
+
+    float halfSize =
+        SceneConstants::SQUARE_SIZE * 0.5f;
+
+
+
+    vertices[0].position =
     {
-        if(gInitialized)
-            return;
+        -halfSize,
+        0.0f,
+        -halfSize
+    };
+
+
+    vertices[1].position =
+    {
+         halfSize,
+         0.0f,
+        -halfSize
+    };
+
+
+    vertices[2].position =
+    {
+         halfSize,
+         0.0f,
+         halfSize
+    };
+
+
+    vertices[3].position =
+    {
+        -halfSize,
+         0.0f,
+         halfSize
+    };
 
 
 
-        std::vector<Vertex3D> vertices(4);
+    //------------------------------------------------
+    // VERTEX DATA
+    //------------------------------------------------
 
-
-
-        // Casilla 1x1 centrada en el origen
-
-        vertices[0].position =
+    for(Vertex3D& v : vertices)
+    {
+        v.normal =
         {
-            -0.5f,
             0.0f,
-            -0.5f
+            1.0f,
+            0.0f
         };
 
 
-        vertices[1].position =
+        v.texCoord =
         {
-             0.5f,
-             0.0f,
-            -0.5f
+            0.0f,
+            0.0f
         };
 
 
-        vertices[2].position =
-        {
-             0.5f,
-             0.0f,
-             0.5f
-        };
-
-
-        vertices[3].position =
-        {
-            -0.5f,
-             0.0f,
-             0.5f
-        };
-
-
-
-        for(Vertex3D& v : vertices)
-        {
-            v.normal =
-            {
-                0.0f,
-                1.0f,
-                0.0f
-            };
-
-
-            v.texCoord =
-            {
-                0.0f,
-                0.0f
-            };
-
-
-            v.color =
-            {
-                1.0f,
-                1.0f,
-                1.0f
-            };
-        }
-
-
-
-        std::vector<uint32_t> indices =
-        {
-            0,1,2,
-            0,2,3
-        };
-
-
-
-        gHighlightMesh.upload(
-            vertices,
-            indices
-        );
-
-
-
-        gTransform.setScale(
+        v.color =
         {
             1.0f,
             1.0f,
             1.0f
-        });
-
-
-
-        gInitialized = true;
-
-
-
-        std::cout
-            << "[Highlight] Mesh created"
-            << std::endl;
+        };
     }
 
 
+
+    //------------------------------------------------
+    // INDICES
+    //------------------------------------------------
+
+    std::vector<uint32_t> indices =
+    {
+        0,1,2,
+        0,2,3
+    };
+
+
+
+    gHighlightMesh.upload(
+        vertices,
+        indices
+    );
+
+
+
+    //------------------------------------------------
+    // TRANSFORM
+    //------------------------------------------------
+
+    gTransform.setScale(
+    {
+        1.0f,
+        1.0f,
+        1.0f
+    });
+
+
+
+    gInitialized = true;
+
+
+
+    std::cout
+        << "[Highlight] Mesh created"
+        << std::endl;
+}
 
 
 

@@ -228,11 +228,19 @@ void Game3DScreen::update(
         )
     )
     {
+        std::cout
+            << "BOARD PICK = "
+            << static_cast<int>(square)
+            << std::endl;
 
-        game.onSquareClicked(
-            square
-        );
 
+        game.onSquareClicked(square);
+    }
+    else
+    {
+        std::cout
+            << "NO BOARD HIT"
+            << std::endl;
     }
 
 }
@@ -309,7 +317,7 @@ void Game3DScreen::render()
     }
 
 
-    
+
 
 
 //====================================================

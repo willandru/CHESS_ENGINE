@@ -52,29 +52,29 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":4542,
+			"count":4560,
 			"max":[
-				0.3499999940395355,
-				1.1974806785583496,
-				0.3499999940395355
+				0.017500000074505806,
+				0.06486353278160095,
+				0.02250000089406967
 			],
 			"min":[
-				-0.3499999940395355,
-				-0.0025193465407937765,
-				-0.3499999940395355
+				-0.017500000074505806,
+				-0.00013646458683069795,
+				-0.02250000089406967
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":4542,
+			"count":4560,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":4542,
+			"count":4560,
 			"type":"VEC2"
 		},
 		{
@@ -87,32 +87,32 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":54504,
+			"byteLength":54720,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":54504,
-			"byteOffset":54504,
+			"byteLength":54720,
+			"byteOffset":54720,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":36336,
-			"byteOffset":109008,
+			"byteLength":36480,
+			"byteOffset":109440,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":14328,
-			"byteOffset":145344,
+			"byteOffset":145920,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":159672,
+			"byteLength":160248,
 			"uri":"caballo.bin"
 		}
 	]

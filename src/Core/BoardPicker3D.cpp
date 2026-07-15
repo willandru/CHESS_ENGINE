@@ -5,7 +5,7 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
-
+#include <iostream>
 
 
 //====================================================
@@ -119,15 +119,17 @@ bool BoardPicker3D::pickSquare(
 
     int col =
         static_cast<int>(
-            hitPoint.x +
-            SceneConstants::HALF_BOARD_SIZE
+            (hitPoint.x + SceneConstants::HALF_BOARD_SIZE)
+            /
+            SceneConstants::SQUARE_SIZE
         );
 
 
     int row =
         static_cast<int>(
-            hitPoint.z +
-            SceneConstants::HALF_BOARD_SIZE
+            (hitPoint.z + SceneConstants::HALF_BOARD_SIZE)
+            /
+            SceneConstants::SQUARE_SIZE
         );
 
     if(col < 0 || col >= 8)
@@ -142,6 +144,15 @@ bool BoardPicker3D::pickSquare(
         static_cast<uint8_t>(
             row * 8 + col
         );
+
+    std::cout
+        << "PICK HIT "
+        << hitPoint.x
+        << " "
+        << hitPoint.z
+        << " -> square "
+        << (int)square
+        << std::endl;
 
     return true;
 }
