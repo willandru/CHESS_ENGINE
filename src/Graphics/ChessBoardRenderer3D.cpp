@@ -1,5 +1,7 @@
 #include "ChessBoardRenderer3D.h"
 
+#include "SceneConstants.h"
+
 
 ChessBoardRenderer3D::ChessBoardRenderer3D()
 {
@@ -10,7 +12,7 @@ ChessBoardRenderer3D::ChessBoardRenderer3D()
     transform.setPosition(
     {
         0.0f,
-        4.0f,
+        SceneConstants::BOARD_HEIGHT,
         0.0f
     });
 

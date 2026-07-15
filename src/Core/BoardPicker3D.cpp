@@ -1,6 +1,7 @@
 #include "BoardPicker3D.h"
 
 #include "Camera3D.h"
+#include "SceneConstants.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
@@ -118,12 +119,15 @@ bool BoardPicker3D::pickSquare(
 
     int col =
         static_cast<int>(
-            hitPoint.x + 4.0f
+            hitPoint.x +
+            SceneConstants::HALF_BOARD_SIZE
         );
+
 
     int row =
         static_cast<int>(
-            hitPoint.z + 4.0f
+            hitPoint.z +
+            SceneConstants::HALF_BOARD_SIZE
         );
 
     if(col < 0 || col >= 8)
@@ -154,23 +158,30 @@ bool BoardPicker3D::intersectBoard(
     glm::vec3& hitPoint
 )
 {
-    constexpr float BOARD_Y = 0.0f;
+    constexpr float BOARD_Y =
+        SceneConstants::BOARD_HEIGHT +
+        SceneConstants::BOARD_THICKNESS;
+
 
     if(glm::abs(direction.y) < 0.0001f)
         return false;
+
 
     float t =
         (BOARD_Y - origin.y)
         /
         direction.y;
 
+
     if(t < 0.0f)
         return false;
+
 
     hitPoint =
         origin
         +
         direction * t;
+
 
     return true;
 }

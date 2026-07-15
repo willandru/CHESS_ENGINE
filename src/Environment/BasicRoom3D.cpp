@@ -1,5 +1,8 @@
 #include "BasicRoom3D.h"
 
+#include "BasicRoomConstants.h"
+
+
 BasicRoom3D::BasicRoom3D()
 {
 }
@@ -16,9 +19,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     floor.initialize(
-        roomWidth,
-        roomDepth,
-        floorColor
+        BasicRoomConstants::ROOM_WIDTH,
+        BasicRoomConstants::ROOM_DEPTH,
+        BasicRoomConstants::FLOOR_COLOR
     );
 
     floor.setRotation({
@@ -40,9 +43,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     ceiling.initialize(
-        roomWidth,
-        roomDepth,
-        ceilingColor
+        BasicRoomConstants::ROOM_WIDTH,
+        BasicRoomConstants::ROOM_DEPTH,
+        BasicRoomConstants::CEILING_COLOR
     );
 
     ceiling.setRotation({
@@ -53,7 +56,7 @@ bool BasicRoom3D::initialize()
 
     ceiling.setPosition({
         0.0f,
-        roomHeight,
+        BasicRoomConstants::ROOM_HEIGHT,
         0.0f
     });
 
@@ -64,9 +67,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     northWall.initialize(
-        roomWidth,
-        roomHeight,
-        wallColor
+        BasicRoomConstants::ROOM_WIDTH,
+        BasicRoomConstants::ROOM_HEIGHT,
+        BasicRoomConstants::WALL_COLOR
     );
 
     northWall.setRotation({
@@ -77,8 +80,8 @@ bool BasicRoom3D::initialize()
 
     northWall.setPosition({
         0.0f,
-        roomHeight * 0.5f,
-        roomDepth * 0.5f
+        BasicRoomConstants::ROOM_HEIGHT * 0.5f,
+        BasicRoomConstants::ROOM_DEPTH * 0.5f
     });
 
 
@@ -88,9 +91,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     southWall.initialize(
-        roomWidth,
-        roomHeight,
-        wallColor
+        BasicRoomConstants::ROOM_WIDTH,
+        BasicRoomConstants::ROOM_HEIGHT,
+        BasicRoomConstants::WALL_COLOR
     );
 
     southWall.setRotation({
@@ -101,8 +104,8 @@ bool BasicRoom3D::initialize()
 
     southWall.setPosition({
         0.0f,
-        roomHeight * 0.5f,
-        -roomDepth * 0.5f
+        BasicRoomConstants::ROOM_HEIGHT * 0.5f,
+        -BasicRoomConstants::ROOM_DEPTH * 0.5f
     });
 
 
@@ -112,9 +115,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     eastWall.initialize(
-        roomDepth,
-        roomHeight,
-        wallColor
+        BasicRoomConstants::ROOM_DEPTH,
+        BasicRoomConstants::ROOM_HEIGHT,
+        BasicRoomConstants::WALL_COLOR
     );
 
     eastWall.setRotation({
@@ -124,8 +127,8 @@ bool BasicRoom3D::initialize()
     });
 
     eastWall.setPosition({
-        roomWidth * 0.5f,
-        roomHeight * 0.5f,
+        BasicRoomConstants::ROOM_WIDTH * 0.5f,
+        BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         0.0f
     });
 
@@ -136,9 +139,9 @@ bool BasicRoom3D::initialize()
     //------------------------------------------------
 
     westWall.initialize(
-        roomDepth,
-        roomHeight,
-        wallColor
+        BasicRoomConstants::ROOM_DEPTH,
+        BasicRoomConstants::ROOM_HEIGHT,
+        BasicRoomConstants::WALL_COLOR
     );
 
     westWall.setRotation({
@@ -148,8 +151,8 @@ bool BasicRoom3D::initialize()
     });
 
     westWall.setPosition({
-        -roomWidth * 0.5f,
-        roomHeight * 0.5f,
+        -BasicRoomConstants::ROOM_WIDTH * 0.5f,
+        BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         0.0f
     });
 

@@ -2,6 +2,7 @@
 
 #include "Environment3D.h"
 #include "BasicWall3D.h"
+#include "BasicRoomConstants.h"
 
 class BasicRoom3D : public Environment3D
 {
@@ -39,40 +40,29 @@ public:
 
 private:
 
-    //------------------------------------------------
-    // ROOM DIMENSIONS
-    //------------------------------------------------
+    float roomWidth =
+        BasicRoomConstants::ROOM_WIDTH;
 
-    float roomWidth  = 120.0f;
 
-    float roomHeight = 20.0f;
+    float roomHeight =
+        BasicRoomConstants::ROOM_HEIGHT;
 
-    float roomDepth  = 120.0f;
 
-    //------------------------------------------------
-    // COLORS
-    //------------------------------------------------
+    float roomDepth =
+        BasicRoomConstants::ROOM_DEPTH;
+
+
 
     glm::vec3 wallColor =
-    {
-        0.88f,
-        0.87f,
-        0.82f
-    };
+        BasicRoomConstants::WALL_COLOR;
+
 
     glm::vec3 floorColor =
-    {
-        0.55f,
-        0.40f,
-        0.28f
-    };
+        BasicRoomConstants::FLOOR_COLOR;
+
 
     glm::vec3 ceilingColor =
-    {
-        0.95f,
-        0.95f,
-        0.95f
-    };
+        BasicRoomConstants::CEILING_COLOR;
 
     //------------------------------------------------
     // PANELS

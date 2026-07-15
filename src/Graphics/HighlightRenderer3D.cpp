@@ -17,7 +17,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <vector>
-
+#include "SceneConstants.h"
 
 namespace
 {
@@ -148,41 +148,23 @@ namespace
     //------------------------------------------------
 
     void squareToWorld(
-        uint8_t square,
-        float& x,
-        float& z
+    uint8_t square,
+    float& x,
+    float& z
     )
     {
-
-        constexpr float squareSize = 1.0f;
-        constexpr float boardCenter = 4.0f;
-
-
-
-        int row =
-            square / 8;
-
-
-        int col =
-            square % 8;
-
-
+        int row = square / SceneConstants::BOARD_SQUARES;
+        int col = square % SceneConstants::BOARD_SQUARES;
 
         x =
-            (col * squareSize)
-            -
-            boardCenter
-            +
-            squareSize * 0.5f;
-
-
+            (col * SceneConstants::SQUARE_SIZE)
+            - SceneConstants::HALF_BOARD_SIZE
+            + (SceneConstants::SQUARE_SIZE * 0.5f);
 
         z =
-            (row * squareSize)
-            -
-            boardCenter
-            +
-            squareSize * 0.5f;
+            (row * SceneConstants::SQUARE_SIZE)
+            - SceneConstants::HALF_BOARD_SIZE
+            + (SceneConstants::SQUARE_SIZE * 0.5f);
     }
 
 }
@@ -325,11 +307,8 @@ void HighlightRenderer3D::renderSquare(
     float b
 )
 {
-
     float x;
     float z;
-
-
 
     squareToWorld(
         square,
@@ -337,24 +316,19 @@ void HighlightRenderer3D::renderSquare(
         z
     );
 
-
-
     gTransform.setPosition(
-    {
-        x,
-        0.251f,
-        z
-    });
-
-
-
-
+        glm::vec3(
+            x,
+            SceneConstants::BOARD_HEIGHT +
+            SceneConstants::BOARD_THICKNESS +
+            0.001f,
+            z
+        )
+    );
 
     glDisable(
         GL_CULL_FACE
     );
-
-
 
     renderer.drawColored(
         gHighlightMesh,
@@ -369,17 +343,10 @@ void HighlightRenderer3D::renderSquare(
         )
     );
 
-
-
     glEnable(
         GL_CULL_FACE
     );
-
 }
-
-
-
-
 
 //====================================================
 // RENDER MOVES

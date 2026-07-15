@@ -1,5 +1,7 @@
 #include "ChessPieceRenderer3D.h"
 
+#include "SceneConstants.h"
+
 #include <iostream>
 
 
@@ -12,9 +14,9 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 {
     transform.setScale(
     {
-        0.8f,
-        0.8f,
-        0.8f
+        SceneConstants::PIECE_SCALE,
+        SceneConstants::PIECE_SCALE,
+        SceneConstants::PIECE_SCALE
     });
 
     whiteMaterial.setColor(
@@ -119,15 +121,15 @@ Transform3D ChessPieceRenderer3D::buildTransform(
     pieceTransform.setPosition(
     {
         x,
-        4.25f,
+        SceneConstants::PIECE_HEIGHT,
         z
     });
 
     pieceTransform.setScale(
     {
-        0.8f,
-        0.8f,
-        0.8f
+        SceneConstants::PIECE_SCALE,
+        SceneConstants::PIECE_SCALE,
+        SceneConstants::PIECE_SCALE
     });
 
     return pieceTransform;
@@ -176,6 +178,8 @@ void ChessPieceRenderer3D::render(
         aspectRatio
     );
 }
+
+
 
 //====================================================
 // PIECE INDEX
@@ -229,13 +233,16 @@ void ChessPieceRenderer3D::squareToWorld(
 ) const
 {
     int row =
-        square / 8;
+        square / SceneConstants::BOARD_SQUARES;
 
     int col =
-        square % 8;
+        square % SceneConstants::BOARD_SQUARES;
 
-    constexpr float squareSize = 1.0f;
-    constexpr float boardCenter = 4.0f;
+    constexpr float squareSize =
+        SceneConstants::SQUARE_SIZE;
+
+    constexpr float boardCenter =
+        SceneConstants::HALF_BOARD_SIZE;
 
     x =
         (col * squareSize)
@@ -271,6 +278,11 @@ Material3D& ChessPieceRenderer3D::getBlackMaterial()
 }
 
 
+
+//====================================================
+// WORLD POSITION
+//====================================================
+
 glm::vec3 ChessPieceRenderer3D::getWorldPosition(
     uint8_t square
 ) const
@@ -287,7 +299,7 @@ glm::vec3 ChessPieceRenderer3D::getWorldPosition(
     return
     {
         x,
-        4.25f,
+        SceneConstants::PIECE_HEIGHT,
         z
     };
 }

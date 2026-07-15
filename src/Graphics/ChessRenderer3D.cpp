@@ -3,6 +3,7 @@
 #include "ChessGame.h"
 #include "GameState.h"
 #include "Window.h"
+#include "SceneConstants.h"
 
 #include <cfloat>
 
@@ -157,7 +158,7 @@ void ChessRenderer3D::render(
 
     for(
         uint8_t square = 0;
-        square < 64;
+        square < SceneConstants::BOARD_CELL_COUNT;
         ++square
     )
     {
@@ -214,7 +215,7 @@ int ChessRenderer3D::pickPiece(
 
     for(
         uint8_t square = 0;
-        square < 64;
+        square < SceneConstants::BOARD_CELL_COUNT;
         ++square
     )
     {

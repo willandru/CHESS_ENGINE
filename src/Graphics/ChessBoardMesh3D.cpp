@@ -1,5 +1,6 @@
 #include "ChessBoardMesh3D.h"
 
+#include "SceneConstants.h"
 #include "Vertex3D.h"
 
 #include <glm/glm.hpp>
@@ -30,13 +31,23 @@ const Mesh3D& ChessBoardMesh3D::getMesh() const
 
 void ChessBoardMesh3D::build()
 {
-    constexpr float squareSize = 1.0f;
+    constexpr float squareSize =
+        SceneConstants::SQUARE_SIZE;
 
-    constexpr float boardSize = squareSize * 8.0f;
+    constexpr float boardSize =
+        SceneConstants::BOARD_SIZE;
 
-    constexpr float halfBoard = boardSize * 0.5f;
+    constexpr float halfBoard =
+        SceneConstants::HALF_BOARD_SIZE;
 
-    constexpr float boardHeight = 0.25f;
+    constexpr float boardHeight =
+        SceneConstants::BOARD_THICKNESS;
+
+    constexpr int boardSquares =
+        SceneConstants::BOARD_SQUARES;
+
+    constexpr int totalSquares =
+        boardSquares * boardSquares;
 
 
 
@@ -46,15 +57,15 @@ void ChessBoardMesh3D::build()
 
 
 
-    vertices.reserve(64 * 24);
+    vertices.reserve(totalSquares * 24);
 
-    indices.reserve(64 * 36);
+    indices.reserve(totalSquares * 36);
 
 
 
-    for (int row = 0; row < 8; row++)
+    for (int row = 0; row < boardSquares; row++)
     {
-        for (int col = 0; col < 8; col++)
+        for (int col = 0; col < boardSquares; col++)
         {
 
             float x0 =
@@ -76,37 +87,25 @@ void ChessBoardMesh3D::build()
 
             glm::vec3 color;
 
-/*
-                if ((row + col) % 2 == 0)
-            {
-                // Beige
-                color = glm::vec3(
-                    0.93f,
-                    0.87f,
-                    0.73f
-                );
-            }
-            else
-            {
-                // Azul
-                color = glm::vec3(
-                    0.23f,
-                    0.35f,
-                    0.58f
-                );
-            }*/
-
             if ((row + col) % 2 == 0)
             {
-                // Red
-                color = glm::vec3(0.965, 0.922, 0.784);
+                // Light square
+                color = glm::vec3(
+                    0.965f,
+                    0.922f,
+                    0.784f
+                );
             }
             else
             {
-                // Green
-                color = glm::vec3(0.090, 0.271, 0.067);
+                // Dark square
+                color = glm::vec3(
+                    0.090f,
+                    0.271f,
+                    0.067f
+                );
             }
-            
+
 
 
             addCube(
@@ -184,7 +183,7 @@ void ChessBoardMesh3D::addCube(
     for(int i = 0; i < 8; i++)
     {
         v[i].color = color;
-        v[i].texCoord = {0.0f,0.0f};
+        v[i].texCoord = {0.0f, 0.0f};
     }
 
 
