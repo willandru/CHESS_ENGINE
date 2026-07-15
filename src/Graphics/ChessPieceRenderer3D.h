@@ -11,6 +11,8 @@
 #include "ChessTypes.h"
 
 #include <array>
+#include <glm/glm.hpp>
+
 
 class ChessPieceRenderer3D
 {
@@ -18,11 +20,14 @@ public:
 
     ChessPieceRenderer3D();
 
+
     //------------------------------------------------
     // LOAD
     //------------------------------------------------
 
     bool initialize();
+
+
 
     //------------------------------------------------
     // MATERIAL
@@ -32,6 +37,8 @@ public:
 
     Material3D& getBlackMaterial();
 
+
+
     //------------------------------------------------
     // MESH
     //------------------------------------------------
@@ -40,13 +47,18 @@ public:
         Piece piece
     ) const;
 
+
+
     //------------------------------------------------
     // TRANSFORM
     //------------------------------------------------
 
     Transform3D buildTransform(
+        Piece piece,
         uint8_t square
     ) const;
+
+
 
     //------------------------------------------------
     // RENDER
@@ -61,11 +73,20 @@ public:
         uint8_t square
     );
 
+
+
+    //------------------------------------------------
+    // WORLD POSITION
+    //------------------------------------------------
+
     glm::vec3 getWorldPosition(
         uint8_t square
     ) const;
 
+
+
 private:
+
 
     //------------------------------------------------
     // MODELS
@@ -73,11 +94,15 @@ private:
 
     std::array<ChessPieceMesh3D,6> pieces;
 
+
+
     //------------------------------------------------
     // DEFAULT TRANSFORM
     //------------------------------------------------
 
     Transform3D transform;
+
+
 
     //------------------------------------------------
     // MATERIAL
@@ -87,6 +112,8 @@ private:
 
     Material3D blackMaterial;
 
+
+
     //------------------------------------------------
     // HELPERS
     //------------------------------------------------
@@ -95,9 +122,18 @@ private:
         Piece piece
     ) const;
 
+
+
+    float getPieceYOffset(
+        Piece piece
+    ) const;
+
+
+
     void squareToWorld(
         uint8_t square,
         float& x,
         float& z
     ) const;
+
 };

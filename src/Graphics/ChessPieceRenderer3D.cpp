@@ -12,12 +12,14 @@
 
 ChessPieceRenderer3D::ChessPieceRenderer3D()
 {
+
     transform.setScale(
     {
         SceneConstants::PIECE_SCALE,
         SceneConstants::PIECE_SCALE,
         SceneConstants::PIECE_SCALE
     });
+
 
     whiteMaterial.setColor(
     {
@@ -26,12 +28,14 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
         0.9f
     });
 
+
     blackMaterial.setColor(
     {
         0.05f,
         0.05f,
         0.05f
     });
+
 }
 
 
@@ -42,31 +46,40 @@ ChessPieceRenderer3D::ChessPieceRenderer3D()
 
 bool ChessPieceRenderer3D::initialize()
 {
+
     bool ok = true;
+
 
     ok &= pieces[0].load(
         "Assets/peon.gltf"
     );
 
+
     ok &= pieces[1].load(
         "Assets/caballo.gltf"
     );
+
 
     ok &= pieces[2].load(
         "Assets/alfil.gltf"
     );
 
+
     ok &= pieces[3].load(
         "Assets/torre.gltf"
     );
+
 
     ok &= pieces[4].load(
         "Assets/dama.gltf"
     );
 
+
     ok &= pieces[5].load(
         "Assets/rey.gltf"
     );
+
+
 
     if(!ok)
     {
@@ -79,8 +92,11 @@ bool ChessPieceRenderer3D::initialize()
             << "[ChessPieceRenderer3D] pieces loaded\n";
     }
 
+
     return ok;
 }
+
+
 
 
 
@@ -99,16 +115,23 @@ const Mesh3D& ChessPieceRenderer3D::getMesh(
 
 
 
+
+
+
+
 //====================================================
 // BUILD TRANSFORM
 //====================================================
 
 Transform3D ChessPieceRenderer3D::buildTransform(
+    Piece piece,
     uint8_t square
 ) const
 {
+
     float x;
     float z;
+
 
     squareToWorld(
         square,
@@ -116,14 +139,27 @@ Transform3D ChessPieceRenderer3D::buildTransform(
         z
     );
 
+
+
     Transform3D pieceTransform;
+
+
+
+    float y =
+        SceneConstants::PIECE_HEIGHT
+        +
+        getPieceYOffset(piece);
+
+
 
     pieceTransform.setPosition(
     {
         x,
-        SceneConstants::PIECE_HEIGHT,
+        y,
         z
     });
+
+
 
     pieceTransform.setScale(
     {
@@ -132,8 +168,14 @@ Transform3D ChessPieceRenderer3D::buildTransform(
         SceneConstants::PIECE_SCALE
     });
 
+
+
     return pieceTransform;
 }
+
+
+
+
 
 
 
@@ -150,17 +192,31 @@ void ChessPieceRenderer3D::render(
     uint8_t square
 )
 {
+
     if(piece == Piece::EMPTY)
         return;
+
+
 
     int index =
         getPieceIndex(piece);
 
+
+
     if(index < 0)
         return;
 
+
+
+
     Transform3D pieceTransform =
-        buildTransform(square);
+        buildTransform(
+            piece,
+            square
+        );
+
+
+
 
     Material3D& currentMaterial =
         (piece >= Piece::BLACK_PAWN)
@@ -168,6 +224,9 @@ void ChessPieceRenderer3D::render(
         blackMaterial
         :
         whiteMaterial;
+
+
+
 
     renderer.renderPiece(
         pieces[index].getMesh(),
@@ -177,7 +236,12 @@ void ChessPieceRenderer3D::render(
         camera,
         aspectRatio
     );
+
 }
+
+
+
+
 
 
 
@@ -189,36 +253,105 @@ int ChessPieceRenderer3D::getPieceIndex(
     Piece piece
 ) const
 {
+
     switch(piece)
     {
+
         case Piece::WHITE_PAWN:
         case Piece::BLACK_PAWN:
             return 0;
+
 
         case Piece::WHITE_KNIGHT:
         case Piece::BLACK_KNIGHT:
             return 1;
 
+
         case Piece::WHITE_BISHOP:
         case Piece::BLACK_BISHOP:
             return 2;
+
 
         case Piece::WHITE_ROOK:
         case Piece::BLACK_ROOK:
             return 3;
 
+
         case Piece::WHITE_QUEEN:
         case Piece::BLACK_QUEEN:
             return 4;
+
 
         case Piece::WHITE_KING:
         case Piece::BLACK_KING:
             return 5;
 
+
         default:
             return -1;
+
     }
+
 }
+
+
+
+
+
+
+
+//====================================================
+// PIECE Y OFFSET
+//====================================================
+
+float ChessPieceRenderer3D::getPieceYOffset(
+    Piece piece
+) const
+{
+
+    switch(piece)
+    {
+
+        case Piece::WHITE_PAWN:
+        case Piece::BLACK_PAWN:
+            return SceneConstants::PAWN_OFFSET_Y;
+
+
+        case Piece::WHITE_KNIGHT:
+        case Piece::BLACK_KNIGHT:
+            return SceneConstants::KNIGHT_OFFSET_Y;
+
+
+        case Piece::WHITE_BISHOP:
+        case Piece::BLACK_BISHOP:
+            return SceneConstants::BISHOP_OFFSET_Y;
+
+
+        case Piece::WHITE_ROOK:
+        case Piece::BLACK_ROOK:
+            return SceneConstants::ROOK_OFFSET_Y;
+
+
+        case Piece::WHITE_QUEEN:
+        case Piece::BLACK_QUEEN:
+            return SceneConstants::QUEEN_OFFSET_Y;
+
+
+        case Piece::WHITE_KING:
+        case Piece::BLACK_KING:
+            return SceneConstants::KING_OFFSET_Y;
+
+
+        default:
+            return 0.0f;
+
+    }
+
+}
+
+
+
+
 
 
 
@@ -232,32 +365,39 @@ void ChessPieceRenderer3D::squareToWorld(
     float& z
 ) const
 {
+
     int row =
-        square / SceneConstants::BOARD_SQUARES;
+        square /
+        SceneConstants::BOARD_SQUARES;
+
 
     int col =
-        square % SceneConstants::BOARD_SQUARES;
+        square %
+        SceneConstants::BOARD_SQUARES;
 
-    constexpr float squareSize =
-        SceneConstants::SQUARE_SIZE;
 
-    constexpr float boardCenter =
-        SceneConstants::HALF_BOARD_SIZE;
 
     x =
-        (col * squareSize)
+        (col * SceneConstants::SQUARE_SIZE)
         -
-        boardCenter
+        SceneConstants::HALF_BOARD_SIZE
         +
-        (squareSize * 0.5f);
+        SceneConstants::SQUARE_SIZE * 0.5f;
+
+
 
     z =
-        (row * squareSize)
+        (row * SceneConstants::SQUARE_SIZE)
         -
-        boardCenter
+        SceneConstants::HALF_BOARD_SIZE
         +
-        (squareSize * 0.5f);
+        SceneConstants::SQUARE_SIZE * 0.5f;
+
 }
+
+
+
+
 
 
 
@@ -279,6 +419,11 @@ Material3D& ChessPieceRenderer3D::getBlackMaterial()
 
 
 
+
+
+
+
+
 //====================================================
 // WORLD POSITION
 //====================================================
@@ -287,8 +432,10 @@ glm::vec3 ChessPieceRenderer3D::getWorldPosition(
     uint8_t square
 ) const
 {
+
     float x;
     float z;
+
 
     squareToWorld(
         square,
@@ -296,10 +443,12 @@ glm::vec3 ChessPieceRenderer3D::getWorldPosition(
         z
     );
 
+
     return
     {
         x,
         SceneConstants::PIECE_HEIGHT,
         z
     };
+
 }

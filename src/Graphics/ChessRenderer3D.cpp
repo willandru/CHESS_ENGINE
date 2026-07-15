@@ -235,9 +235,10 @@ int ChessRenderer3D::pickPiece(
 
 
         Transform3D transform =
-            pieceRenderer.buildTransform(
-                square
-            );
+        pieceRenderer.buildTransform(
+            piece,
+            square
+        );
 
 
 

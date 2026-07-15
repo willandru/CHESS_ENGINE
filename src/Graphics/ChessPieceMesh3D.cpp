@@ -40,7 +40,6 @@ const Mesh3D& ChessPieceMesh3D::getMesh() const
     return mesh;
 }
 
-
 bool ChessPieceMesh3D::loadGLTF(
     const std::string& path
 )
@@ -203,9 +202,8 @@ bool ChessPieceMesh3D::loadGLTF(
 
 
 
-
     //------------------------------------------------
-    // CREATE TEMP POSITIONS
+    // TEMP POSITIONS + BOUNDS
     //------------------------------------------------
 
     std::vector<glm::vec3> transformedPositions;
@@ -213,7 +211,6 @@ bool ChessPieceMesh3D::loadGLTF(
     transformedPositions.reserve(
         posAccessor.count
     );
-
 
 
     glm::vec3 minBounds(
@@ -270,12 +267,19 @@ bool ChessPieceMesh3D::loadGLTF(
 
 
     //------------------------------------------------
-    // CENTER ONLY X Z
+    // NORMALIZE ORIGIN
     //------------------------------------------------
 
+    // Centro horizontal
     glm::vec3 center =
         (minBounds + maxBounds)
         * 0.5f;
+
+
+    // Altura mínima de la pieza
+    // La base queda en Y = 0
+    float baseHeight =
+        minBounds.y;
 
 
 
@@ -295,9 +299,19 @@ bool ChessPieceMesh3D::loadGLTF(
             transformedPositions[i];
 
 
-        // SOLO CENTRAMOS LA BASE HORIZONTAL
+        //------------------------------------------------
+        // CENTER X/Z
+        //------------------------------------------------
+
         position.x -= center.x;
         position.z -= center.z;
+
+
+        //------------------------------------------------
+        // PLACE BASE ON Y=0
+        //------------------------------------------------
+
+        position.y -= baseHeight;
 
 
 
@@ -441,7 +455,7 @@ bool ChessPieceMesh3D::loadGLTF(
 
 
     std::cout
-        << "[ChessPieceMesh3D] Correctly centered: "
+        << "[ChessPieceMesh3D] Normalized base: "
         << path
         << std::endl;
 

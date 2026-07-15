@@ -48,6 +48,19 @@ namespace SceneConstants
 
 
     //------------------------------------------------
+    // PIECE VERTICAL OFFSETS
+    //------------------------------------------------
+
+    constexpr float PAWN_OFFSET_Y = 0.0f;
+    constexpr float KNIGHT_OFFSET_Y = 0.0f;
+    constexpr float BISHOP_OFFSET_Y = 0.0f;
+    constexpr float ROOK_OFFSET_Y = 0.0f;
+    constexpr float QUEEN_OFFSET_Y = 0.0f;
+    constexpr float KING_OFFSET_Y = 0.0f;
+
+
+
+    //------------------------------------------------
     // HIGHLIGHTS
     //------------------------------------------------
 
