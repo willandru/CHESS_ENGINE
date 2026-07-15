@@ -15,11 +15,11 @@
 
 Camera3D::Camera3D()
 {
-    fieldOfView = 45.0f;
+    fieldOfView = 60.0f;
 
     nearPlane = 0.1f;
 
-    farPlane = 100.0f;
+    farPlane = 500.0f;
 
     resetOverview();
 }
@@ -48,6 +48,13 @@ void Camera3D::resetOverview()
 {
     mode = Mode::Overview;
 
+    position =
+    {
+        0.0f,
+        8.0f,
+        10.0f
+    };
+
     target =
     {
         0.0f,
@@ -62,13 +69,26 @@ void Camera3D::resetOverview()
         0.0f
     };
 
-    distance = 7.5f;
+    glm::vec3 offset =
+        position - target;
 
-    yaw = -45.0f;
+    distance =
+        glm::length(offset);
 
-    pitch = -35.0f;
+    yaw =
+        glm::degrees(
+            std::atan2(
+                offset.x,
+                offset.z
+            )
+        );
 
-    updatePositionFromOrbit();
+    pitch =
+        glm::degrees(
+            std::asin(
+                offset.y / distance
+            )
+        );
 }
 
 //====================================================
@@ -77,10 +97,6 @@ void Camera3D::resetOverview()
 
 void Camera3D::update()
 {
-    //------------------------------------------------
-    // ROTATE CAMERA
-    //------------------------------------------------
-
     if(
         InputMouse::isButtonDown(
             GLFW_MOUSE_BUTTON_MIDDLE
@@ -93,10 +109,6 @@ void Camera3D::update()
         );
     }
 
-    //------------------------------------------------
-    // ZOOM
-    //------------------------------------------------
-
     float scroll =
         InputMouse::getScrollDelta();
 
@@ -106,10 +118,6 @@ void Camera3D::update()
             -scroll * 0.5f
         );
     }
-
-    //------------------------------------------------
-    // LIMITS
-    //------------------------------------------------
 
     distance =
         std::clamp(
@@ -124,10 +132,6 @@ void Camera3D::update()
             -89.0f,
              89.0f
         );
-
-    //------------------------------------------------
-    // UPDATE POSITION
-    //------------------------------------------------
 
     updatePositionFromOrbit();
 }

@@ -243,64 +243,73 @@ void Game3DScreen::update(
 // RENDER
 //====================================================
 
-void Game3DScreen::render()
-{
+//====================================================
+// RENDER
+//====================================================
 
-    float aspectRatio =
-        static_cast<float>(
-            gWindow.getWindowWidth()
-        )
-        /
-        static_cast<float>(
-            gWindow.getWindowHeight()
+void Game3DScreen::render()
+    {
+        //------------------------------------------------
+        // UPDATE VIEWPORT
+        //------------------------------------------------
+
+        glViewport(
+            0,
+            0,
+            gWindow.getWidth(),
+            gWindow.getHeight()
         );
 
+        //------------------------------------------------
+        // ASPECT RATIO
+        //------------------------------------------------
+
+        float aspectRatio =
+            static_cast<float>(
+                gWindow.getWidth()
+            )
+            /
+            static_cast<float>(
+                gWindow.getHeight()
+            );
+
+        //------------------------------------------------
+        // CLEAR FRAME
+        //------------------------------------------------
+
+        glClearColor(
+            0.15f,
+            0.15f,
+            0.18f,
+            1.0f
+        );
+
+        glClear(
+            GL_COLOR_BUFFER_BIT |
+            GL_DEPTH_BUFFER_BIT
+        );
+
+        //------------------------------------------------
+        // ROOM
+        //------------------------------------------------
+
+        sceneRenderer.render(
+            camera,
+            aspectRatio
+        );
+
+        //------------------------------------------------
+        // CHESS
+        //------------------------------------------------
+
+        chessRenderer.render(
+            game,
+            camera
+        );
+    }
 
 
-    //------------------------------------------------
-    // CLEAR FRAME
-    //------------------------------------------------
-
-    glClearColor(
-        0.15f,
-        0.15f,
-        0.18f,
-        1.0f
-    );
-
-
-    glClear(
-        GL_COLOR_BUFFER_BIT |
-        GL_DEPTH_BUFFER_BIT
-    );
-
-
-
-    //------------------------------------------------
-    // ROOM
-    //------------------------------------------------
-
-    sceneRenderer.render(
-        camera,
-        aspectRatio
-    );
-
-
-
-    //------------------------------------------------
-    // CHESS
-    //------------------------------------------------
-
-    chessRenderer.render(
-        game,
-        camera
-    );
-
-}
-
-
-
-
+    
 
 
 //====================================================
