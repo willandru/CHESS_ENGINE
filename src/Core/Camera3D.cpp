@@ -1,14 +1,27 @@
 #include "Camera3D.h"
 
+#include "InputMouse.h"
+
+#include <GLFW/glfw3.h>
+
 #include <glm/gtc/matrix_transform.hpp>
+
+#include <algorithm>
+#include <cmath>
+
+//====================================================
+// CONSTRUCTOR
+//====================================================
 
 Camera3D::Camera3D()
 {
-    resetOverview();
-
     fieldOfView = 45.0f;
-    nearPlane   = 0.1f;
-    farPlane    = 100.0f;
+
+    nearPlane = 0.1f;
+
+    farPlane = 100.0f;
+
+    resetOverview();
 }
 
 //====================================================
@@ -35,13 +48,6 @@ void Camera3D::resetOverview()
 {
     mode = Mode::Overview;
 
-    position =
-    {
-        0.0f,
-        5.0f,
-        5.0f
-    };
-
     target =
     {
         0.0f,
@@ -55,6 +61,184 @@ void Camera3D::resetOverview()
         1.0f,
         0.0f
     };
+
+    distance = 7.5f;
+
+    yaw = -45.0f;
+
+    pitch = -35.0f;
+
+    updatePositionFromOrbit();
+}
+
+//====================================================
+// UPDATE
+//====================================================
+
+void Camera3D::update()
+{
+    //------------------------------------------------
+    // ROTATE CAMERA
+    //------------------------------------------------
+
+    if(
+        InputMouse::isButtonDown(
+            GLFW_MOUSE_BUTTON_MIDDLE
+        )
+    )
+    {
+        orbit(
+            InputMouse::getDeltaX() * 0.35f,
+            -InputMouse::getDeltaY() * 0.35f
+        );
+    }
+
+    //------------------------------------------------
+    // ZOOM
+    //------------------------------------------------
+
+    float scroll =
+        InputMouse::getScrollDelta();
+
+    if(scroll != 0.0f)
+    {
+        zoom(
+            -scroll * 0.5f
+        );
+    }
+
+    //------------------------------------------------
+    // LIMITS
+    //------------------------------------------------
+
+    distance =
+        std::clamp(
+            distance,
+            2.0f,
+            25.0f
+        );
+
+    pitch =
+        std::clamp(
+            pitch,
+            -89.0f,
+             89.0f
+        );
+
+    //------------------------------------------------
+    // UPDATE POSITION
+    //------------------------------------------------
+
+    updatePositionFromOrbit();
+}
+
+//====================================================
+// UPDATE POSITION FROM ORBIT
+//====================================================
+
+void Camera3D::updatePositionFromOrbit()
+{
+    const float yawRadians =
+        glm::radians(
+            yaw
+        );
+
+    const float pitchRadians =
+        glm::radians(
+            pitch
+        );
+
+    position.x =
+        target.x +
+        distance *
+        std::cos(
+            pitchRadians
+        ) *
+        std::sin(
+            yawRadians
+        );
+
+    position.y =
+        target.y +
+        distance *
+        std::sin(
+            pitchRadians
+        );
+
+    position.z =
+        target.z +
+        distance *
+        std::cos(
+            pitchRadians
+        ) *
+        std::cos(
+            yawRadians
+        );
+}
+
+
+//====================================================
+// LOOK AT
+//====================================================
+
+void Camera3D::lookAt(
+    const glm::vec3& newPosition,
+    const glm::vec3& newTarget
+)
+{
+    position = newPosition;
+    target   = newTarget;
+
+    glm::vec3 offset =
+        position - target;
+
+    distance =
+        glm::length(
+            offset
+        );
+
+    if(distance > 0.0001f)
+    {
+        yaw =
+            glm::degrees(
+                std::atan2(
+                    offset.x,
+                    offset.z
+                )
+            );
+
+        pitch =
+            glm::degrees(
+                std::asin(
+                    offset.y / distance
+                )
+            );
+    }
+}
+
+//====================================================
+// ORBIT
+//====================================================
+
+void Camera3D::orbit(
+    float deltaYaw,
+    float deltaPitch
+)
+{
+    yaw += deltaYaw;
+
+    pitch += deltaPitch;
+}
+
+//====================================================
+// ZOOM
+//====================================================
+
+void Camera3D::zoom(
+    float deltaDistance
+)
+{
+    distance += deltaDistance;
 }
 
 //====================================================
@@ -65,7 +249,10 @@ void Camera3D::setPosition(
     const glm::vec3& value
 )
 {
-    position = value;
+    lookAt(
+        value,
+        target
+    );
 }
 
 const glm::vec3&
@@ -82,7 +269,10 @@ void Camera3D::setTarget(
     const glm::vec3& value
 )
 {
-    target = value;
+    lookAt(
+        position,
+        value
+    );
 }
 
 const glm::vec3&
@@ -109,16 +299,67 @@ Camera3D::getUp() const
 }
 
 //====================================================
-// LOOK AT
+// DISTANCE
 //====================================================
 
-void Camera3D::lookAt(
-    const glm::vec3& newPosition,
-    const glm::vec3& newTarget
+void Camera3D::setDistance(
+    float value
 )
 {
-    position = newPosition;
-    target   = newTarget;
+    distance =
+        std::clamp(
+            value,
+            2.0f,
+            25.0f
+        );
+
+    updatePositionFromOrbit();
+}
+
+float Camera3D::getDistance() const
+{
+    return distance;
+}
+
+//====================================================
+// YAW
+//====================================================
+
+void Camera3D::setYaw(
+    float value
+)
+{
+    yaw = value;
+
+    updatePositionFromOrbit();
+}
+
+float Camera3D::getYaw() const
+{
+    return yaw;
+}
+
+//====================================================
+// PITCH
+//====================================================
+
+void Camera3D::setPitch(
+    float value
+)
+{
+    pitch =
+        std::clamp(
+            value,
+            -89.0f,
+             89.0f
+        );
+
+    updatePositionFromOrbit();
+}
+
+float Camera3D::getPitch() const
+{
+    return pitch;
 }
 
 //====================================================

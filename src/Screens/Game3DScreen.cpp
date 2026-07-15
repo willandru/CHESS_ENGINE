@@ -12,6 +12,8 @@
 #include <iostream>
 #include <memory>
 
+#include <GLFW/glfw3.h>
+
 
 extern Window gWindow;
 
@@ -84,6 +86,14 @@ void Game3DScreen::update(
 {
 
     //------------------------------------------------
+    // CAMERA
+    //------------------------------------------------
+
+    camera.update();
+
+
+
+    //------------------------------------------------
     // ENVIRONMENT
     //------------------------------------------------
 
@@ -120,14 +130,10 @@ void Game3DScreen::update(
         uint8_t square =
             InputConsole::getSelectedSquare();
 
-
-
         std::cout
             << "CONSOLE SELECT SQUARE = "
             << static_cast<int>(square)
             << std::endl;
-
-
 
         game.onSquareClicked(
             square
@@ -137,13 +143,27 @@ void Game3DScreen::update(
 
 
 
-
     //------------------------------------------------
-    // MOUSE
+    // IGNORE CLICKS WHILE ROTATING CAMERA
     //------------------------------------------------
 
     if(
-        !InputMouse::isButtonPressed(0)
+        InputMouse::isButtonDown(GLFW_MOUSE_BUTTON_MIDDLE)
+    )
+    {
+        return;
+    }
+
+
+
+    //------------------------------------------------
+    // MOUSE CLICK
+    //------------------------------------------------
+
+    if(
+        !InputMouse::isButtonPressed(
+            GLFW_MOUSE_BUTTON_LEFT
+        )
     )
     {
         return;
@@ -153,8 +173,6 @@ void Game3DScreen::update(
 
     float mx;
     float my;
-
-
 
     InputMouse::getUIPosition(
         mx,
@@ -176,7 +194,6 @@ void Game3DScreen::update(
         );
 
 
-
     if(
         pickedSquare != -1
     )
@@ -188,11 +205,9 @@ void Game3DScreen::update(
             )
         );
 
-
         return;
 
     }
-
 
 
 
@@ -201,8 +216,6 @@ void Game3DScreen::update(
     //------------------------------------------------
 
     uint8_t square;
-
-
 
     if(
         BoardPicker3D::pickSquare(
@@ -223,9 +236,6 @@ void Game3DScreen::update(
     }
 
 }
-
-
-
 
 
 
