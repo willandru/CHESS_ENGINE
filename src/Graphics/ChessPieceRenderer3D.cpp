@@ -119,7 +119,7 @@ Transform3D ChessPieceRenderer3D::buildTransform(
     pieceTransform.setPosition(
     {
         x,
-        0.25f,
+        4.25f,
         z
     });
 
@@ -287,7 +287,7 @@ glm::vec3 ChessPieceRenderer3D::getWorldPosition(
     return
     {
         x,
-        0.25f,
+        4.25f,
         z
     };
 }

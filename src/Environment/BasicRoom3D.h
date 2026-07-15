@@ -43,11 +43,11 @@ private:
     // ROOM DIMENSIONS
     //------------------------------------------------
 
-    float roomWidth  = 12.0f;
+    float roomWidth  = 120.0f;
 
-    float roomHeight = 5.0f;
+    float roomHeight = 20.0f;
 
-    float roomDepth  = 12.0f;
+    float roomDepth  = 120.0f;
 
     //------------------------------------------------
     // COLORS

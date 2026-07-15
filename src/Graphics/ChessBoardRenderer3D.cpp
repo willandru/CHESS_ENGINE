@@ -10,7 +10,7 @@ ChessBoardRenderer3D::ChessBoardRenderer3D()
     transform.setPosition(
     {
         0.0f,
-        0.0f,
+        4.0f,
         0.0f
     });
 

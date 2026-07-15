@@ -99,7 +99,7 @@ void ChessBoardMesh3D::build()
             if ((row + col) % 2 == 0)
             {
                 // Red
-                color = glm::vec3(0.541, 0.043, 0.086);
+                color = glm::vec3(0.965, 0.922, 0.784);
             }
             else
             {
