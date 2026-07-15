@@ -34,6 +34,7 @@ bool BasicRoom3D::initialize()
     });
 
 
+
     //------------------------------------------------
     // CEILING
     //------------------------------------------------
@@ -57,8 +58,9 @@ bool BasicRoom3D::initialize()
     });
 
 
+
     //------------------------------------------------
-    // NORTH
+    // NORTH WALL (+Z)
     //------------------------------------------------
 
     northWall.initialize(
@@ -67,6 +69,12 @@ bool BasicRoom3D::initialize()
         wallColor
     );
 
+    northWall.setRotation({
+        0.0f,
+        180.0f,
+        0.0f
+    });
+
     northWall.setPosition({
         0.0f,
         roomHeight * 0.5f,
@@ -74,8 +82,9 @@ bool BasicRoom3D::initialize()
     });
 
 
+
     //------------------------------------------------
-    // SOUTH
+    // SOUTH WALL (-Z)
     //------------------------------------------------
 
     southWall.initialize(
@@ -86,7 +95,7 @@ bool BasicRoom3D::initialize()
 
     southWall.setRotation({
         0.0f,
-        180.0f,
+        0.0f,
         0.0f
     });
 
@@ -97,8 +106,9 @@ bool BasicRoom3D::initialize()
     });
 
 
+
     //------------------------------------------------
-    // EAST
+    // EAST WALL (+X)
     //------------------------------------------------
 
     eastWall.initialize(
@@ -120,8 +130,9 @@ bool BasicRoom3D::initialize()
     });
 
 
+
     //------------------------------------------------
-    // WEST
+    // WEST WALL (-X)
     //------------------------------------------------
 
     westWall.initialize(
@@ -145,6 +156,8 @@ bool BasicRoom3D::initialize()
     return true;
 }
 
+
+
 //====================================================
 // UPDATE
 //====================================================
@@ -154,6 +167,8 @@ void BasicRoom3D::update(
 )
 {
 }
+
+
 
 //====================================================
 // BACKGROUND
@@ -166,7 +181,6 @@ void BasicRoom3D::renderBackground(
     float aspectRatio
 )
 {
-
     floor.render(
         renderer,
         shader,
@@ -208,8 +222,9 @@ void BasicRoom3D::renderBackground(
         camera,
         aspectRatio
     );
-
 }
+
+
 
 //====================================================
 // OBJECTS
@@ -222,17 +237,4 @@ void BasicRoom3D::renderObjects(
     float
 )
 {
-
-    //------------------------------------------------
-    // TABLE
-    //------------------------------------------------
-
-    //------------------------------------------------
-    // CHAIRS
-    //------------------------------------------------
-
-    //------------------------------------------------
-    // DECORATION
-    //------------------------------------------------
-
 }

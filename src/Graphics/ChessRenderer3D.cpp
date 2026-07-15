@@ -69,7 +69,7 @@ bool ChessRenderer3D::initialize(
 
     renderer.enableDepthTest();
 
-    renderer.enableFaceCulling();
+    //renderer.enableFaceCulling();
 
 
 

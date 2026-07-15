@@ -44,7 +44,7 @@ bool SceneRenderer3D::initialize(
 
     renderer.enableDepthTest();
 
-    renderer.enableFaceCulling();
+    renderer.disableFaceCulling();
 
 
 
