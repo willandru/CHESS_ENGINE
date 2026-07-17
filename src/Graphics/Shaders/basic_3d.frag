@@ -11,23 +11,44 @@ uniform sampler2D diffuseTexture;
 
 out vec4 FragColor;
 
+
 void main()
 {
-    vec3 finalColor =
-        useUniformColor
-        ? uniformColor
-        : Color;
+
+    vec3 finalColor;
+
+
+    //------------------------------------------------
+    // TEXTURE
+    //------------------------------------------------
 
     if(useTexture)
     {
-        finalColor *= texture(
-            diffuseTexture,
-            TexCoord
-        ).rgb;
+        finalColor =
+            texture(
+                diffuseTexture,
+                TexCoord
+            ).rgb;
     }
 
-    FragColor = vec4(
-        finalColor,
-        1.0
-    );
+
+    //------------------------------------------------
+    // COLOR ONLY
+    //------------------------------------------------
+
+    else
+    {
+        finalColor =
+            useUniformColor
+            ? uniformColor
+            : Color;
+    }
+
+
+
+    FragColor =
+        vec4(
+            finalColor,
+            1.0
+        );
 }

@@ -47,17 +47,6 @@ bool Texture::loadFromFile(const std::string& path)
         return false;
     }
 
-    std::cout
-        << "[Texture] Loaded: "
-        << path
-        << " ("
-        << width
-        << "x"
-        << height
-        << ", channels="
-        << channels
-        << ")"
-        << std::endl;
 
     GLenum format = GL_RGB;
 

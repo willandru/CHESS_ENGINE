@@ -2,7 +2,6 @@
 
 #include <glad/glad.h>
 
-
 Renderer3D::Renderer3D()
 {
 }
@@ -258,7 +257,6 @@ void Renderer3D::renderObject(
 
     if(material.hasTexture())
     {
-
         shader.setBool(
             "useTexture",
             true

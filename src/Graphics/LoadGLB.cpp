@@ -841,7 +841,7 @@ bool LoadGLB::loadMaterial(
             primitive.material
         ];
 
-
+       
 
     //------------------------------------------------
     // BASE COLOR
@@ -850,7 +850,6 @@ bool LoadGLB::loadMaterial(
     const auto& pbr =
         gltfMaterial
         .pbrMetallicRoughness;
-
 
 
     if(
@@ -952,7 +951,6 @@ bool LoadGLB::loadMaterial(
         ];
 
 
-
     //------------------------------------------------
     // LOAD EMBEDDED IMAGE
     //------------------------------------------------
@@ -969,10 +967,51 @@ bool LoadGLB::loadMaterial(
     }
 
 
+    
+    
+    std::vector<unsigned char> textureData;
+
+
+    if(image.bits == 16)
+    {
+       
+
+        const unsigned short* src =
+            reinterpret_cast<const unsigned short*>(
+                image.image.data()
+            );
+
+
+        size_t pixelCount =
+            image.width *
+            image.height *
+            image.component;
+
+
+        textureData.resize(
+            pixelCount
+        );
+
+
+        for(size_t i = 0; i < pixelCount; i++)
+        {
+            textureData[i] =
+                static_cast<unsigned char>(
+                    src[i] >> 8
+                );
+        }
+    }
+    else
+    {
+        textureData =
+            image.image;
+    }
+
+
 
     bool loaded =
         texture.loadFromMemory(
-            image.image.data(),
+            textureData.data(),
 
             image.width,
 
@@ -1000,14 +1039,36 @@ bool LoadGLB::loadMaterial(
 
 
 
-    std::cout
-        << "[GLB] Texture loaded "
-        << image.width
-        << "x"
-        << image.height
-        << std::endl;
-
-
-
+  
     return true;
 }
+
+
+//====================================================
+// END OF FILE VALIDATION HELPERS
+//====================================================
+
+
+//----------------------------------------------------
+// NOTE:
+//
+// GLTF materials are PBR.
+// The renderer currently uses:
+//
+// baseColorFactor
+// baseColorTexture
+//
+// Metallic and roughness are intentionally ignored
+// because Material3D currently supports only:
+//
+// color
+// texture
+//
+// This keeps compatibility with the current engine.
+//----------------------------------------------------
+
+
+
+//====================================================
+// EOF
+//====================================================

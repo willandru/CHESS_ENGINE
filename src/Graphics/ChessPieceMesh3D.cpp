@@ -502,12 +502,5 @@ bool ChessPieceMesh3D::loadGLTF(
         indices
     );
 
-
-    std::cout
-        << "[ChessPieceMesh3D] Normalized base: "
-        << path
-        << std::endl;
-
-
     return true;
 }
