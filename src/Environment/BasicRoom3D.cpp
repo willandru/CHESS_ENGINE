@@ -2,10 +2,11 @@
 
 #include "BasicRoomConstants.h"
 
-
 BasicRoom3D::BasicRoom3D()
 {
 }
+
+
 
 //====================================================
 // INITIALIZATION
@@ -156,6 +157,19 @@ bool BasicRoom3D::initialize()
         0.0f
     });
 
+
+
+    //------------------------------------------------
+    // OBJECTS
+    //------------------------------------------------
+
+    if(
+        !table.load()
+    )
+    {
+        return false;
+    }
+
     return true;
 }
 
@@ -234,10 +248,18 @@ void BasicRoom3D::renderBackground(
 //====================================================
 
 void BasicRoom3D::renderObjects(
-    Renderer3D&,
-    Shader3D&,
-    Camera3D&,
-    float
+    Renderer3D& renderer,
+    Shader3D& shader,
+    Camera3D& camera,
+    float aspectRatio
 )
 {
+    renderer.renderObject(
+        table.getMesh(),
+        table.getTransform(),
+        table.getColor(),
+        shader,
+        camera,
+        aspectRatio
+    );
 }

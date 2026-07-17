@@ -1,8 +1,11 @@
 #pragma once
 
 #include "Environment3D.h"
+
 #include "BasicWall3D.h"
 #include "BasicRoomConstants.h"
+
+#include "Table3D.h"
 
 class BasicRoom3D : public Environment3D
 {
@@ -40,32 +43,8 @@ public:
 
 private:
 
-    float roomWidth =
-        BasicRoomConstants::ROOM_WIDTH;
-
-
-    float roomHeight =
-        BasicRoomConstants::ROOM_HEIGHT;
-
-
-    float roomDepth =
-        BasicRoomConstants::ROOM_DEPTH;
-
-
-
-    glm::vec3 wallColor =
-        BasicRoomConstants::WALL_COLOR;
-
-
-    glm::vec3 floorColor =
-        BasicRoomConstants::FLOOR_COLOR;
-
-
-    glm::vec3 ceilingColor =
-        BasicRoomConstants::CEILING_COLOR;
-
     //------------------------------------------------
-    // PANELS
+    // ROOM
     //------------------------------------------------
 
     BasicWall3D northWall;
@@ -79,5 +58,11 @@ private:
     BasicWall3D floor;
 
     BasicWall3D ceiling;
+
+    //------------------------------------------------
+    // OBJECTS
+    //------------------------------------------------
+
+    Table3D table;
 
 };
