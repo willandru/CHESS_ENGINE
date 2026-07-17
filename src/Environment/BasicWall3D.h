@@ -2,17 +2,27 @@
 
 #include "Mesh3D.h"
 #include "Transform3D.h"
+
+#include "Material3D.h"
+#include "Texture.h"
+
 #include "Renderer3D.h"
 #include "Shader3D.h"
 #include "Camera3D.h"
 
 #include <glm/glm.hpp>
 
+#include <string>
+
+
 class BasicWall3D
 {
+
 public:
 
     BasicWall3D();
+
+
 
     //------------------------------------------------
     // INITIALIZATION
@@ -24,6 +34,13 @@ public:
         const glm::vec3& color
     );
 
+
+    bool loadTexture(
+        const std::string& path
+    );
+
+
+
     //------------------------------------------------
     // DIMENSIONS
     //------------------------------------------------
@@ -31,6 +48,8 @@ public:
     float getWidth() const;
 
     float getHeight() const;
+
+
 
     //------------------------------------------------
     // TRANSFORM
@@ -40,15 +59,20 @@ public:
         const glm::vec3& position
     );
 
+
     void setRotation(
         const glm::vec3& rotation
     );
+
 
     void setScale(
         const glm::vec3& scale
     );
 
+
     const Transform3D& getTransform() const;
+
+
 
     //------------------------------------------------
     // APPEARANCE
@@ -58,7 +82,10 @@ public:
         const glm::vec3& color
     );
 
+
     const glm::vec3& getColor() const;
+
+
 
     //------------------------------------------------
     // RENDER
@@ -71,7 +98,10 @@ public:
         float aspectRatio
     ) const;
 
+
+
 private:
+
 
     //------------------------------------------------
     // GEOMETRY
@@ -79,13 +109,17 @@ private:
 
     Mesh3D mesh;
 
+
+
     //------------------------------------------------
     // DIMENSIONS
     //------------------------------------------------
 
-    float width  = 1.0f;
+    float width = 1.0f;
 
     float height = 1.0f;
+
+
 
     //------------------------------------------------
     // TRANSFORM
@@ -93,8 +127,20 @@ private:
 
     Transform3D transform;
 
+
+
     //------------------------------------------------
-    // APPEARANCE
+    // MATERIAL
+    //------------------------------------------------
+
+    Material3D material;
+
+    Texture texture;
+
+
+
+    //------------------------------------------------
+    // COLOR
     //------------------------------------------------
 
     glm::vec3 color =
@@ -103,4 +149,5 @@ private:
         0.8f,
         0.8f
     };
+
 };

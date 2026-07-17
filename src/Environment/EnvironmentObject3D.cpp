@@ -21,6 +21,27 @@ bool EnvironmentObject3D::loadModel(
 
 
 
+bool EnvironmentObject3D::loadTexture(
+    const std::string& path
+)
+{
+
+    if(
+        !texture.loadFromFile(path)
+    )
+    {
+        return false;
+    }
+
+    material.setTexture(
+        &texture
+    );
+
+    return true;
+}
+
+
+
 //====================================================
 // TRANSFORM
 //====================================================
@@ -66,7 +87,9 @@ void EnvironmentObject3D::setColor(
     const glm::vec3& value
 )
 {
-    color = value;
+    material.setColor(
+        value
+    );
 }
 
 
@@ -89,7 +112,7 @@ const Transform3D& EnvironmentObject3D::getTransform() const
 
 
 
-glm::vec3 EnvironmentObject3D::getColor() const
+const Material3D& EnvironmentObject3D::getMaterial() const
 {
-    return color;
+    return material;
 }

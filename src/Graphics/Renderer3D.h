@@ -81,7 +81,7 @@ public:
     void renderObject(
         const Mesh3D& mesh,
         const Transform3D& transform,
-        const glm::vec3& color,
+        const Material3D& material,
         const Shader3D& shader,
         const Camera3D& camera,
         float aspectRatio

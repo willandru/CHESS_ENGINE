@@ -207,10 +207,14 @@ void Renderer3D::renderPiece(
 // ENVIRONMENT OBJECT
 //====================================================
 
+//====================================================
+// ENVIRONMENT OBJECT
+//====================================================
+
 void Renderer3D::renderObject(
     const Mesh3D& mesh,
     const Transform3D& transform,
-    const glm::vec3& color,
+    const Material3D& material,
     const Shader3D& shader,
     const Camera3D& camera,
     float aspectRatio
@@ -220,17 +224,19 @@ void Renderer3D::renderObject(
     shader.bind();
 
 
+    //------------------------------------------------
+    // MATRICES
+    //------------------------------------------------
+
     shader.setMat4(
         "model",
         transform.getModelMatrix()
     );
 
-
     shader.setMat4(
         "view",
         camera.getViewMatrix()
     );
-
 
     shader.setMat4(
         "projection",
@@ -240,20 +246,54 @@ void Renderer3D::renderObject(
     );
 
 
+    //------------------------------------------------
+    // MATERIAL
+    //------------------------------------------------
+
     shader.setVec3(
         "materialColor",
-        color
+        material.getColor()
     );
 
 
-    mesh.draw();
+    if(material.hasTexture())
+    {
 
+        shader.setBool(
+            "useTexture",
+            true
+        );
+
+        material
+            .getTexture()
+            ->bind(0);
+
+        shader.setInt(
+            "diffuseTexture",
+            0
+        );
+
+    }
+    else
+    {
+
+        shader.setBool(
+            "useTexture",
+            false
+        );
+
+    }
+
+
+    //------------------------------------------------
+    // DRAW
+    //------------------------------------------------
+
+    mesh.draw();
 
     shader.unbind();
 
 }
-
-
 
 //====================================================
 // ENVIRONMENT WALL

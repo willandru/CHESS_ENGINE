@@ -29,7 +29,22 @@ bool Table3D::load()
 
 
     //------------------------------------------------
-    // DEFAULT TRANSFORM
+    // LOAD TEXTURE
+    //------------------------------------------------
+
+    if(
+        !loadTexture(
+            "Assets/Environment/oka_texture2.png"
+        )
+    )
+    {
+        return false;
+    }
+
+
+
+    //------------------------------------------------
+    // TRANSFORM
     //------------------------------------------------
 
     setPosition({
@@ -53,7 +68,7 @@ bool Table3D::load()
 
 
     //------------------------------------------------
-    // DEFAULT APPEARANCE
+    // MATERIAL
     //------------------------------------------------
 
     setColor({
@@ -61,6 +76,8 @@ bool Table3D::load()
         1.0f,
         1.0f
     });
+
+
 
     return true;
 }

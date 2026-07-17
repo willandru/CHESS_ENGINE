@@ -6,6 +6,8 @@
 
 #include "ChessPieceMesh3D.h"
 #include "Transform3D.h"
+#include "Material3D.h"
+#include "Texture.h"
 
 class EnvironmentObject3D
 {
@@ -22,6 +24,10 @@ public:
 protected:
 
     bool loadModel(
+        const std::string& path
+    );
+
+    bool loadTexture(
         const std::string& path
     );
 
@@ -59,25 +65,21 @@ public:
 
     const Transform3D& getTransform() const;
 
-    glm::vec3 getColor() const;
+    const Material3D& getMaterial() const;
 
-private:
+protected:
 
     //------------------------------------------------
     // TODO
     // Reemplazar ChessPieceMesh3D por AssetMesh3D
-    // cuando el cargador GLTF sea renombrado.
     //------------------------------------------------
 
     ChessPieceMesh3D mesh;
 
     Transform3D transform;
 
-    glm::vec3 color =
-    {
-        1.0f,
-        1.0f,
-        1.0f
-    };
+    Texture texture;
+
+    Material3D material;
 
 };

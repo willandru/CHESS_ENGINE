@@ -1,6 +1,5 @@
 #include "Material3D.h"
 
-
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -33,4 +32,31 @@ void Material3D::setColor(
 const glm::vec3& Material3D::getColor() const
 {
     return color;
+}
+
+
+
+//====================================================
+// TEXTURE
+//====================================================
+
+void Material3D::setTexture(
+    Texture* value
+)
+{
+    texture = value;
+}
+
+
+
+Texture* Material3D::getTexture() const
+{
+    return texture;
+}
+
+
+
+bool Material3D::hasTexture() const
+{
+    return texture != nullptr;
 }

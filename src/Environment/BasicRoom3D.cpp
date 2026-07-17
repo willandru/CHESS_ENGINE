@@ -25,6 +25,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::FLOOR_COLOR
     );
 
+    floor.loadTexture(
+        "Assets/Environment/floor_texture.png"
+    );
+
     floor.setRotation({
         -90.0f,
         0.0f,
@@ -49,6 +53,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::CEILING_COLOR
     );
 
+    ceiling.loadTexture(
+        "Assets/Environment/ceiling_texture.png"
+    );
+
     ceiling.setRotation({
         90.0f,
         0.0f,
@@ -62,7 +70,6 @@ bool BasicRoom3D::initialize()
     });
 
 
-
     //------------------------------------------------
     // NORTH WALL (+Z)
     //------------------------------------------------
@@ -71,6 +78,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::ROOM_WIDTH,
         BasicRoomConstants::ROOM_HEIGHT,
         BasicRoomConstants::WALL_COLOR
+    );
+
+    northWall.loadTexture(
+        "Assets/Environment/wall_texture.png"
     );
 
     northWall.setRotation({
@@ -97,6 +108,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+    southWall.loadTexture(
+        "Assets/Environment/wall_texture.png"
+    );
+
     southWall.setRotation({
         0.0f,
         0.0f,
@@ -119,6 +134,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::ROOM_DEPTH,
         BasicRoomConstants::ROOM_HEIGHT,
         BasicRoomConstants::WALL_COLOR
+    );
+
+    eastWall.loadTexture(
+        "Assets/Environment/wall_texture.png"
     );
 
     eastWall.setRotation({
@@ -145,6 +164,10 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+    westWall.loadTexture(
+        "Assets/Environment/wall_texture.png"
+    );
+
     westWall.setRotation({
         0.0f,
         90.0f,
@@ -156,7 +179,6 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         0.0f
     });
-
 
 
     //------------------------------------------------
@@ -246,7 +268,6 @@ void BasicRoom3D::renderBackground(
 //====================================================
 // OBJECTS
 //====================================================
-
 void BasicRoom3D::renderObjects(
     Renderer3D& renderer,
     Shader3D& shader,
@@ -257,7 +278,7 @@ void BasicRoom3D::renderObjects(
     renderer.renderObject(
         table.getMesh(),
         table.getTransform(),
-        table.getColor(),
+        table.getMaterial(),
         shader,
         camera,
         aspectRatio

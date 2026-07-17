@@ -2,9 +2,13 @@
 
 #include "PlaneMeshBuilder.h"
 
+
 BasicWall3D::BasicWall3D()
 {
+
 }
+
+
 
 //====================================================
 // INITIALIZATION
@@ -16,10 +20,15 @@ void BasicWall3D::initialize(
     const glm::vec3& wallColor
 )
 {
+
     width  = wallWidth;
+
     height = wallHeight;
 
+
     color = wallColor;
+
+
 
     PlaneMeshBuilder::build(
         mesh,
@@ -27,7 +36,43 @@ void BasicWall3D::initialize(
         height,
         color
     );
+
+
+    material.setColor(
+        color
+    );
+
 }
+
+
+
+//====================================================
+// TEXTURE
+//====================================================
+
+bool BasicWall3D::loadTexture(
+    const std::string& path
+)
+{
+
+    if(
+        !texture.loadFromFile(path)
+    )
+    {
+        return false;
+    }
+
+
+
+    material.setTexture(
+        &texture
+    );
+
+
+    return true;
+}
+
+
 
 //====================================================
 // DIMENSIONS
@@ -38,10 +83,14 @@ float BasicWall3D::getWidth() const
     return width;
 }
 
+
+
 float BasicWall3D::getHeight() const
 {
     return height;
 }
+
+
 
 //====================================================
 // TRANSFORM
@@ -51,28 +100,42 @@ void BasicWall3D::setPosition(
     const glm::vec3& position
 )
 {
-    transform.setPosition(position);
+    transform.setPosition(
+        position
+    );
 }
+
+
 
 void BasicWall3D::setRotation(
     const glm::vec3& rotation
 )
 {
-    transform.setRotation(rotation);
+    transform.setRotation(
+        rotation
+    );
 }
+
+
 
 void BasicWall3D::setScale(
     const glm::vec3& scale
 )
 {
-    transform.setScale(scale);
+    transform.setScale(
+        scale
+    );
 }
+
+
 
 const Transform3D&
 BasicWall3D::getTransform() const
 {
     return transform;
 }
+
+
 
 //====================================================
 // APPEARANCE
@@ -82,14 +145,25 @@ void BasicWall3D::setColor(
     const glm::vec3& wallColor
 )
 {
+
     color = wallColor;
+
+
+    material.setColor(
+        color
+    );
+
 }
+
+
 
 const glm::vec3&
 BasicWall3D::getColor() const
 {
     return color;
 }
+
+
 
 //====================================================
 // RENDER
@@ -102,12 +176,14 @@ void BasicWall3D::render(
     float aspectRatio
 ) const
 {
-    renderer.renderWall(
+
+    renderer.renderObject(
         mesh,
         transform,
-        color,
+        material,
         shader,
         camera,
         aspectRatio
     );
+
 }

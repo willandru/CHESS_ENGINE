@@ -13,6 +13,7 @@ uniform bool useUniformColor;
 uniform vec3 uniformColor;
 
 out vec3 Color;
+out vec2 TexCoord;
 
 void main()
 {
@@ -25,9 +26,11 @@ void main()
         Color = aColor;
     }
 
+    TexCoord = aTexCoord;
+
     gl_Position =
         projection *
         view *
         model *
-        vec4(aPosition, 1.0);
+        vec4(aPosition,1.0);
 }

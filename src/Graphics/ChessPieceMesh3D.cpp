@@ -156,6 +156,37 @@ bool ChessPieceMesh3D::loadGLTF(
     }
 
 
+    //------------------------------------------------
+    // TEXCOORD DATA
+    //------------------------------------------------
+
+    const float* texCoords = nullptr;
+
+    if(primitive.attributes.count("TEXCOORD_0"))
+    {
+        auto texAccessor =
+            model.accessors[
+                primitive.attributes.at("TEXCOORD_0")
+            ];
+
+        auto texView =
+            model.bufferViews[
+                texAccessor.bufferView
+            ];
+
+        auto& texBuffer =
+            model.buffers[
+                texView.buffer
+            ];
+
+        texCoords =
+            reinterpret_cast<const float*>(
+                &texBuffer.data[
+                    texAccessor.byteOffset +
+                    texView.byteOffset
+                ]
+            );
+    }
 
     //------------------------------------------------
     // APPLY GLTF NODE TRANSFORM
@@ -341,11 +372,22 @@ bool ChessPieceMesh3D::loadGLTF(
 
 
 
+       if(texCoords)
+    {
+        vertex.texCoord =
+        {
+            texCoords[i * 2 + 0],
+            texCoords[i * 2 + 1]
+        };
+    }
+    else
+    {
         vertex.texCoord =
         {
             0.0f,
             0.0f
         };
+    }
 
 
         vertex.color =
