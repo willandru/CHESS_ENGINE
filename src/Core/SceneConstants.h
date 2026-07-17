@@ -2,6 +2,22 @@
 
 namespace SceneConstants
 {
+
+    //------------------------------------------------
+    // TABLE / SCENE HEIGHT
+    //------------------------------------------------
+
+    // Altura real de la mesa
+    constexpr float TABLE_HEIGHT = 1.10f;
+
+
+    // Antes el tablero estaba pensado a 0.75m
+    // Diferencia que debe subir toda la escena
+    constexpr float SCENE_HEIGHT_OFFSET =
+        TABLE_HEIGHT - 0.75f;
+
+
+
     //------------------------------------------------
     // CHESS BOARD
     //------------------------------------------------
@@ -16,13 +32,13 @@ namespace SceneConstants
     constexpr float SQUARE_SIZE = 0.06f;
 
 
-    // Espesor real del tablero: 1.5 cm
+    // Espesor del tablero
     constexpr float BOARD_THICKNESS = 0.015f;
 
 
-    // Altura donde está colocado el tablero
-    // (ejemplo: encima de una mesa de 75 cm)
-    constexpr float BOARD_HEIGHT = 0.75f;
+    // Altura final del tablero sobre el suelo
+    constexpr float BOARD_HEIGHT =
+        0.75f + SCENE_HEIGHT_OFFSET;
 
 
     constexpr float BOARD_SIZE =
@@ -38,10 +54,10 @@ namespace SceneConstants
     // CHESS PIECES
     //------------------------------------------------
 
-    // Los gltf ya están en metros reales
     constexpr float PIECE_SCALE = 1.0f;
 
 
+    // Base de las piezas encima del tablero
     constexpr float PIECE_HEIGHT =
         BOARD_HEIGHT + BOARD_THICKNESS;
 
@@ -52,10 +68,15 @@ namespace SceneConstants
     //------------------------------------------------
 
     constexpr float PAWN_OFFSET_Y = 0.0f;
+
     constexpr float KNIGHT_OFFSET_Y = 0.0f;
+
     constexpr float BISHOP_OFFSET_Y = 0.0f;
+
     constexpr float ROOK_OFFSET_Y = 0.0f;
+
     constexpr float QUEEN_OFFSET_Y = 0.0f;
+
     constexpr float KING_OFFSET_Y = 0.0f;
 
 
@@ -68,7 +89,8 @@ namespace SceneConstants
 
 
     constexpr float HIGHLIGHT_HEIGHT =
-        PIECE_HEIGHT + HIGHLIGHT_OFFSET;
+        PIECE_HEIGHT +
+        HIGHLIGHT_OFFSET;
 
 
 
@@ -101,12 +123,16 @@ namespace SceneConstants
     //------------------------------------------------
 
     constexpr float WHITE_PIECE_COLOR_R = 0.90f;
+
     constexpr float WHITE_PIECE_COLOR_G = 0.90f;
+
     constexpr float WHITE_PIECE_COLOR_B = 0.90f;
 
 
     constexpr float BLACK_PIECE_COLOR_R = 0.05f;
+
     constexpr float BLACK_PIECE_COLOR_G = 0.05f;
+
     constexpr float BLACK_PIECE_COLOR_B = 0.05f;
 
 
@@ -122,16 +148,22 @@ namespace SceneConstants
     constexpr float CAMERA_FAR_PLANE = 100.0f;
 
 
+
     constexpr float CAMERA_OVERVIEW_POSITION_X = 0.0f;
 
-    constexpr float CAMERA_OVERVIEW_POSITION_Y = 1.8f;
+    constexpr float CAMERA_OVERVIEW_POSITION_Y =
+        1.8f + SCENE_HEIGHT_OFFSET;
+
 
     constexpr float CAMERA_OVERVIEW_POSITION_Z = 1.8f;
 
 
+
     constexpr float CAMERA_TARGET_X = 0.0f;
 
-    constexpr float CAMERA_TARGET_Y = 0.75f;
+    constexpr float CAMERA_TARGET_Y =
+        TABLE_HEIGHT;
+
 
     constexpr float CAMERA_TARGET_Z = 0.0f;
 
@@ -142,6 +174,7 @@ namespace SceneConstants
     //------------------------------------------------
 
     constexpr float CAMERA_ORBIT_SENSITIVITY = 0.35f;
+
 
 
     //------------------------------------------------
