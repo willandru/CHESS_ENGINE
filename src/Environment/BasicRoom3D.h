@@ -6,12 +6,16 @@
 #include "BasicRoomConstants.h"
 
 #include "Table3D.h"
+#include "Chair3D.h"
+
 
 class BasicRoom3D : public Environment3D
 {
+
 public:
 
     BasicRoom3D();
+
 
     //------------------------------------------------
     // LIFECYCLE
@@ -19,9 +23,12 @@ public:
 
     bool initialize() override;
 
+
     void update(
         float dt
     ) override;
+
+
 
     //------------------------------------------------
     // RENDER
@@ -34,6 +41,8 @@ public:
         float aspectRatio
     ) override;
 
+
+
     void renderObjects(
         Renderer3D& renderer,
         Shader3D& shader,
@@ -41,7 +50,10 @@ public:
         float aspectRatio
     ) override;
 
+
+
 private:
+
 
     //------------------------------------------------
     // ROOM
@@ -59,10 +71,14 @@ private:
 
     BasicWall3D ceiling;
 
+
+
     //------------------------------------------------
     // OBJECTS
     //------------------------------------------------
 
     Table3D table;
+
+    Chair3D chair;
 
 };

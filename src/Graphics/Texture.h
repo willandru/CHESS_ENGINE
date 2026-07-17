@@ -18,6 +18,13 @@ public:
         return id;
     }
 
+    bool loadFromMemory(
+        const unsigned char* data,
+        int width,
+        int height,
+        int channels
+    );
+
 private:
     unsigned int id = 0;
     int width = 0, height = 0, channels = 0;

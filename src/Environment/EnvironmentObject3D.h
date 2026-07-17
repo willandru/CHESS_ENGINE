@@ -5,9 +5,13 @@
 #include <glm/glm.hpp>
 
 #include "ChessPieceMesh3D.h"
+#include "Mesh3D.h"
+
 #include "Transform3D.h"
 #include "Material3D.h"
 #include "Texture.h"
+#include "LoadGLB.h"
+
 
 class EnvironmentObject3D
 {
@@ -15,11 +19,13 @@ public:
 
     EnvironmentObject3D();
 
+
     //------------------------------------------------
     // INITIALIZATION
     //------------------------------------------------
 
     virtual bool load() = 0;
+
 
 protected:
 
@@ -27,11 +33,19 @@ protected:
         const std::string& path
     );
 
+
     bool loadTexture(
         const std::string& path
     );
 
+
+    bool loadGLB(
+        const std::string& path
+    );
+
+
 public:
+
 
     //------------------------------------------------
     // TRANSFORM
@@ -41,13 +55,17 @@ public:
         const glm::vec3& position
     );
 
+
     void setRotation(
         const glm::vec3& rotation
     );
 
+
     void setScale(
         const glm::vec3& scale
     );
+
+
 
     //------------------------------------------------
     // APPEARANCE
@@ -57,28 +75,48 @@ public:
         const glm::vec3& color
     );
 
+
+
     //------------------------------------------------
     // GETTERS
     //------------------------------------------------
 
     const Mesh3D& getMesh() const;
 
+
     const Transform3D& getTransform() const;
+
 
     const Material3D& getMaterial() const;
 
+
+
 protected:
 
+
     //------------------------------------------------
-    // TODO
-    // Reemplazar ChessPieceMesh3D por AssetMesh3D
+    // OLD SYSTEM
+    // Table3D / existing objects
     //------------------------------------------------
 
     ChessPieceMesh3D mesh;
 
+
+
+    //------------------------------------------------
+    // GLB SYSTEM
+    // Chair3D / Blender assets
+    //------------------------------------------------
+
+    Mesh3D glbMesh;
+
+
+
     Transform3D transform;
 
+
     Texture texture;
+
 
     Material3D material;
 

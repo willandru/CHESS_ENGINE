@@ -1,5 +1,7 @@
 #include "EnvironmentObject3D.h"
 
+
+
 EnvironmentObject3D::EnvironmentObject3D()
 {
 }
@@ -10,6 +12,7 @@ EnvironmentObject3D::EnvironmentObject3D()
 // INITIALIZATION
 //====================================================
 
+
 bool EnvironmentObject3D::loadModel(
     const std::string& path
 )
@@ -18,6 +21,7 @@ bool EnvironmentObject3D::loadModel(
         path
     );
 }
+
 
 
 
@@ -33,18 +37,39 @@ bool EnvironmentObject3D::loadTexture(
         return false;
     }
 
+
     material.setTexture(
         &texture
     );
+
 
     return true;
 }
 
 
 
+
+bool EnvironmentObject3D::loadGLB(
+    const std::string& path
+)
+{
+
+    return LoadGLB::loadGLB(
+        path,
+        glbMesh,
+        material,
+        texture
+    );
+
+}
+
+
+
+
 //====================================================
 // TRANSFORM
 //====================================================
+
 
 void EnvironmentObject3D::setPosition(
     const glm::vec3& position
@@ -54,6 +79,7 @@ void EnvironmentObject3D::setPosition(
         position
     );
 }
+
 
 
 
@@ -68,6 +94,7 @@ void EnvironmentObject3D::setRotation(
 
 
 
+
 void EnvironmentObject3D::setScale(
     const glm::vec3& scale
 )
@@ -79,9 +106,11 @@ void EnvironmentObject3D::setScale(
 
 
 
+
 //====================================================
 // APPEARANCE
 //====================================================
+
 
 void EnvironmentObject3D::setColor(
     const glm::vec3& value
@@ -94,14 +123,36 @@ void EnvironmentObject3D::setColor(
 
 
 
+
 //====================================================
 // GETTERS
 //====================================================
 
+
 const Mesh3D& EnvironmentObject3D::getMesh() const
 {
+
+    //------------------------------------------------
+    // GLB OBJECT
+    //------------------------------------------------
+
+    if(
+        glbMesh.getIndexCount() > 0
+    )
+    {
+        return glbMesh;
+    }
+
+
+
+    //------------------------------------------------
+    // OLD OBJECT
+    //------------------------------------------------
+
     return mesh.getMesh();
+
 }
+
 
 
 
@@ -109,6 +160,7 @@ const Transform3D& EnvironmentObject3D::getTransform() const
 {
     return transform;
 }
+
 
 
 

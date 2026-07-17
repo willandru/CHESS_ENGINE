@@ -26,6 +26,9 @@ public:
     // MESH
     //------------------------------------------------
 
+    void setMesh(
+        const Mesh3D& value
+    );
     const Mesh3D& getMesh() const;
 
 

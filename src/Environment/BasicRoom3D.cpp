@@ -1,6 +1,5 @@
 #include "BasicRoom3D.h"
 
-#include "BasicRoomConstants.h"
 
 BasicRoom3D::BasicRoom3D()
 {
@@ -25,15 +24,18 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::FLOOR_COLOR
     );
 
+
     floor.loadTexture(
         "Assets/Environment/floor_texture.png"
     );
+
 
     floor.setRotation({
         -90.0f,
         0.0f,
         0.0f
     });
+
 
     floor.setPosition({
         0.0f,
@@ -53,9 +55,11 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::CEILING_COLOR
     );
 
+
     ceiling.loadTexture(
         "Assets/Environment/ceiling_texture.png"
     );
+
 
     ceiling.setRotation({
         90.0f,
@@ -63,11 +67,14 @@ bool BasicRoom3D::initialize()
         0.0f
     });
 
+
     ceiling.setPosition({
         0.0f,
         BasicRoomConstants::ROOM_HEIGHT,
         0.0f
     });
+
+
 
 
     //------------------------------------------------
@@ -80,9 +87,11 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+
     northWall.loadTexture(
-        "Assets/Environment/wall_texture.png"
+        "Assets/Environment/leather_texture.png"
     );
+
 
     northWall.setRotation({
         0.0f,
@@ -90,11 +99,13 @@ bool BasicRoom3D::initialize()
         0.0f
     });
 
+
     northWall.setPosition({
         0.0f,
         BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         BasicRoomConstants::ROOM_DEPTH * 0.5f
     });
+
 
 
 
@@ -108,9 +119,11 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+
     southWall.loadTexture(
-        "Assets/Environment/wall_texture.png"
+        "Assets/Environment/leather_texture.png"
     );
+
 
     southWall.setRotation({
         0.0f,
@@ -118,11 +131,13 @@ bool BasicRoom3D::initialize()
         0.0f
     });
 
+
     southWall.setPosition({
         0.0f,
         BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         -BasicRoomConstants::ROOM_DEPTH * 0.5f
     });
+
 
 
 
@@ -136,9 +151,11 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+
     eastWall.loadTexture(
         "Assets/Environment/wall_texture.png"
     );
+
 
     eastWall.setRotation({
         0.0f,
@@ -146,11 +163,13 @@ bool BasicRoom3D::initialize()
         0.0f
     });
 
+
     eastWall.setPosition({
         BasicRoomConstants::ROOM_WIDTH * 0.5f,
         BasicRoomConstants::ROOM_HEIGHT * 0.5f,
         0.0f
     });
+
 
 
 
@@ -164,15 +183,18 @@ bool BasicRoom3D::initialize()
         BasicRoomConstants::WALL_COLOR
     );
 
+
     westWall.loadTexture(
         "Assets/Environment/wall_texture.png"
     );
+
 
     westWall.setRotation({
         0.0f,
         90.0f,
         0.0f
     });
+
 
     westWall.setPosition({
         -BasicRoomConstants::ROOM_WIDTH * 0.5f,
@@ -181,8 +203,10 @@ bool BasicRoom3D::initialize()
     });
 
 
+
+
     //------------------------------------------------
-    // OBJECTS
+    // TABLE
     //------------------------------------------------
 
     if(
@@ -192,8 +216,42 @@ bool BasicRoom3D::initialize()
         return false;
     }
 
+
+
+    table.setPosition({
+        0.0f,
+        0.0f,
+        0.0f
+    });
+
+
+
+
+    //------------------------------------------------
+    // CHAIR
+    //------------------------------------------------
+
+    if(
+        !chair.load()
+    )
+    {
+        return false;
+    }
+
+
+
+    chair.setPosition({
+        4.0f,
+        0.0f,
+        3.0f
+    });
+
+
+
     return true;
 }
+
+
 
 
 
@@ -205,7 +263,10 @@ void BasicRoom3D::update(
     float
 )
 {
+
 }
+
+
 
 
 
@@ -220,12 +281,14 @@ void BasicRoom3D::renderBackground(
     float aspectRatio
 )
 {
+
     floor.render(
         renderer,
         shader,
         camera,
         aspectRatio
     );
+
 
     ceiling.render(
         renderer,
@@ -234,12 +297,14 @@ void BasicRoom3D::renderBackground(
         aspectRatio
     );
 
+
     northWall.render(
         renderer,
         shader,
         camera,
         aspectRatio
     );
+
 
     southWall.render(
         renderer,
@@ -248,6 +313,7 @@ void BasicRoom3D::renderBackground(
         aspectRatio
     );
 
+
     eastWall.render(
         renderer,
         shader,
@@ -255,19 +321,24 @@ void BasicRoom3D::renderBackground(
         aspectRatio
     );
 
+
     westWall.render(
         renderer,
         shader,
         camera,
         aspectRatio
     );
+
 }
+
+
 
 
 
 //====================================================
 // OBJECTS
 //====================================================
+
 void BasicRoom3D::renderObjects(
     Renderer3D& renderer,
     Shader3D& shader,
@@ -275,6 +346,12 @@ void BasicRoom3D::renderObjects(
     float aspectRatio
 )
 {
+
+
+    //------------------------------------------------
+    // TABLE
+    //------------------------------------------------
+
     renderer.renderObject(
         table.getMesh(),
         table.getTransform(),
@@ -283,4 +360,20 @@ void BasicRoom3D::renderObjects(
         camera,
         aspectRatio
     );
+
+
+
+    //------------------------------------------------
+    // CHAIR
+    //------------------------------------------------
+
+    renderer.renderObject(
+        chair.getMesh(),
+        chair.getTransform(),
+        chair.getMaterial(),
+        shader,
+        camera,
+        aspectRatio
+    );
+
 }

@@ -40,6 +40,13 @@ const Mesh3D& ChessPieceMesh3D::getMesh() const
     return mesh;
 }
 
+void ChessPieceMesh3D::setMesh(
+    const Mesh3D& value
+)
+{
+    mesh = value;
+}
+
 bool ChessPieceMesh3D::loadGLTF(
     const std::string& path
 )
