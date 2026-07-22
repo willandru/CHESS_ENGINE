@@ -20,7 +20,7 @@ bool Chair3D::load()
 
     if(
         !loadGLB(
-            "Assets/Environment/Silla.glb"
+            "Assets/Environment/WoodDisk.glb"
         )
     )
     {
