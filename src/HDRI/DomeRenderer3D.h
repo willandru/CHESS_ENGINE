@@ -92,13 +92,35 @@ private:
     // HDRI DEBUG CONTROLS
     //------------------------------------------------
 
-    float hdriScale = 0.8f;
 
+    // Escala horizontal
+
+    float hdriScaleX = 1.0f;
+
+
+
+    // Escala vertical
+
+    float hdriScaleY = 0.8f;
+
+
+
+    // Zoom de proyección
+
+    float hdriZoom = 1.0f;
+
+
+
+    // Movimiento del horizonte
 
     float hdriHorizon = 0.0f;
 
 
+
+    // Rotación horizontal
+
     float hdriRotation = 0.0f;
+
 
 
 };

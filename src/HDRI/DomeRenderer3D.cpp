@@ -1,14 +1,12 @@
 #include "DomeRenderer3D.h"
 
-
 #include "InputKeyboard.h"
-
 
 #include <iostream>
 
-
 #include <glad/glad.h>
 
+#include <glm/common.hpp>
 
 
 //====================================================
@@ -29,9 +27,7 @@ DomeRenderer3D::DomeRenderer3D()
 bool DomeRenderer3D::initialize()
 {
 
-
     dome.initialize();
-
 
     ground.initialize();
 
@@ -48,7 +44,6 @@ bool DomeRenderer3D::initialize()
             << "[HDRI] ERROR loading EXR"
             << std::endl;
 
-
         return false;
 
     }
@@ -63,7 +58,6 @@ bool DomeRenderer3D::initialize()
         std::cout
             << "[HDRI] ERROR loading shader"
             << std::endl;
-
 
         return false;
 
@@ -92,46 +86,96 @@ void DomeRenderer3D::update(
 )
 {
 
-    std::cout
-        << "Scale="
-        << hdriScale
-        << " Horizon="
-        << hdriHorizon
-        << " Rotation="
-        << hdriRotation
-        << std::endl;
 
+    float scaleSpeed = 0.4f;
 
+    float zoomSpeed = 0.6f;
 
-    float speed = 0.5f;
+    float horizonSpeed = 0.5f;
+
+    float rotationSpeed = 1.5f;
 
 
 
     //------------------------------------------------
-    // SCALE
+    // SCALE Y
+    //
+    // Y / H
     //------------------------------------------------
+
 
     if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_Y
-        )
+        InputKeyboard::isKeyDown(GLFW_KEY_Y)
     )
     {
 
-        hdriScale -= speed * dt;
+        hdriScaleY -= scaleSpeed * dt;
+
+    }
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_H)
+    )
+    {
+
+        hdriScaleY += scaleSpeed * dt;
 
     }
 
 
 
+    //------------------------------------------------
+    // SCALE X
+    //
+    // U / J
+    //------------------------------------------------
+
+
     if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_H
-        )
+        InputKeyboard::isKeyDown(GLFW_KEY_U)
     )
     {
 
-        hdriScale += speed * dt;
+        hdriScaleX -= scaleSpeed * dt;
+
+    }
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_J)
+    )
+    {
+
+        hdriScaleX += scaleSpeed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
+    // ZOOM
+    //
+    // I / K
+    //------------------------------------------------
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_I)
+    )
+    {
+
+        hdriZoom += zoomSpeed * dt;
+
+    }
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_K)
+    )
+    {
+
+        hdriZoom -= zoomSpeed * dt;
 
     }
 
@@ -139,29 +183,27 @@ void DomeRenderer3D::update(
 
     //------------------------------------------------
     // HORIZON
+    //
+    // T / G
     //------------------------------------------------
 
+
     if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_T
-        )
+        InputKeyboard::isKeyDown(GLFW_KEY_T)
     )
     {
 
-        hdriHorizon += speed * dt;
+        hdriHorizon += horizonSpeed * dt;
 
     }
 
 
-
     if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_G
-        )
+        InputKeyboard::isKeyDown(GLFW_KEY_G)
     )
     {
 
-        hdriHorizon -= speed * dt;
+        hdriHorizon -= horizonSpeed * dt;
 
     }
 
@@ -169,23 +211,27 @@ void DomeRenderer3D::update(
 
     //------------------------------------------------
     // ROTATION
+    //
+    // R / F
     //------------------------------------------------
-
-        if(InputKeyboard::isKeyDown(GLFW_KEY_R))
-        {
-            hdriRotation += 1.0f * dt;
-        }
-
 
 
     if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_F
-        )
+        InputKeyboard::isKeyDown(GLFW_KEY_R)
     )
     {
 
-        hdriRotation -= speed * dt;
+        hdriRotation += rotationSpeed * dt;
+
+    }
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_F)
+    )
+    {
+
+        hdriRotation -= rotationSpeed * dt;
 
     }
 
@@ -195,12 +241,30 @@ void DomeRenderer3D::update(
     // LIMITS
     //------------------------------------------------
 
-    hdriScale =
+
+    hdriScaleX =
         glm::clamp(
-            hdriScale,
-            0.1f,
-            5.0f
+            hdriScaleX,
+            0.25f,
+            4.0f
         );
+
+
+    hdriScaleY =
+        glm::clamp(
+            hdriScaleY,
+            0.25f,
+            4.0f
+        );
+
+
+    hdriZoom =
+        glm::clamp(
+            hdriZoom,
+            0.25f,
+            4.0f
+        );
+
 
 
 }
@@ -235,9 +299,7 @@ void DomeRenderer3D::renderBackground(
 
 
 
-    hdriTexture.bind(
-        0
-    );
+    hdriTexture.bind(0);
 
 
 
@@ -253,22 +315,24 @@ void DomeRenderer3D::renderBackground(
 
 
 
-   std::cout
-    << "SEND TO SHADER ROTATION = "
-    << hdriRotation
-    << std::endl;
-
-
-domeShader.setRotation(
-    hdriRotation
-);
-
-
-
-    domeShader.setScale(
-        hdriScale
+    domeShader.setRotation(
+        hdriRotation
     );
 
+
+    domeShader.setScaleX(
+        hdriScaleX
+    );
+
+
+    domeShader.setScaleY(
+        hdriScaleY
+    );
+
+
+    domeShader.setZoom(
+        hdriZoom
+    );
 
 
     domeShader.setHorizon(

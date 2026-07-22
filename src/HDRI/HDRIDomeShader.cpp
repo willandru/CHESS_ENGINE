@@ -104,11 +104,11 @@ void HDRIDomeShader::setRotation(
 
 
 //====================================================
-// SCALE
+// HORIZONTAL SCALE
 //====================================================
 
-void HDRIDomeShader::setScale(
-    float scale
+void HDRIDomeShader::setScaleX(
+    float scaleX
 )
 {
 
@@ -116,8 +116,50 @@ void HDRIDomeShader::setScale(
 
 
     setFloat(
-        "hdriScale",
-        scale
+        "hdriScaleX",
+        scaleX
+    );
+
+}
+
+
+
+//====================================================
+// VERTICAL SCALE
+//====================================================
+
+void HDRIDomeShader::setScaleY(
+    float scaleY
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "hdriScaleY",
+        scaleY
+    );
+
+}
+
+
+
+//====================================================
+// ZOOM
+//====================================================
+
+void HDRIDomeShader::setZoom(
+    float zoom
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "hdriZoom",
+        zoom
     );
 
 }

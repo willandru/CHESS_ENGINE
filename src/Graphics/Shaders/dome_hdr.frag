@@ -12,9 +12,14 @@ uniform sampler2D hdriMap;
 
 uniform float horizonOffset;
 
-uniform float hdriScale;
+uniform float hdriScaleX;
+
+uniform float hdriScaleY;
+
+uniform float hdriZoom;
 
 uniform float rotation;
+
 
 
 const float PI = 3.14159265359;
@@ -26,10 +31,44 @@ vec2 directionToUV(
 )
 {
 
+
+    //------------------------------------------------
+    // NORMALIZAR RAYO
+    //------------------------------------------------
+
     direction =
         normalize(direction);
 
 
+
+    //------------------------------------------------
+    // ESCALAMIENTO ESFERICO
+    //------------------------------------------------
+
+    direction.x *= hdriScaleX;
+
+    direction.y *= hdriScaleY;
+
+
+
+    //------------------------------------------------
+    // ZOOM REAL
+    //------------------------------------------------
+
+    direction.x /= hdriZoom;
+
+    direction.y /= hdriZoom;
+
+
+
+    direction =
+        normalize(direction);
+
+
+
+    //------------------------------------------------
+    // ROTACION HORIZONTAL
+    //------------------------------------------------
 
     float longitude =
         atan(
@@ -44,17 +83,12 @@ vec2 directionToUV(
         );
 
 
-
-    //------------------------------------------------
-    // ROTATION
-    //------------------------------------------------
-
     longitude += rotation;
 
 
 
     //------------------------------------------------
-    // EQUIRECTANGULAR UV
+    // EQUIRECTANGULAR MAPPING
     //------------------------------------------------
 
     float u =
@@ -72,22 +106,41 @@ vec2 directionToUV(
 
 
     //------------------------------------------------
-    // SCALE LIKE BLENDER TEXTURE SCALE
-    //------------------------------------------------
-
-    v =
-        0.5 +
-        (v - 0.5)
-        *
-        hdriScale;
-
-
-
-    //------------------------------------------------
-    // VERTICAL OFFSET
+    // AJUSTE HORIZONTE
     //------------------------------------------------
 
     v += horizonOffset;
+
+
+
+    //------------------------------------------------
+    // WRAP CORRECTO HDRI
+    //------------------------------------------------
+
+    u =
+        mod(
+            u,
+            1.0
+        );
+
+
+    if(u < 0.0)
+    {
+        u += 1.0;
+    }
+
+
+
+    //------------------------------------------------
+    // LIMITAR VERTICAL
+    //------------------------------------------------
+
+    v =
+        clamp(
+            v,
+            0.001,
+            0.999
+        );
 
 
 
