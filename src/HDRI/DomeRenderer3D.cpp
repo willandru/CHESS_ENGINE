@@ -1,6 +1,9 @@
 #include "DomeRenderer3D.h"
 
+
 #include <iostream>
+
+#include <glad/glad.h>
 
 
 
@@ -10,6 +13,7 @@
 
 DomeRenderer3D::DomeRenderer3D()
 {
+
 }
 
 
@@ -23,7 +27,7 @@ bool DomeRenderer3D::initialize()
 
 
     //------------------------------------------------
-    // DOME
+    // DOME GEOMETRY
     //------------------------------------------------
 
     dome.initialize();
@@ -39,10 +43,10 @@ bool DomeRenderer3D::initialize()
 
 
     //------------------------------------------------
-    // HDRI
+    // HDRI TEXTURE
     //------------------------------------------------
 
-        if(
+    if(
         !hdriTexture.loadFromFile(
             "Assets/Environment/smelting_tower_interior_4k.exr"
         )
@@ -55,11 +59,33 @@ bool DomeRenderer3D::initialize()
 
 
         return false;
+
     }
 
 
+
+    //------------------------------------------------
+    // HDRI SHADER
+    //------------------------------------------------
+
+    if(
+        !domeShader.initialize()
+    )
+    {
+
+        std::cout
+            << "[HDRI] ERROR loading dome shader"
+            << std::endl;
+
+
+        return false;
+
+    }
+
+
+
     std::cout
-        << "[HDRI] Loaded successfully"
+        << "[DOME] Environment initialized"
         << std::endl;
 
 
@@ -97,16 +123,70 @@ void DomeRenderer3D::renderBackground(
 
 
     //------------------------------------------------
-    // DOME
+    // HDRI DOME
+    //------------------------------------------------
+
+
+    glDisable(
+        GL_CULL_FACE
+    );
+
+
+    glDisable(
+        GL_DEPTH_TEST
+    );
+
+
+
+    //------------------------------------------------
+    // HDRI SHADER
+    //------------------------------------------------
+
+    domeShader.bind();
+
+
+
+    hdriTexture.bind(
+        0
+    );
+
+
+
+    domeShader.setHDRITextureSlot(
+        0
+    );
+
+
+
+    domeShader.setExposure(
+        1.0f
+    );
+
+
+
+    domeShader.setRotation(
+        0.0f
+    );
+
+
+
+    //------------------------------------------------
+    // RENDER DOME
     //------------------------------------------------
 
     renderer.renderObject(
         dome.getMesh(),
         dome.getTransform(),
         dome.getMaterial(),
-        shader,
+        domeShader,
         camera,
         aspectRatio
+    );
+
+
+
+    glEnable(
+        GL_DEPTH_TEST
     );
 
 
@@ -123,6 +203,7 @@ void DomeRenderer3D::renderBackground(
         camera,
         aspectRatio
     );
+
 
 }
 
