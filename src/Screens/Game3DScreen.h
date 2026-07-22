@@ -3,12 +3,8 @@
 #include "Screen.h"
 
 #include "Camera3D.h"
-
 #include "ChessRenderer3D.h"
-#include "SceneRenderer3D.h"
-
 #include "ChessGame.h"
-
 
 class Game3DScreen : public Screen
 {
@@ -23,23 +19,13 @@ public:
 
     void onExit() override;
 
-
 private:
-
 
     //------------------------------------------------
     // GLOBAL CAMERA
     //------------------------------------------------
 
     Camera3D camera;
-
-
-
-    //------------------------------------------------
-    // ENVIRONMENT
-    //------------------------------------------------
-
-    SceneRenderer3D sceneRenderer;
 
 
 

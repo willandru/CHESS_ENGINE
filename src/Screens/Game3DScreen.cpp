@@ -1,7 +1,5 @@
 #include "Game3DScreen.h"
 
-#include "BasicRoom3D.h"
-
 #include "BoardPicker3D.h"
 #include "InputMouse.h"
 #include "InputConsole.h"
@@ -10,14 +8,10 @@
 #include <glad/glad.h>
 
 #include <iostream>
-#include <memory>
 
 #include <GLFW/glfw3.h>
 
-
 extern Window gWindow;
-
-
 
 
 
@@ -33,22 +27,6 @@ void Game3DScreen::onEnter()
     //------------------------------------------------
 
     camera.resetOverview();
-
-
-
-    //------------------------------------------------
-    // SCENE
-    //------------------------------------------------
-
-    sceneRenderer.initialize(
-        "Shaders/basic_3d.vert",
-        "Shaders/basic_3d.frag"
-    );
-
-
-    sceneRenderer.setEnvironment(
-        std::make_unique<BasicRoom3D>()
-    );
 
 
 
@@ -75,7 +53,6 @@ void Game3DScreen::onEnter()
 
 
 
-
 //====================================================
 // UPDATE
 //====================================================
@@ -90,16 +67,6 @@ void Game3DScreen::update(
     //------------------------------------------------
 
     camera.update();
-
-
-
-    //------------------------------------------------
-    // ENVIRONMENT
-    //------------------------------------------------
-
-    sceneRenderer.update(
-        dt
-    );
 
 
 
@@ -233,7 +200,6 @@ void Game3DScreen::update(
             << static_cast<int>(square)
             << std::endl;
 
-
         game.onSquareClicked(square);
     }
     else
@@ -247,74 +213,71 @@ void Game3DScreen::update(
 
 
 
-//====================================================
-// RENDER
-//====================================================
+
 
 //====================================================
 // RENDER
 //====================================================
 
 void Game3DScreen::render()
-    {
-        //------------------------------------------------
-        // UPDATE VIEWPORT
-        //------------------------------------------------
+{
 
-        glViewport(
-            0,
-            0,
-            gWindow.getWidth(),
+    //------------------------------------------------
+    // UPDATE VIEWPORT
+    //------------------------------------------------
+
+    glViewport(
+        0,
+        0,
+        gWindow.getWidth(),
+        gWindow.getHeight()
+    );
+
+
+
+    //------------------------------------------------
+    // ASPECT RATIO
+    //------------------------------------------------
+
+    float aspectRatio =
+        static_cast<float>(
+            gWindow.getWidth()
+        )
+        /
+        static_cast<float>(
             gWindow.getHeight()
         );
 
-        //------------------------------------------------
-        // ASPECT RATIO
-        //------------------------------------------------
 
-        float aspectRatio =
-            static_cast<float>(
-                gWindow.getWidth()
-            )
-            /
-            static_cast<float>(
-                gWindow.getHeight()
-            );
 
-        //------------------------------------------------
-        // CLEAR FRAME
-        //------------------------------------------------
+    //------------------------------------------------
+    // CLEAR FRAME
+    //------------------------------------------------
 
-        glClearColor(
-            0.15f,
-            0.15f,
-            0.18f,
-            1.0f
-        );
+    glClearColor(
+        0.15f,
+        0.15f,
+        0.18f,
+        1.0f
+    );
 
-        glClear(
-            GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT
-        );
+    glClear(
+        GL_COLOR_BUFFER_BIT |
+        GL_DEPTH_BUFFER_BIT
+    );
 
-        //------------------------------------------------
-        // ROOM
-        //------------------------------------------------
 
-        sceneRenderer.render(
-            camera,
-            aspectRatio
-        );
 
-        //------------------------------------------------
-        // CHESS
-        //------------------------------------------------
+    //------------------------------------------------
+    // CHESS
+    //------------------------------------------------
 
-        chessRenderer.render(
-            game,
-            camera
-        );
-    }
+    chessRenderer.render(
+        game,
+        camera
+    );
+
+}
 
 
 
