@@ -1,5 +1,7 @@
 #include "DomeRenderer3D.h"
 
+#include <iostream>
+
 
 
 //====================================================
@@ -18,7 +20,7 @@ DomeRenderer3D::DomeRenderer3D()
 
 bool DomeRenderer3D::initialize()
 {
-    
+
 
     //------------------------------------------------
     // DOME
@@ -33,6 +35,32 @@ bool DomeRenderer3D::initialize()
     //------------------------------------------------
 
     ground.initialize();
+
+
+
+    //------------------------------------------------
+    // HDRI
+    //------------------------------------------------
+
+        if(
+        !hdriTexture.loadFromFile(
+            "Assets/Environment/smelting_tower_interior_4k.exr"
+        )
+    )
+    {
+
+        std::cout
+            << "[HDRI] ERROR loading EXR"
+            << std::endl;
+
+
+        return false;
+    }
+
+
+    std::cout
+        << "[HDRI] Loaded successfully"
+        << std::endl;
 
 
 
@@ -66,6 +94,7 @@ void DomeRenderer3D::renderBackground(
     float aspectRatio
 )
 {
+
 
     //------------------------------------------------
     // DOME

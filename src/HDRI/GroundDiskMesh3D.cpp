@@ -2,6 +2,7 @@
 
 #include "DomeMeshBuilder.h"
 #include "DomeConstants3D.h"
+#include <iostream>
 
 GroundDiskMesh3D::GroundDiskMesh3D()
 {
@@ -58,6 +59,9 @@ void GroundDiskMesh3D::initialize()
             1.0f
         }
     );
+
+    std::cout << "[GROUND] R=" << DomeConstants3D::GROUND_RADIUS
+    << " PosY=" << DomeConstants3D::GROUND_POS_Y << std::endl;
 
 }
 

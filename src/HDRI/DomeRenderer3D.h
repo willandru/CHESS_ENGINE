@@ -5,6 +5,8 @@
 #include "DomeMesh3D.h"
 #include "GroundDiskMesh3D.h"
 
+#include "HDRITexture.h"
+
 class DomeRenderer3D : public Environment3D
 {
 
@@ -62,5 +64,6 @@ private:
     DomeMesh3D dome;
 
     GroundDiskMesh3D ground;
+    HDRITexture hdriTexture;
 
 };

@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+
 # ==========================================
 # LIBTORCH
 # ==========================================
@@ -19,6 +20,20 @@ set(Torch_DIR
 )
 
 find_package(Torch REQUIRED)
+
+
+
+# ==========================================
+# OPENEXR OPTIONS
+# ==========================================
+
+set(IMATH_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(IMATH_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+
+set(OPENEXR_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(OPENEXR_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(OPENEXR_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+
 
 
 # ==========================================
@@ -46,8 +61,14 @@ include_directories(
     externals/stb
     externals/tinygltf
 
+    # OpenEXR
+    externals/openexr/src
+
     ${TORCH_INCLUDE_DIRS}
+
 )
+
+
 
 # ==========================================
 # GLAD
@@ -60,6 +81,7 @@ add_library(glad
 )
 
 
+
 # ==========================================
 # GLFW
 # ==========================================
@@ -67,6 +89,17 @@ add_library(glad
 add_subdirectory(
     externals/glfw-3.4
 )
+
+
+
+# ==========================================
+# OPENEXR
+# ==========================================
+
+add_subdirectory(
+    externals/openexr
+)
+
 
 
 # ==========================================
@@ -80,6 +113,7 @@ file(GLOB_RECURSE SOURCES
 )
 
 
+
 # ==========================================
 # EXECUTABLE
 # ==========================================
@@ -90,6 +124,7 @@ add_executable(chess_engine
     ${SOURCES}
 
 )
+
 
 
 # ==========================================
@@ -106,7 +141,10 @@ target_link_libraries(chess_engine
 
         ${TORCH_LIBRARIES}
 
+        OpenEXR::OpenEXR
+
 )
+
 
 
 # ==========================================
@@ -117,6 +155,7 @@ set_property(
     TARGET chess_engine
     PROPERTY CXX_STANDARD 20
 )
+
 
 
 # ==========================================
@@ -132,8 +171,9 @@ set_target_properties(
 )
 
 
+
 # ==========================================
-# COPY LIBTORCH DLLs (WINDOWS)
+# COPY LIBTORCH DLLs
 # ==========================================
 
 add_custom_command(

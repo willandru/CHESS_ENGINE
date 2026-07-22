@@ -2,7 +2,7 @@
 
 #include "DomeMeshBuilder.h"
 #include "DomeConstants3D.h"
-
+#include <iostream>
 
 DomeMesh3D::DomeMesh3D()
 {
@@ -55,6 +55,9 @@ void DomeMesh3D::initialize()
             1.0f
         }
     );
+
+    std::cout << "[DOME] R=" << DomeConstants3D::DOME_RADIUS
+    << " PosY=" << DomeConstants3D::DOME_POS_Y << std::endl;
 
 }
 
