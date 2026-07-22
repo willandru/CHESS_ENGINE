@@ -4,12 +4,15 @@
 #include "InputMouse.h"
 #include "InputConsole.h"
 #include "Window.h"
+#include "DomeRenderer3D.h"
 
 #include <glad/glad.h>
 
 #include <iostream>
 
 #include <GLFW/glfw3.h>
+
+#include <memory>
 
 extern Window gWindow;
 
@@ -27,6 +30,22 @@ void Game3DScreen::onEnter()
     //------------------------------------------------
 
     camera.resetOverview();
+
+
+
+    //------------------------------------------------
+    // SCENE
+    //------------------------------------------------
+
+    sceneRenderer.initialize(
+        "Shaders/basic_3d.vert",
+        "Shaders/basic_3d.frag"
+    );
+
+
+    sceneRenderer.setEnvironment(
+        std::make_unique<DomeRenderer3D>()
+    );
 
 
 
@@ -67,6 +86,16 @@ void Game3DScreen::update(
     //------------------------------------------------
 
     camera.update();
+
+
+
+    //------------------------------------------------
+    // SCENE
+    //------------------------------------------------
+
+    sceneRenderer.update(
+        dt
+    );
 
 
 
@@ -115,7 +144,9 @@ void Game3DScreen::update(
     //------------------------------------------------
 
     if(
-        InputMouse::isButtonDown(GLFW_MOUSE_BUTTON_MIDDLE)
+        InputMouse::isButtonDown(
+            GLFW_MOUSE_BUTTON_MIDDLE
+        )
     )
     {
         return;
@@ -195,18 +226,26 @@ void Game3DScreen::update(
         )
     )
     {
+
         std::cout
             << "BOARD PICK = "
-            << static_cast<int>(square)
+            << static_cast<int>(
+                square
+            )
             << std::endl;
 
-        game.onSquareClicked(square);
+        game.onSquareClicked(
+            square
+        );
+
     }
     else
     {
+
         std::cout
             << "NO BOARD HIT"
             << std::endl;
+
     }
 
 }
@@ -264,6 +303,17 @@ void Game3DScreen::render()
     glClear(
         GL_COLOR_BUFFER_BIT |
         GL_DEPTH_BUFFER_BIT
+    );
+
+
+
+    //------------------------------------------------
+    // SCENE
+    //------------------------------------------------
+
+    sceneRenderer.render(
+        camera,
+        aspectRatio
     );
 
 

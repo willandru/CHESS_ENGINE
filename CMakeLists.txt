@@ -38,6 +38,7 @@ include_directories(
     src/Analysis
     src/RL
     src/Environment
+    src/HDRI
 
     externals/glad/include
     externals/glfw-3.4/include
