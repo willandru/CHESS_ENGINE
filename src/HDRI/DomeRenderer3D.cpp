@@ -9,6 +9,7 @@
 #include <glm/common.hpp>
 
 
+
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -29,13 +30,14 @@ bool DomeRenderer3D::initialize()
 
     dome.initialize();
 
+
     ground.initialize();
 
 
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/smelting_tower_interior_4k.exr"
+            "Assets/Environment/small_workshop_4k.exr"
         )
     )
     {
@@ -55,9 +57,16 @@ bool DomeRenderer3D::initialize()
     )
     {
 
-        std::cout
-            << "[HDRI] ERROR loading shader"
-            << std::endl;
+        return false;
+
+    }
+
+
+
+    if(
+        !groundShader.initialize()
+    )
+    {
 
         return false;
 
@@ -74,6 +83,9 @@ bool DomeRenderer3D::initialize()
     return true;
 
 }
+
+
+
 
 
 
@@ -97,149 +109,94 @@ void DomeRenderer3D::update(
 
 
 
-    //------------------------------------------------
-    // SCALE Y
-    //
-    // Y / H
-    //------------------------------------------------
-
-
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_Y)
     )
     {
-
         hdriScaleY -= scaleSpeed * dt;
-
     }
+
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_H)
     )
     {
-
         hdriScaleY += scaleSpeed * dt;
-
     }
 
-
-
-    //------------------------------------------------
-    // SCALE X
-    //
-    // U / J
-    //------------------------------------------------
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_U)
     )
     {
-
         hdriScaleX -= scaleSpeed * dt;
-
     }
+
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_J)
     )
     {
-
         hdriScaleX += scaleSpeed * dt;
-
     }
 
-
-
-    //------------------------------------------------
-    // ZOOM
-    //
-    // I / K
-    //------------------------------------------------
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_I)
     )
     {
-
         hdriZoom += zoomSpeed * dt;
-
     }
+
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_K)
     )
     {
-
         hdriZoom -= zoomSpeed * dt;
-
     }
 
-
-
-    //------------------------------------------------
-    // HORIZON
-    //
-    // T / G
-    //------------------------------------------------
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_T)
     )
     {
-
         hdriHorizon += horizonSpeed * dt;
-
     }
+
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_G)
     )
     {
-
         hdriHorizon -= horizonSpeed * dt;
-
     }
 
-
-
-    //------------------------------------------------
-    // ROTATION
-    //
-    // R / F
-    //------------------------------------------------
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_R)
     )
     {
-
         hdriRotation += rotationSpeed * dt;
-
     }
+
 
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_F)
     )
     {
-
         hdriRotation -= rotationSpeed * dt;
-
     }
 
-
-
-    //------------------------------------------------
-    // LIMITS
-    //------------------------------------------------
 
 
     hdriScaleX =
@@ -265,9 +222,9 @@ void DomeRenderer3D::update(
             4.0f
         );
 
-
-
 }
+
+
 
 
 
@@ -283,6 +240,10 @@ void DomeRenderer3D::renderBackground(
 )
 {
 
+
+    //------------------------------------------------
+    // DOME
+    //------------------------------------------------
 
     glDisable(
         GL_CULL_FACE
@@ -303,16 +264,10 @@ void DomeRenderer3D::renderBackground(
 
 
 
-    domeShader.setHDRITextureSlot(
-        0
-    );
+    domeShader.setHDRITextureSlot(0);
 
 
-
-    domeShader.setExposure(
-        1.0f
-    );
-
+    domeShader.setExposure(1.0f);
 
 
     domeShader.setRotation(
@@ -352,8 +307,67 @@ void DomeRenderer3D::renderBackground(
 
 
 
+
+
+    //------------------------------------------------
+    // GROUND
+    //------------------------------------------------
+
     glEnable(
         GL_DEPTH_TEST
+    );
+
+
+
+    groundShader.bind();
+
+
+    hdriTexture.bind(0);
+
+
+
+    groundShader.setHDRITextureSlot(0);
+
+
+    groundShader.setExposure(1.0f);
+
+
+
+    groundShader.setRotation(
+        hdriRotation
+    );
+
+
+    groundShader.setScaleX(
+        hdriScaleX
+    );
+
+
+    groundShader.setScaleY(
+        hdriScaleY
+    );
+
+
+    groundShader.setZoom(
+        hdriZoom
+    );
+
+
+    groundShader.setHorizon(
+        hdriHorizon
+    );
+
+
+
+    //------------------------------------------------
+    // IMPORTANTE
+    //
+    // Continuidad cámara -> suelo
+    //
+    //------------------------------------------------
+
+    groundShader.setCameraPosition(
+        camera.getPosition()
     );
 
 
@@ -362,13 +376,15 @@ void DomeRenderer3D::renderBackground(
         ground.getMesh(),
         ground.getTransform(),
         ground.getMaterial(),
-        shader,
+        groundShader,
         camera,
         aspectRatio
     );
 
 
 }
+
+
 
 
 
