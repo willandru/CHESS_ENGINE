@@ -151,10 +151,26 @@ void Shader3D::setFloat(
     float value
 ) const
 {
+
+    int location =
+        getUniformLocation(name);
+
+
+    std::cout
+        << "[UNIFORM FLOAT] "
+        << name
+        << " location="
+        << location
+        << " value="
+        << value
+        << std::endl;
+
+
     glUniform1f(
-        getUniformLocation(name),
+        location,
         value
     );
+
 }
 
 void Shader3D::setVec2(

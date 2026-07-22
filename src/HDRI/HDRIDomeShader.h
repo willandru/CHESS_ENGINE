@@ -9,19 +9,6 @@
 // Shader especializado para representar un ambiente
 // HDRI equirectangular.
 //
-// Hereda la gestión del programa OpenGL desde Shader3D.
-//
-// Responsabilidades:
-// - Cargar shaders del domo.
-// - Configurar uniforms propios del ambiente.
-// - Controlar exposición y rotación.
-//
-// No administra:
-// - Texturas.
-// - Geometría.
-// - Cámara.
-// - Renderizado.
-//
 //====================================================
 
 
@@ -65,6 +52,16 @@ public:
     );
 
 
+    void setScale(
+        float scale
+    );
+
+
+    void setHorizon(
+        float horizon
+    );
+
+
 
 private:
 
@@ -79,7 +76,6 @@ private:
 
     static constexpr const char* FRAGMENT_SHADER =
         "Shaders/dome_hdr.frag";
-
 
 
 };

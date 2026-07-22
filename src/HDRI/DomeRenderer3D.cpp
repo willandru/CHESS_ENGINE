@@ -1,7 +1,11 @@
 #include "DomeRenderer3D.h"
 
 
+#include "InputKeyboard.h"
+
+
 #include <iostream>
+
 
 #include <glad/glad.h>
 
@@ -26,25 +30,12 @@ bool DomeRenderer3D::initialize()
 {
 
 
-    //------------------------------------------------
-    // DOME GEOMETRY
-    //------------------------------------------------
-
     dome.initialize();
 
-
-
-    //------------------------------------------------
-    // GROUND
-    //------------------------------------------------
 
     ground.initialize();
 
 
-
-    //------------------------------------------------
-    // HDRI TEXTURE
-    //------------------------------------------------
 
     if(
         !hdriTexture.loadFromFile(
@@ -64,17 +55,13 @@ bool DomeRenderer3D::initialize()
 
 
 
-    //------------------------------------------------
-    // HDRI SHADER
-    //------------------------------------------------
-
     if(
         !domeShader.initialize()
     )
     {
 
         std::cout
-            << "[HDRI] ERROR loading dome shader"
+            << "[HDRI] ERROR loading shader"
             << std::endl;
 
 
@@ -101,9 +88,120 @@ bool DomeRenderer3D::initialize()
 //====================================================
 
 void DomeRenderer3D::update(
-    float
+    float dt
 )
 {
+
+    std::cout
+        << "Scale="
+        << hdriScale
+        << " Horizon="
+        << hdriHorizon
+        << " Rotation="
+        << hdriRotation
+        << std::endl;
+
+
+
+    float speed = 0.5f;
+
+
+
+    //------------------------------------------------
+    // SCALE
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_Y
+        )
+    )
+    {
+
+        hdriScale -= speed * dt;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_H
+        )
+    )
+    {
+
+        hdriScale += speed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
+    // HORIZON
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_T
+        )
+    )
+    {
+
+        hdriHorizon += speed * dt;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_G
+        )
+    )
+    {
+
+        hdriHorizon -= speed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
+    // ROTATION
+    //------------------------------------------------
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_R))
+        {
+            hdriRotation += 1.0f * dt;
+        }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_F
+        )
+    )
+    {
+
+        hdriRotation -= speed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
+    // LIMITS
+    //------------------------------------------------
+
+    hdriScale =
+        glm::clamp(
+            hdriScale,
+            0.1f,
+            5.0f
+        );
+
 
 }
 
@@ -122,11 +220,6 @@ void DomeRenderer3D::renderBackground(
 {
 
 
-    //------------------------------------------------
-    // HDRI DOME
-    //------------------------------------------------
-
-
     glDisable(
         GL_CULL_FACE
     );
@@ -137,10 +230,6 @@ void DomeRenderer3D::renderBackground(
     );
 
 
-
-    //------------------------------------------------
-    // HDRI SHADER
-    //------------------------------------------------
 
     domeShader.bind();
 
@@ -164,15 +253,29 @@ void DomeRenderer3D::renderBackground(
 
 
 
-    domeShader.setRotation(
-        0.0f
+   std::cout
+    << "SEND TO SHADER ROTATION = "
+    << hdriRotation
+    << std::endl;
+
+
+domeShader.setRotation(
+    hdriRotation
+);
+
+
+
+    domeShader.setScale(
+        hdriScale
     );
 
 
 
-    //------------------------------------------------
-    // RENDER DOME
-    //------------------------------------------------
+    domeShader.setHorizon(
+        hdriHorizon
+    );
+
+
 
     renderer.renderObject(
         dome.getMesh(),
@@ -190,10 +293,6 @@ void DomeRenderer3D::renderBackground(
     );
 
 
-
-    //------------------------------------------------
-    // GROUND
-    //------------------------------------------------
 
     renderer.renderObject(
         ground.getMesh(),

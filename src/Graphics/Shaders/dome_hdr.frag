@@ -10,16 +10,25 @@ in vec3 WorldPos;
 uniform sampler2D hdriMap;
 
 
+uniform float horizonOffset;
+
+uniform float hdriScale;
+
+uniform float rotation;
+
 
 const float PI = 3.14159265359;
 
 
 
-vec2 directionToUV(vec3 direction)
+vec2 directionToUV(
+    vec3 direction
+)
 {
 
     direction =
         normalize(direction);
+
 
 
     float longitude =
@@ -36,6 +45,18 @@ vec2 directionToUV(vec3 direction)
 
 
 
+    //------------------------------------------------
+    // ROTATION
+    //------------------------------------------------
+
+    longitude += rotation;
+
+
+
+    //------------------------------------------------
+    // EQUIRECTANGULAR UV
+    //------------------------------------------------
+
     float u =
         0.5 +
         longitude /
@@ -47,6 +68,26 @@ vec2 directionToUV(vec3 direction)
         0.5 -
         latitude /
         PI;
+
+
+
+    //------------------------------------------------
+    // SCALE LIKE BLENDER TEXTURE SCALE
+    //------------------------------------------------
+
+    v =
+        0.5 +
+        (v - 0.5)
+        *
+        hdriScale;
+
+
+
+    //------------------------------------------------
+    // VERTICAL OFFSET
+    //------------------------------------------------
+
+    v += horizonOffset;
 
 
 
@@ -72,6 +113,7 @@ void main()
         directionToUV(
             direction
         );
+
 
 
     vec3 hdrColor =

@@ -100,3 +100,45 @@ void HDRIDomeShader::setRotation(
     );
 
 }
+
+
+
+//====================================================
+// SCALE
+//====================================================
+
+void HDRIDomeShader::setScale(
+    float scale
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "hdriScale",
+        scale
+    );
+
+}
+
+
+
+//====================================================
+// HORIZON OFFSET
+//====================================================
+
+void HDRIDomeShader::setHorizon(
+    float horizon
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "horizonOffset",
+        horizon
+    );
+
+}

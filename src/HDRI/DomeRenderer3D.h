@@ -31,7 +31,6 @@ public:
     bool initialize() override;
 
 
-
     void update(
         float dt
     ) override;
@@ -71,14 +70,8 @@ private:
     // GEOMETRY
     //------------------------------------------------
 
-
-    // Cúpula que contiene el ambiente HDR
-
     DomeMesh3D dome;
 
-
-
-    // Superficie física del suelo
 
     GroundDiskMesh3D ground;
 
@@ -88,17 +81,24 @@ private:
     // HDRI SYSTEM
     //------------------------------------------------
 
-
-    // Textura EXR HDR
-
     HDRITexture hdriTexture;
 
 
-
-    // Shader especializado del cielo
-
     HDRIDomeShader domeShader;
 
+
+
+    //------------------------------------------------
+    // HDRI DEBUG CONTROLS
+    //------------------------------------------------
+
+    float hdriScale = 0.8f;
+
+
+    float hdriHorizon = 0.0f;
+
+
+    float hdriRotation = 0.0f;
 
 
 };
