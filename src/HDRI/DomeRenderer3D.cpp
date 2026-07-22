@@ -37,7 +37,7 @@ bool DomeRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/small_workshop_4k.exr"
+            "Assets/Environment/lythwood_terrace_4k.exr"
         )
     )
     {
