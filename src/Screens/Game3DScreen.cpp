@@ -94,6 +94,7 @@ void Game3DScreen::update(
     //------------------------------------------------
 
     sceneRenderer.update(
+        camera,
         dt
     );
 

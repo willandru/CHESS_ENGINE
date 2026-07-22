@@ -61,6 +61,7 @@ bool SceneRenderer3D::initialize(
 //====================================================
 
 void SceneRenderer3D::update(
+    Camera3D& camera,
     float dt
 )
 {
@@ -68,6 +69,7 @@ void SceneRenderer3D::update(
     if(environment)
     {
         environment->update(
+            camera,
             dt
         );
     }

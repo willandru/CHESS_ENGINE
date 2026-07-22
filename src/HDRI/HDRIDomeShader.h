@@ -1,55 +1,25 @@
 #pragma once
 
-
 #include "Shader3D.h"
-
-
 
 //====================================================
 // HDRI DOME SHADER
-//
-// Shader especializado para representar un ambiente
-// HDRI equirectangular sobre una cúpula.
-//
-// Controla:
-// - Textura HDRI
-// - Exposición
-// - Rotación horizontal
-// - Escala horizontal
-// - Escala vertical
-// - Zoom de proyección
-// - Ajuste del horizonte
-//
-// No administra:
-// - Textura
-// - Geometría
-// - Cámara
-// - Renderizado
-//
 //====================================================
-
 
 class HDRIDomeShader : public Shader3D
 {
 
-
 public:
-
 
     HDRIDomeShader();
 
-
     ~HDRIDomeShader();
-
-
 
     //------------------------------------------------
     // INITIALIZATION
     //------------------------------------------------
 
     bool initialize();
-
-
 
     //------------------------------------------------
     // HDRI TEXTURE
@@ -59,8 +29,6 @@ public:
         int slot
     );
 
-
-
     //------------------------------------------------
     // EXPOSURE
     //------------------------------------------------
@@ -68,8 +36,6 @@ public:
     void setExposure(
         float exposure
     );
-
-
 
     //------------------------------------------------
     // ROTATION
@@ -79,8 +45,6 @@ public:
         float rotation
     );
 
-
-
     //------------------------------------------------
     // PROJECTION CONTROLS
     //------------------------------------------------
@@ -89,25 +53,15 @@ public:
         float scaleX
     );
 
-
     void setScaleY(
         float scaleY
     );
-
-
-    void setZoom(
-        float zoom
-    );
-
 
     void setHorizon(
         float horizon
     );
 
-
-
 private:
-
 
     //------------------------------------------------
     // SHADER FILES
@@ -116,9 +70,7 @@ private:
     static constexpr const char* VERTEX_SHADER =
         "Shaders/dome_hdr.vert";
 
-
     static constexpr const char* FRAGMENT_SHADER =
         "Shaders/dome_hdr.frag";
-
 
 };

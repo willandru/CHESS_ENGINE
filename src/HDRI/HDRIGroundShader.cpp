@@ -145,26 +145,6 @@ void HDRIGroundShader::setScaleY(
 
 
 
-//====================================================
-// ZOOM
-//====================================================
-
-void HDRIGroundShader::setZoom(
-    float zoom
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriZoom",
-        zoom
-    );
-
-}
-
-
 
 //====================================================
 // HORIZON

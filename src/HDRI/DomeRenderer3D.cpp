@@ -88,26 +88,29 @@ bool DomeRenderer3D::initialize()
 
 
 
-
 //====================================================
 // UPDATE
 //====================================================
 
 void DomeRenderer3D::update(
+    Camera3D& camera,
     float dt
 )
 {
 
-
     float scaleSpeed = 0.4f;
 
-    float zoomSpeed = 0.6f;
+    float fieldOfViewSpeed = 30.0f;
 
     float horizonSpeed = 0.5f;
 
     float rotationSpeed = 1.5f;
 
 
+
+    //------------------------------------------------
+    // SCALE Y
+    //------------------------------------------------
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_Y)
@@ -127,6 +130,10 @@ void DomeRenderer3D::update(
 
 
 
+    //------------------------------------------------
+    // SCALE X
+    //------------------------------------------------
+
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_U)
     )
@@ -145,11 +152,17 @@ void DomeRenderer3D::update(
 
 
 
+    //------------------------------------------------
+    // FIELD OF VIEW
+    //------------------------------------------------
+
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_I)
     )
     {
-        hdriZoom += zoomSpeed * dt;
+        camera.zoomFieldOfView(
+            -fieldOfViewSpeed * dt
+        );
     }
 
 
@@ -158,10 +171,16 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_K)
     )
     {
-        hdriZoom -= zoomSpeed * dt;
+        camera.zoomFieldOfView(
+            fieldOfViewSpeed * dt
+        );
     }
 
 
+
+    //------------------------------------------------
+    // HORIZON
+    //------------------------------------------------
 
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_T)
@@ -181,6 +200,10 @@ void DomeRenderer3D::update(
 
 
 
+    //------------------------------------------------
+    // ROTATION
+    //------------------------------------------------
+
     if(
         InputKeyboard::isKeyDown(GLFW_KEY_R)
     )
@@ -199,6 +222,10 @@ void DomeRenderer3D::update(
 
 
 
+    //------------------------------------------------
+    // LIMITS
+    //------------------------------------------------
+
     hdriScaleX =
         glm::clamp(
             hdriScaleX,
@@ -214,16 +241,7 @@ void DomeRenderer3D::update(
             4.0f
         );
 
-
-    hdriZoom =
-        glm::clamp(
-            hdriZoom,
-            0.25f,
-            4.0f
-        );
-
 }
-
 
 
 
@@ -240,7 +258,6 @@ void DomeRenderer3D::renderBackground(
 )
 {
 
-
     //------------------------------------------------
     // DOME
     //------------------------------------------------
@@ -249,52 +266,33 @@ void DomeRenderer3D::renderBackground(
         GL_CULL_FACE
     );
 
-
     glDisable(
         GL_DEPTH_TEST
     );
 
-
-
     domeShader.bind();
-
-
 
     hdriTexture.bind(0);
 
-
-
     domeShader.setHDRITextureSlot(0);
 
-
     domeShader.setExposure(1.0f);
-
 
     domeShader.setRotation(
         hdriRotation
     );
 
-
     domeShader.setScaleX(
         hdriScaleX
     );
-
 
     domeShader.setScaleY(
         hdriScaleY
     );
 
-
-    domeShader.setZoom(
-        hdriZoom
-    );
-
-
     domeShader.setHorizon(
         hdriHorizon
     );
-
-
 
     renderer.renderObject(
         dome.getMesh(),
@@ -307,8 +305,6 @@ void DomeRenderer3D::renderBackground(
 
 
 
-
-
     //------------------------------------------------
     // GROUND
     //------------------------------------------------
@@ -317,60 +313,33 @@ void DomeRenderer3D::renderBackground(
         GL_DEPTH_TEST
     );
 
-
-
     groundShader.bind();
-
 
     hdriTexture.bind(0);
 
-
-
     groundShader.setHDRITextureSlot(0);
 
-
     groundShader.setExposure(1.0f);
-
-
 
     groundShader.setRotation(
         hdriRotation
     );
 
-
     groundShader.setScaleX(
         hdriScaleX
     );
-
 
     groundShader.setScaleY(
         hdriScaleY
     );
 
-
-    groundShader.setZoom(
-        hdriZoom
-    );
-
-
     groundShader.setHorizon(
         hdriHorizon
     );
 
-
-
-    //------------------------------------------------
-    // IMPORTANTE
-    //
-    // Continuidad cámara -> suelo
-    //
-    //------------------------------------------------
-
     groundShader.setCameraPosition(
         camera.getPosition()
     );
-
-
 
     renderer.renderObject(
         ground.getMesh(),
@@ -381,10 +350,7 @@ void DomeRenderer3D::renderBackground(
         aspectRatio
     );
 
-
 }
-
-
 
 
 

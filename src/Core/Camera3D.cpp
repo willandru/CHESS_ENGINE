@@ -304,6 +304,19 @@ void Camera3D::zoom(
 }
 
 
+void Camera3D::zoomFieldOfView(
+    float deltaDegrees
+)
+{
+    fieldOfView += deltaDegrees;
+
+    fieldOfView = std::clamp(
+        fieldOfView,
+        20.0f,
+        90.0f
+    );
+}
+
 
 //====================================================
 // POSITION

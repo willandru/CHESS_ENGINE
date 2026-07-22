@@ -32,6 +32,7 @@ public:
 
 
     void update(
+        Camera3D& camera,
         float dt
     );
 

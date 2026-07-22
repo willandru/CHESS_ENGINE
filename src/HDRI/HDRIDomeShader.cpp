@@ -1,7 +1,5 @@
 #include "HDRIDomeShader.h"
 
-
-
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -11,8 +9,6 @@ HDRIDomeShader::HDRIDomeShader()
 
 }
 
-
-
 //====================================================
 // DESTRUCTOR
 //====================================================
@@ -21,8 +17,6 @@ HDRIDomeShader::~HDRIDomeShader()
 {
 
 }
-
-
 
 //====================================================
 // INITIALIZATION
@@ -38,8 +32,6 @@ bool HDRIDomeShader::initialize()
 
 }
 
-
-
 //====================================================
 // HDRI TEXTURE SLOT
 //====================================================
@@ -51,15 +43,12 @@ void HDRIDomeShader::setHDRITextureSlot(
 
     bind();
 
-
     setInt(
         "hdriMap",
         slot
     );
 
 }
-
-
 
 //====================================================
 // EXPOSURE
@@ -72,15 +61,12 @@ void HDRIDomeShader::setExposure(
 
     bind();
 
-
     setFloat(
         "exposure",
         exposure
     );
 
 }
-
-
 
 //====================================================
 // ROTATION
@@ -93,15 +79,12 @@ void HDRIDomeShader::setRotation(
 
     bind();
 
-
     setFloat(
         "rotation",
         rotation
     );
 
 }
-
-
 
 //====================================================
 // HORIZONTAL SCALE
@@ -114,15 +97,12 @@ void HDRIDomeShader::setScaleX(
 
     bind();
 
-
     setFloat(
         "hdriScaleX",
         scaleX
     );
 
 }
-
-
 
 //====================================================
 // VERTICAL SCALE
@@ -135,36 +115,12 @@ void HDRIDomeShader::setScaleY(
 
     bind();
 
-
     setFloat(
         "hdriScaleY",
         scaleY
     );
 
 }
-
-
-
-//====================================================
-// ZOOM
-//====================================================
-
-void HDRIDomeShader::setZoom(
-    float zoom
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriZoom",
-        zoom
-    );
-
-}
-
-
 
 //====================================================
 // HORIZON OFFSET
@@ -176,7 +132,6 @@ void HDRIDomeShader::setHorizon(
 {
 
     bind();
-
 
     setFloat(
         "horizonOffset",

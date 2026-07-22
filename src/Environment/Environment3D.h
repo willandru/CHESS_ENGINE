@@ -17,6 +17,7 @@ public:
     virtual bool initialize() = 0;
 
     virtual void update(
+        Camera3D& camera,
         float dt
     ) = 0;
 

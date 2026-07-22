@@ -88,6 +88,10 @@ public:
         float deltaDistance
     );
 
+    void zoomFieldOfView(
+        float deltaDegrees
+    );
+
     //------------------------------------------------
     // DISTANCE
     //------------------------------------------------

@@ -1,56 +1,33 @@
 #version 330 core
 
-
 out vec4 FragColor;
-
 
 in vec3 WorldPos;
 
-
 uniform sampler2D hdriMap;
-
 
 uniform vec3 cameraPosition;
 
-
 uniform float rotation;
-
 uniform float hdriScaleX;
-
 uniform float hdriScaleY;
-
-uniform float hdriZoom;
-
 uniform float horizonOffset;
-
-
 
 const float PI = 3.14159265359;
 
-
-
-vec2 directionToUV(vec3 direction)
+vec2 directionToUV(
+    vec3 direction
+)
 {
 
     direction =
         normalize(direction);
 
-
-
     direction.x *= hdriScaleX;
-
     direction.y *= hdriScaleY;
-
-
-
-    direction /= hdriZoom;
-
-
 
     direction =
         normalize(direction);
-
-
 
     float longitude =
         atan(
@@ -58,38 +35,29 @@ vec2 directionToUV(vec3 direction)
             direction.x
         );
 
-
     float latitude =
         asin(
             direction.y
         );
 
-
-
     longitude += rotation;
-
-
 
     float u =
         0.5 +
         longitude /
         (2.0 * PI);
 
-
-
     float v =
         0.5 -
         latitude /
         PI;
 
-
-
     v += horizonOffset;
 
-
-
-    u = fract(u);
-
+    u =
+        fract(
+            u
+        );
 
     v =
         clamp(
@@ -98,16 +66,15 @@ vec2 directionToUV(vec3 direction)
             0.999
         );
 
-
-    return vec2(u,v);
+    return vec2(
+        u,
+        v
+    );
 
 }
 
-
-
 void main()
 {
-
 
     //------------------------------------------------
     // RAYO CAMARA -> PIXEL SUELO
@@ -119,20 +86,14 @@ void main()
             cameraPosition
         );
 
-
-
     //------------------------------------------------
     // INTERSECCION CON ESFERA HDRI
     //------------------------------------------------
 
     float radius = 20.0;
 
-
-
     vec3 oc =
         cameraPosition;
-
-
 
     float b =
         dot(
@@ -140,34 +101,28 @@ void main()
             ray
         );
 
-
-
     float c =
         dot(
             oc,
             oc
-        )
-        -
-        radius * radius;
-
-
+        ) -
+        radius *
+        radius;
 
     float discriminant =
-        b*b - c;
-
-
+        b * b -
+        c;
 
     float t =
         -b +
-        sqrt(discriminant);
-
-
+        sqrt(
+            discriminant
+        );
 
     vec3 spherePoint =
         cameraPosition +
-        ray * t;
-
-
+        ray *
+        t;
 
     //------------------------------------------------
     // DIRECCION HDRI EXACTA DEL DOMO
@@ -178,22 +133,16 @@ void main()
             spherePoint
         );
 
-
-
     vec2 uv =
         directionToUV(
             direction
         );
-
-
 
     vec3 color =
         texture(
             hdriMap,
             uv
         ).rgb;
-
-
 
     FragColor =
         vec4(

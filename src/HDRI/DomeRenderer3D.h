@@ -12,6 +12,7 @@
 
 #include "HDRIDomeShader.h"
 #include "HDRIGroundShader.h"
+#include "Camera3D.h"
 
 
 
@@ -34,6 +35,7 @@ public:
 
 
     void update(
+        Camera3D& camera,
         float dt
     ) override;
 
