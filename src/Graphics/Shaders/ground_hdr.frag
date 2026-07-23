@@ -164,7 +164,7 @@ void main()
 {
 
     //------------------------------------------------
-    // SAME VIRTUAL CAMERA AS DOME
+    // VIRTUAL CAMERA
     //------------------------------------------------
 
     vec3 virtualCamera =
@@ -177,12 +177,44 @@ void main()
 
 
     //------------------------------------------------
-    // WORLD DIRECTION
+    // CAMERA RAY
+    //------------------------------------------------
+
+    vec3 ray =
+        normalize(
+            WorldPos -
+            virtualCamera
+        );
+
+
+
+    //------------------------------------------------
+    // RAY / GROUND PLANE INTERSECTION
+    //
+    // Ground plane:
+    // Y = 0
+    //
+    //------------------------------------------------
+
+    float t =
+        -virtualCamera.y /
+        ray.y;
+
+
+
+    vec3 hitPoint =
+        virtualCamera +
+        ray * t;
+
+
+
+    //------------------------------------------------
+    // DIRECTION FOR HDRI
     //------------------------------------------------
 
     vec3 direction =
         normalize(
-            WorldPos -
+            hitPoint -
             virtualCamera
         );
 

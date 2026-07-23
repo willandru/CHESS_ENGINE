@@ -21,7 +21,7 @@ namespace DomeConstants3D
 
     constexpr float DOME_RADIUS = 20.0f;
 
-    constexpr float GROUND_RADIUS = 20.0f;
+    constexpr float GROUND_RADIUS = 500.0f;
 
 
 
