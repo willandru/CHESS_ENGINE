@@ -37,7 +37,7 @@ bool DomeRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/sundowner_deck_8k.exr"
+            "Assets/Environment/pine_attic_8k.exr"
         )
     )
     {
