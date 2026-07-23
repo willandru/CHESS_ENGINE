@@ -19,11 +19,16 @@ namespace DomeConstants3D
     // DOME DIMENSIONS
     //------------------------------------------------
 
-    constexpr float DOME_RADIUS = 20.0f;
+    constexpr float DOME_RADIUS = 10.0f;
 
-    constexpr float GROUND_RADIUS = 20.0f;
+    constexpr float GROUND_RADIUS = 10.0f;
 
 
+    //------------------------------------------------
+    // HDRI MATHEMATICAL RADIUS
+    //------------------------------------------------
+
+    constexpr float HDRI_SPHERE_RADIUS = 100.0f;
 
     //------------------------------------------------
     // TESSELLATION

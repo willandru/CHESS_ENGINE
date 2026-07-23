@@ -11,8 +11,8 @@ uniform float hdriScaleX;
 uniform float hdriScaleY;
 uniform float horizonOffset;
 
-// Altura desde la que fue tomada la HDRI
 uniform float captureHeight;
+
 
 const float PI = 3.14159265359;
 
@@ -32,30 +32,22 @@ vec2 directionToUV(
 
 
 
-    //------------------------------------------------
-    // SCALE
-    //------------------------------------------------
+    direction.x *= hdriScaleX;
+    direction.y *= hdriScaleY;
 
-    direction.x *=
-        hdriScaleX;
 
-    direction.y *=
-        hdriScaleY;
 
     direction =
         normalize(direction);
 
 
 
-    //------------------------------------------------
-    // SPHERICAL COORDINATES
-    //------------------------------------------------
-
     float longitude =
         atan(
             direction.z,
             direction.x
         );
+
 
     float latitude =
         asin(
@@ -64,23 +56,16 @@ vec2 directionToUV(
 
 
 
-    //------------------------------------------------
-    // ROTATION
-    //------------------------------------------------
-
-    longitude +=
-        rotation;
+    longitude += rotation;
 
 
-
-    //------------------------------------------------
-    // UV
-    //------------------------------------------------
 
     float u =
         0.5 +
         longitude /
         (2.0 * PI);
+
+
 
     float v =
         0.5 -
@@ -89,17 +74,13 @@ vec2 directionToUV(
 
 
 
-    //------------------------------------------------
-    // HORIZON
-    //------------------------------------------------
-
-    v +=
-        horizonOffset;
+    v += horizonOffset;
 
 
 
     u =
         fract(u);
+
 
     v =
         clamp(
@@ -107,6 +88,8 @@ vec2 directionToUV(
             0.001,
             0.999
         );
+
+
 
     return vec2(
         u,
@@ -125,7 +108,7 @@ void main()
 {
 
     //------------------------------------------------
-    // HDRI CAPTURE CAMERA
+    // CAMERA OF THE HDRI CAPTURE
     //------------------------------------------------
 
     vec3 captureCamera =
@@ -138,7 +121,7 @@ void main()
 
 
     //------------------------------------------------
-    // VIEW RAY
+    // RAY FROM CAPTURE CAMERA
     //------------------------------------------------
 
     vec3 ray =
@@ -150,62 +133,34 @@ void main()
 
 
     //------------------------------------------------
-    // DOME INTERSECTION
+    // GROUND PLANE INTERSECTION
+    //
+    // Plane:
+    // y = 0
     //------------------------------------------------
 
-    const float radius =
-        20.0;
 
-    vec3 domeCenter =
-        vec3(
-            0.0,
-            0.0,
-            0.0
-        );
+    float t =
+        -captureHeight /
+        ray.y;
 
-    vec3 oc =
-        captureCamera -
-        domeCenter;
 
-    float b =
-        dot(
-            oc,
-            ray
-        );
 
-    float c =
-        dot(
-            oc,
-            oc
-        ) -
-        radius *
-        radius;
-
-    float discriminant =
-        b * b -
-        c;
-
-    if(
-        discriminant < 0.0
-    )
+    if(t <= 0.0)
     {
+
         FragColor =
-            vec4(0.0);
+            vec4(
+                0.0
+            );
 
         return;
+
     }
 
 
 
-    float t =
-        -b +
-        sqrt(
-            discriminant
-        );
-
-
-
-    vec3 spherePoint =
+    vec3 groundPoint =
         captureCamera +
         ray *
         t;
@@ -213,25 +168,35 @@ void main()
 
 
     //------------------------------------------------
-    // SAMPLE HDRI
+    // DIRECTION THAT HDRI CAMERA SAW
     //------------------------------------------------
 
     vec3 direction =
         normalize(
-            spherePoint -
-            domeCenter
+            groundPoint -
+            captureCamera
         );
+
+
+
+    //------------------------------------------------
+    // SAMPLE HDRI
+    //------------------------------------------------
 
     vec2 uv =
         directionToUV(
             direction
         );
 
+
+
     vec3 color =
         texture(
             hdriMap,
             uv
         ).rgb;
+
+
 
     FragColor =
         vec4(
