@@ -44,9 +44,10 @@ namespace SceneConstants
 
 
 
-    // Altura base del tablero
+    // Altura del tablero sobre el suelo
+    // 50 cm
     constexpr float BOARD_HEIGHT =
-        0.0f;
+        0.50f;
 
 
 
@@ -168,7 +169,8 @@ namespace SceneConstants
 
     constexpr float CAMERA_OVERVIEW_POSITION_Y =
         1.8f +
-        SCENE_VERTICAL_OFFSET;
+        SCENE_VERTICAL_OFFSET +
+        BOARD_HEIGHT;
 
 
 
@@ -180,7 +182,7 @@ namespace SceneConstants
 
 
     constexpr float CAMERA_TARGET_Y =
-        TABLE_HEIGHT +
+        BOARD_HEIGHT +
         SCENE_VERTICAL_OFFSET;
 
 

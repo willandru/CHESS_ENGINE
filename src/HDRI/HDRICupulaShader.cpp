@@ -1,4 +1,4 @@
-#include "HDRIGroundShader.h"
+#include "HDRICupulaShader.h"
 
 
 
@@ -6,7 +6,7 @@
 // CONSTRUCTOR
 //====================================================
 
-HDRIGroundShader::HDRIGroundShader()
+HDRICupulaShader::HDRICupulaShader()
 {
 
 }
@@ -17,7 +17,7 @@ HDRIGroundShader::HDRIGroundShader()
 // DESTRUCTOR
 //====================================================
 
-HDRIGroundShader::~HDRIGroundShader()
+HDRICupulaShader::~HDRICupulaShader()
 {
 
 }
@@ -28,7 +28,7 @@ HDRIGroundShader::~HDRIGroundShader()
 // INITIALIZATION
 //====================================================
 
-bool HDRIGroundShader::initialize()
+bool HDRICupulaShader::initialize()
 {
 
     return load(
@@ -41,10 +41,10 @@ bool HDRIGroundShader::initialize()
 
 
 //====================================================
-// HDRI TEXTURE SLOT
+// TEXTURE SLOT
 //====================================================
 
-void HDRIGroundShader::setHDRITextureSlot(
+void HDRICupulaShader::setHDRITextureSlot(
     int slot
 )
 {
@@ -65,7 +65,7 @@ void HDRIGroundShader::setHDRITextureSlot(
 // EXPOSURE
 //====================================================
 
-void HDRIGroundShader::setExposure(
+void HDRICupulaShader::setExposure(
     float exposure
 )
 {
@@ -86,7 +86,7 @@ void HDRIGroundShader::setExposure(
 // ROTATION
 //====================================================
 
-void HDRIGroundShader::setRotation(
+void HDRICupulaShader::setRotation(
     float rotation
 )
 {
@@ -107,7 +107,7 @@ void HDRIGroundShader::setRotation(
 // SCALE X
 //====================================================
 
-void HDRIGroundShader::setScaleX(
+void HDRICupulaShader::setScaleX(
     float scaleX
 )
 {
@@ -128,7 +128,7 @@ void HDRIGroundShader::setScaleX(
 // SCALE Y
 //====================================================
 
-void HDRIGroundShader::setScaleY(
+void HDRICupulaShader::setScaleY(
     float scaleY
 )
 {
@@ -149,7 +149,7 @@ void HDRIGroundShader::setScaleY(
 // HORIZON
 //====================================================
 
-void HDRIGroundShader::setHorizon(
+void HDRICupulaShader::setHorizon(
     float horizon
 )
 {
@@ -160,85 +160,6 @@ void HDRIGroundShader::setHorizon(
     setFloat(
         "horizonOffset",
         horizon
-    );
-
-}
-
-
-
-//====================================================
-// CAMERA POSITION
-//====================================================
-
-void HDRIGroundShader::setCameraPosition(
-    const glm::vec3& position
-)
-{
-
-    bind();
-
-
-    setVec3(
-        "cameraPosition",
-        position
-    );
-
-}
-
-
-
-//====================================================
-// HDRI CAMERA HEIGHT
-//====================================================
-
-void HDRIGroundShader::setHDRICameraHeight(
-    float height
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriCameraHeight",
-        height
-    );
-
-}
-
-//====================================================
-// CAPTURE HEIGHT
-//====================================================
-
-void HDRIGroundShader::setCaptureHeight(
-    float captureHeight
-)
-{
-
-    bind();
-
-    setFloat(
-        "captureHeight",
-        captureHeight
-    );
-
-}
-
-//====================================================
-// HDRI RADIUS
-//====================================================
-
-void HDRIGroundShader::setRadius(
-    float radius
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriRadius",
-        radius
     );
 
 }

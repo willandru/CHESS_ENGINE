@@ -1,27 +1,29 @@
 #pragma once
 
+
 #include "Shader3D.h"
 
-#include <glm/glm.hpp>
 
-//====================================================
-// HDRI GROUND SHADER
-//====================================================
 
-class HDRIGroundShader : public Shader3D
+class HDRICupulaShader : public Shader3D
 {
 
 public:
 
-    HDRIGroundShader();
 
-    ~HDRIGroundShader();
+    HDRICupulaShader();
+
+
+    ~HDRICupulaShader();
+
+
 
     //------------------------------------------------
     // INITIALIZATION
     //------------------------------------------------
 
     bool initialize();
+
 
 
     //------------------------------------------------
@@ -33,6 +35,7 @@ public:
     );
 
 
+
     //------------------------------------------------
     // EXPOSURE
     //------------------------------------------------
@@ -42,6 +45,7 @@ public:
     );
 
 
+
     //------------------------------------------------
     // ROTATION
     //------------------------------------------------
@@ -49,6 +53,7 @@ public:
     void setRotation(
         float rotation
     );
+
 
 
     //------------------------------------------------
@@ -65,8 +70,9 @@ public:
     );
 
 
+
     //------------------------------------------------
-    // HORIZON
+    // HORIZON OFFSET
     //------------------------------------------------
 
     void setHorizon(
@@ -74,49 +80,16 @@ public:
     );
 
 
-    //------------------------------------------------
-    // CAMERA
-    //------------------------------------------------
-
-    void setCameraPosition(
-        const glm::vec3& position
-    );
-
-
-    //------------------------------------------------
-    // HDRI CAMERA HEIGHT
-    //------------------------------------------------
-
-    void setHDRICameraHeight(
-        float height
-    );
-
-
-    //------------------------------------------------
-    // CAPTURE HEIGHT
-    //------------------------------------------------
-
-    void setCaptureHeight(
-        float captureHeight
-    );
-
-
-    //------------------------------------------------
-    // HDRI RADIUS
-    //------------------------------------------------
-
-    void setRadius(
-        float radius
-    );
-
 
 private:
 
+
     static constexpr const char* VERTEX_SHADER =
-        "Shaders/ground_hdr.vert";
+        "Shaders/cupula_hdr.vert";
 
 
     static constexpr const char* FRAGMENT_SHADER =
-        "Shaders/ground_hdr.frag";
+        "Shaders/cupula_hdr.frag";
+
 
 };

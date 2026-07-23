@@ -1,24 +1,25 @@
 #pragma once
 
+
 #include "Environment3D.h"
 
-#include "DomeMesh3D.h"
-#include "GroundDiskMesh3D.h"
+
+#include "CupulaMesh3D.h"
 
 #include "HDRITexture.h"
-
-#include "HDRIDomeShader.h"
-#include "HDRIGroundShader.h"
+#include "HDRICupulaShader.h"
 
 #include "Camera3D.h"
 
 
-class DomeRenderer3D : public Environment3D
+
+class CupulaRenderer3D : public Environment3D
 {
 
 public:
 
-    DomeRenderer3D();
+
+    CupulaRenderer3D();
 
 
 
@@ -27,6 +28,7 @@ public:
     //------------------------------------------------
 
     bool initialize() override;
+
 
 
     void update(
@@ -69,80 +71,38 @@ private:
     // GEOMETRY
     //------------------------------------------------
 
-    DomeMesh3D dome;
-
-
-    GroundDiskMesh3D ground;
+    CupulaMesh3D cupula;
 
 
 
     //------------------------------------------------
-    // HDRI SYSTEM
+    // HDRI
     //------------------------------------------------
 
     HDRITexture hdriTexture;
 
 
-    HDRIDomeShader domeShader;
-
-
-    HDRIGroundShader groundShader;
+    HDRICupulaShader cupulaShader;
 
 
 
     //------------------------------------------------
-    // HDRI CONTROLS
+    // CONTROLS
     //------------------------------------------------
 
     float hdriScaleX = 1.0f;
 
 
-    float hdriScaleY = 0.8f;
-
-
-    float hdriZoom = 1.0f;
-
-
-    float hdriHorizon = 0.0f;
+    float hdriScaleY = 1.0f;
 
 
     float hdriRotation = 0.0f;
 
 
-
-    //------------------------------------------------
-    // HDRI CAPTURE HEIGHT
-    //------------------------------------------------
-    //
-    // Altura aproximada desde la cual se tomó
-    // la fotografía HDRI.
-    //
-    // Control:
-    //
-    //      O = subir
-    //      L = bajar
-    //
-    //------------------------------------------------
-
-    float captureHeight = 1.60f;
+    float hdriHorizon = 0.0f;
 
 
-
-    //------------------------------------------------
-    // HDRI RADIUS
-    //------------------------------------------------
-    //
-    // Radio matemático usado para proyectar
-    // el terreno del HDRI.
-    //
-    // Control:
-    //
-    //      P = aumentar
-    //      ; = disminuir
-    //
-    //------------------------------------------------
-
-    float hdriRadius = 10.0f;
+    float exposure = 1.0f;
 
 
 };

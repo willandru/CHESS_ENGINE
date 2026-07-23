@@ -4,7 +4,7 @@
 #include "InputMouse.h"
 #include "InputConsole.h"
 #include "Window.h"
-#include "DomeRenderer3D.h"
+#include "CupulaRenderer3D.h"
 
 #include <glad/glad.h>
 
@@ -44,7 +44,7 @@ void Game3DScreen::onEnter()
 
 
     sceneRenderer.setEnvironment(
-        std::make_unique<DomeRenderer3D>()
+        std::make_unique<CupulaRenderer3D>()
     );
 
 

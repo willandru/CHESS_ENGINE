@@ -13,6 +13,8 @@ uniform float horizonOffset;
 
 uniform float captureHeight;
 
+uniform float hdriRadius;
+
 
 const float PI = 3.14159265359;
 
@@ -108,7 +110,7 @@ void main()
 {
 
     //------------------------------------------------
-    // CAMERA OF THE HDRI CAPTURE
+    // HDRI CAMERA POSITION
     //------------------------------------------------
 
     vec3 captureCamera =
@@ -121,7 +123,7 @@ void main()
 
 
     //------------------------------------------------
-    // RAY FROM CAPTURE CAMERA
+    // CAMERA RAY
     //------------------------------------------------
 
     vec3 ray =
@@ -133,12 +135,11 @@ void main()
 
 
     //------------------------------------------------
-    // GROUND PLANE INTERSECTION
+    // INTERSECTION WITH GROUND PLANE
     //
     // Plane:
     // y = 0
     //------------------------------------------------
-
 
     float t =
         -captureHeight /
@@ -160,15 +161,30 @@ void main()
 
 
 
+    //------------------------------------------------
+    // GROUND POINT
+    //
+    // HDRI RADIUS CONTROLS
+    // THE DISTANCE ON THE GROUND
+    //------------------------------------------------
+
     vec3 groundPoint =
-        captureCamera +
-        ray *
-        t;
+        vec3(
+            ray.x *
+            t *
+            hdriRadius,
+
+            0.0,
+
+            ray.z *
+            t *
+            hdriRadius
+        );
 
 
 
     //------------------------------------------------
-    // DIRECTION THAT HDRI CAMERA SAW
+    // DIRECTION SEEN BY HDRI CAMERA
     //------------------------------------------------
 
     vec3 direction =
