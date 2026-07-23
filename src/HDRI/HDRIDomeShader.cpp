@@ -87,7 +87,7 @@ void HDRIDomeShader::setRotation(
 }
 
 //====================================================
-// HORIZONTAL SCALE
+// SCALE X
 //====================================================
 
 void HDRIDomeShader::setScaleX(
@@ -105,7 +105,7 @@ void HDRIDomeShader::setScaleX(
 }
 
 //====================================================
-// VERTICAL SCALE
+// SCALE Y
 //====================================================
 
 void HDRIDomeShader::setScaleY(
@@ -123,7 +123,7 @@ void HDRIDomeShader::setScaleY(
 }
 
 //====================================================
-// HORIZON OFFSET
+// HORIZON
 //====================================================
 
 void HDRIDomeShader::setHorizon(
@@ -136,6 +136,24 @@ void HDRIDomeShader::setHorizon(
     setFloat(
         "horizonOffset",
         horizon
+    );
+
+}
+
+//====================================================
+// VIRTUAL CAMERA HEIGHT
+//====================================================
+
+void HDRIDomeShader::setVirtualCameraHeight(
+    float height
+)
+{
+
+    bind();
+
+    setFloat(
+        "virtualCameraHeight",
+        height
     );
 
 }

@@ -46,7 +46,7 @@ public:
     );
 
     //------------------------------------------------
-    // PROJECTION CONTROLS
+    // PROJECTION
     //------------------------------------------------
 
     void setScaleX(
@@ -61,11 +61,15 @@ public:
         float horizon
     );
 
-private:
+    //------------------------------------------------
+    // VIRTUAL HDRI CAMERA
+    //------------------------------------------------
 
-    //------------------------------------------------
-    // SHADER FILES
-    //------------------------------------------------
+    void setVirtualCameraHeight(
+        float height
+    );
+
+private:
 
     static constexpr const char* VERTEX_SHADER =
         "Shaders/dome_hdr.vert";

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <glm/glm.hpp>
+
+
 namespace SceneConstants
 {
 
@@ -7,14 +10,12 @@ namespace SceneConstants
     // TABLE / SCENE HEIGHT
     //------------------------------------------------
 
-    // Altura real de la mesa
-    constexpr float TABLE_HEIGHT = 1.10f;
+    // Sin mesa: tablero apoyado directamente en el suelo
+    constexpr float TABLE_HEIGHT = 0.0f;
 
 
-    // Antes el tablero estaba pensado a 0.75m
-    // Diferencia que debe subir toda la escena
-    constexpr float SCENE_HEIGHT_OFFSET =
-        TABLE_HEIGHT - 0.75f;
+    // Sin desplazamiento vertical de escena
+    constexpr float SCENE_HEIGHT_OFFSET = 0.0f;
 
 
 
@@ -36,9 +37,8 @@ namespace SceneConstants
     constexpr float BOARD_THICKNESS = 0.015f;
 
 
-    // Altura final del tablero sobre el suelo
-    constexpr float BOARD_HEIGHT =
-        0.75f + SCENE_HEIGHT_OFFSET;
+    // Altura del tablero sobre el suelo
+    constexpr float BOARD_HEIGHT = 0.0f;
 
 
     constexpr float BOARD_SIZE =
@@ -57,9 +57,10 @@ namespace SceneConstants
     constexpr float PIECE_SCALE = 1.0f;
 
 
-    // Base de las piezas encima del tablero
+    // Base de piezas encima del tablero
     constexpr float PIECE_HEIGHT =
-        BOARD_HEIGHT + BOARD_THICKNESS;
+        BOARD_HEIGHT +
+        BOARD_THICKNESS;
 
 
 
@@ -151,9 +152,7 @@ namespace SceneConstants
 
     constexpr float CAMERA_OVERVIEW_POSITION_X = 0.0f;
 
-    constexpr float CAMERA_OVERVIEW_POSITION_Y =
-        1.8f + SCENE_HEIGHT_OFFSET;
-
+    constexpr float CAMERA_OVERVIEW_POSITION_Y = 1.8f;
 
     constexpr float CAMERA_OVERVIEW_POSITION_Z = 1.8f;
 
@@ -161,9 +160,7 @@ namespace SceneConstants
 
     constexpr float CAMERA_TARGET_X = 0.0f;
 
-    constexpr float CAMERA_TARGET_Y =
-        TABLE_HEIGHT;
-
+    constexpr float CAMERA_TARGET_Y = 0.0f;
 
     constexpr float CAMERA_TARGET_Z = 0.0f;
 
@@ -196,5 +193,6 @@ namespace SceneConstants
     constexpr float CAMERA_MIN_PITCH = -89.0f;
 
     constexpr float CAMERA_MAX_PITCH = 89.0f;
+
 
 }

@@ -1,7 +1,5 @@
 #include "HDRIGroundShader.h"
 
-
-
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -11,8 +9,6 @@ HDRIGroundShader::HDRIGroundShader()
 
 }
 
-
-
 //====================================================
 // DESTRUCTOR
 //====================================================
@@ -21,8 +17,6 @@ HDRIGroundShader::~HDRIGroundShader()
 {
 
 }
-
-
 
 //====================================================
 // INITIALIZATION
@@ -38,10 +32,8 @@ bool HDRIGroundShader::initialize()
 
 }
 
-
-
 //====================================================
-// HDRI TEXTURE SLOT
+// HDRI TEXTURE
 //====================================================
 
 void HDRIGroundShader::setHDRITextureSlot(
@@ -51,36 +43,12 @@ void HDRIGroundShader::setHDRITextureSlot(
 
     bind();
 
-
     setInt(
         "hdriMap",
         slot
     );
 
 }
-
-
-
-//====================================================
-// EXPOSURE
-//====================================================
-
-void HDRIGroundShader::setExposure(
-    float exposure
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "exposure",
-        exposure
-    );
-
-}
-
-
 
 //====================================================
 // ROTATION
@@ -93,15 +61,12 @@ void HDRIGroundShader::setRotation(
 
     bind();
 
-
     setFloat(
         "rotation",
         rotation
     );
 
 }
-
-
 
 //====================================================
 // SCALE X
@@ -114,15 +79,12 @@ void HDRIGroundShader::setScaleX(
 
     bind();
 
-
     setFloat(
         "hdriScaleX",
         scaleX
     );
 
 }
-
-
 
 //====================================================
 // SCALE Y
@@ -135,16 +97,12 @@ void HDRIGroundShader::setScaleY(
 
     bind();
 
-
     setFloat(
         "hdriScaleY",
         scaleY
     );
 
 }
-
-
-
 
 //====================================================
 // HORIZON
@@ -157,7 +115,6 @@ void HDRIGroundShader::setHorizon(
 
     bind();
 
-
     setFloat(
         "horizonOffset",
         horizon
@@ -165,23 +122,38 @@ void HDRIGroundShader::setHorizon(
 
 }
 
-
-
 //====================================================
-// CAMERA POSITION
+// VIRTUAL CAMERA HEIGHT
 //====================================================
 
-void HDRIGroundShader::setCameraPosition(
-    const glm::vec3& position
+void HDRIGroundShader::setVirtualCameraHeight(
+    float height
 )
 {
 
     bind();
 
+    setFloat(
+        "virtualCameraHeight",
+        height
+    );
 
-    setVec3(
-        "cameraPosition",
-        position
+}
+
+//====================================================
+// PROJECTION DISTANCE
+//====================================================
+
+void HDRIGroundShader::setProjectionDistance(
+    float distance
+)
+{
+
+    bind();
+
+    setFloat(
+        "projectionDistance",
+        distance
     );
 
 }

@@ -9,7 +9,6 @@
 #include <glm/common.hpp>
 
 
-
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -29,7 +28,6 @@ bool DomeRenderer3D::initialize()
 {
 
     dome.initialize();
-
 
     ground.initialize();
 
@@ -106,6 +104,8 @@ void DomeRenderer3D::update(
 
     float rotationSpeed = 1.5f;
 
+    float captureSpeed = 1.0f;
+
 
 
     //------------------------------------------------
@@ -116,7 +116,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_Y)
     )
     {
-        hdriScaleY -= scaleSpeed * dt;
+
+        hdriScaleY -=
+            scaleSpeed * dt;
+
     }
 
 
@@ -125,7 +128,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_H)
     )
     {
-        hdriScaleY += scaleSpeed * dt;
+
+        hdriScaleY +=
+            scaleSpeed * dt;
+
     }
 
 
@@ -138,7 +144,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_U)
     )
     {
-        hdriScaleX -= scaleSpeed * dt;
+
+        hdriScaleX -=
+            scaleSpeed * dt;
+
     }
 
 
@@ -147,7 +156,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_J)
     )
     {
-        hdriScaleX += scaleSpeed * dt;
+
+        hdriScaleX +=
+            scaleSpeed * dt;
+
     }
 
 
@@ -160,9 +172,11 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_I)
     )
     {
+
         camera.zoomFieldOfView(
             -fieldOfViewSpeed * dt
         );
+
     }
 
 
@@ -171,9 +185,11 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_K)
     )
     {
+
         camera.zoomFieldOfView(
             fieldOfViewSpeed * dt
         );
+
     }
 
 
@@ -186,7 +202,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_T)
     )
     {
-        hdriHorizon += horizonSpeed * dt;
+
+        hdriHorizon +=
+            horizonSpeed * dt;
+
     }
 
 
@@ -195,7 +214,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_G)
     )
     {
-        hdriHorizon -= horizonSpeed * dt;
+
+        hdriHorizon -=
+            horizonSpeed * dt;
+
     }
 
 
@@ -208,7 +230,10 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_R)
     )
     {
-        hdriRotation += rotationSpeed * dt;
+
+        hdriRotation +=
+            rotationSpeed * dt;
+
     }
 
 
@@ -217,7 +242,39 @@ void DomeRenderer3D::update(
         InputKeyboard::isKeyDown(GLFW_KEY_F)
     )
     {
-        hdriRotation -= rotationSpeed * dt;
+
+        hdriRotation -=
+            rotationSpeed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
+    // VIRTUAL HDRI CAMERA HEIGHT
+    // O / L
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_O)
+    )
+    {
+
+        captureHeight +=
+            captureSpeed * dt;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_L)
+    )
+    {
+
+        captureHeight -=
+            captureSpeed * dt;
+
     }
 
 
@@ -234,6 +291,7 @@ void DomeRenderer3D::update(
         );
 
 
+
     hdriScaleY =
         glm::clamp(
             hdriScaleY,
@@ -241,9 +299,16 @@ void DomeRenderer3D::update(
             4.0f
         );
 
+
+
+    captureHeight =
+        glm::clamp(
+            captureHeight,
+            0.1f,
+            10.0f
+        );
+
 }
-
-
 
 
 //====================================================
@@ -270,29 +335,48 @@ void DomeRenderer3D::renderBackground(
         GL_DEPTH_TEST
     );
 
+
     domeShader.bind();
 
-    hdriTexture.bind(0);
 
-    domeShader.setHDRITextureSlot(0);
+    hdriTexture.bind(
+        0
+    );
 
-    domeShader.setExposure(1.0f);
+
+    domeShader.setHDRITextureSlot(
+        0
+    );
+
 
     domeShader.setRotation(
         hdriRotation
     );
 
+
     domeShader.setScaleX(
         hdriScaleX
     );
+
 
     domeShader.setScaleY(
         hdriScaleY
     );
 
+
     domeShader.setHorizon(
         hdriHorizon
     );
+
+
+    //------------------------------------------------
+    // MISMA CAMARA VIRTUAL HDRI
+    //------------------------------------------------
+
+    domeShader.setVirtualCameraHeight(
+        captureHeight
+    );
+
 
     renderer.renderObject(
         dome.getMesh(),
@@ -306,40 +390,65 @@ void DomeRenderer3D::renderBackground(
 
 
     //------------------------------------------------
-    // GROUND
+    // GROUND DISK
     //------------------------------------------------
 
     glEnable(
         GL_DEPTH_TEST
     );
 
+
     groundShader.bind();
 
-    hdriTexture.bind(0);
 
-    groundShader.setHDRITextureSlot(0);
+    hdriTexture.bind(
+        0
+    );
 
-    groundShader.setExposure(1.0f);
+
+    groundShader.setHDRITextureSlot(
+        0
+    );
+
 
     groundShader.setRotation(
         hdriRotation
     );
 
+
     groundShader.setScaleX(
         hdriScaleX
     );
+
 
     groundShader.setScaleY(
         hdriScaleY
     );
 
+
     groundShader.setHorizon(
         hdriHorizon
     );
 
-    groundShader.setCameraPosition(
-        camera.getPosition()
+
+    //------------------------------------------------
+    // MISMA CAMARA VIRTUAL HDRI
+    //------------------------------------------------
+
+    groundShader.setVirtualCameraHeight(
+        captureHeight
     );
+
+
+    //------------------------------------------------
+    // RADIO DE PROYECCION
+    //------------------------------------------------
+
+    groundShader.setProjectionDistance(
+        projectionDistance
+    );
+
+
 
     renderer.renderObject(
         ground.getMesh(),
@@ -349,6 +458,7 @@ void DomeRenderer3D::renderBackground(
         camera,
         aspectRatio
     );
+
 
 }
 

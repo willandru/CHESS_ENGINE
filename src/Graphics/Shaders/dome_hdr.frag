@@ -6,38 +6,39 @@ in vec3 WorldPos;
 
 uniform sampler2D hdriMap;
 
-uniform float horizonOffset;
+uniform float rotation;
 uniform float hdriScaleX;
 uniform float hdriScaleY;
-uniform float rotation;
+uniform float horizonOffset;
+
+//----------------------------------------------------
+// ALTURA DE LA CAMARA VIRTUAL HDRI
+//----------------------------------------------------
+
+uniform float virtualCameraHeight;
 
 const float PI = 3.14159265359;
+
+//====================================================
+// DIRECTION -> UV
+//====================================================
 
 vec2 directionToUV(
     vec3 direction
 )
 {
 
-    //------------------------------------------------
-    // NORMALIZAR RAYO
-    //------------------------------------------------
-
     direction =
         normalize(direction);
 
-    //------------------------------------------------
-    // ESCALAMIENTO ESFERICO
-    //------------------------------------------------
+    direction.x *=
+        hdriScaleX;
 
-    direction.x *= hdriScaleX;
-    direction.y *= hdriScaleY;
+    direction.y *=
+        hdriScaleY;
 
     direction =
         normalize(direction);
-
-    //------------------------------------------------
-    // ROTACION HORIZONTAL
-    //------------------------------------------------
 
     float longitude =
         atan(
@@ -50,11 +51,8 @@ vec2 directionToUV(
             direction.y
         );
 
-    longitude += rotation;
-
-    //------------------------------------------------
-    // EQUIRECTANGULAR MAPPING
-    //------------------------------------------------
+    longitude +=
+        rotation;
 
     float u =
         0.5 +
@@ -66,30 +64,13 @@ vec2 directionToUV(
         latitude /
         PI;
 
-    //------------------------------------------------
-    // AJUSTE HORIZONTE
-    //------------------------------------------------
-
-    v += horizonOffset;
-
-    //------------------------------------------------
-    // WRAP CORRECTO HDRI
-    //------------------------------------------------
+    v +=
+        horizonOffset;
 
     u =
-        mod(
-            u,
-            1.0
+        fract(
+            u
         );
-
-    if(u < 0.0)
-    {
-        u += 1.0;
-    }
-
-    //------------------------------------------------
-    // LIMITAR VERTICAL
-    //------------------------------------------------
 
     v =
         clamp(
@@ -105,20 +86,44 @@ vec2 directionToUV(
 
 }
 
+//====================================================
+// MAIN
+//====================================================
+
 void main()
 {
 
+    //------------------------------------------------
+    // MISMA CAMARA VIRTUAL QUE EL DISCO
+    //------------------------------------------------
+
+    vec3 virtualCamera =
+        vec3(
+            0.0,
+            virtualCameraHeight,
+            0.0
+        );
+
+    //------------------------------------------------
+    // RAYO DESDE LA CAMARA VIRTUAL
+    //------------------------------------------------
+
     vec3 direction =
         normalize(
-            WorldPos
+            WorldPos -
+            virtualCamera
         );
+
+    //------------------------------------------------
+    // HDRI
+    //------------------------------------------------
 
     vec2 uv =
         directionToUV(
             direction
         );
 
-    vec3 hdrColor =
+    vec3 color =
         texture(
             hdriMap,
             uv
@@ -126,7 +131,7 @@ void main()
 
     FragColor =
         vec4(
-            hdrColor,
+            color,
             1.0
         );
 

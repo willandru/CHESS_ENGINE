@@ -1,31 +1,27 @@
 #pragma once
 
-
 #include "Environment3D.h"
-
 
 #include "DomeMesh3D.h"
 #include "GroundDiskMesh3D.h"
-
 
 #include "HDRITexture.h"
 
 #include "HDRIDomeShader.h"
 #include "HDRIGroundShader.h"
+
 #include "Camera3D.h"
 
-
+//====================================================
+// DOME RENDERER
+//====================================================
 
 class DomeRenderer3D : public Environment3D
 {
 
-
 public:
 
-
     DomeRenderer3D();
-
-
 
     //------------------------------------------------
     // LIFECYCLE
@@ -33,12 +29,10 @@ public:
 
     bool initialize() override;
 
-
     void update(
         Camera3D& camera,
         float dt
     ) override;
-
 
 
     //------------------------------------------------
@@ -53,7 +47,6 @@ public:
     ) override;
 
 
-
     //------------------------------------------------
     // OBJECTS
     //------------------------------------------------
@@ -66,9 +59,7 @@ public:
     ) override;
 
 
-
 private:
-
 
     //------------------------------------------------
     // GEOMETRY
@@ -76,43 +67,49 @@ private:
 
     DomeMesh3D dome;
 
-
     GroundDiskMesh3D ground;
 
 
 
     //------------------------------------------------
-    // HDRI SYSTEM
+    // HDRI
     //------------------------------------------------
 
     HDRITexture hdriTexture;
 
-
     HDRIDomeShader domeShader;
-
 
     HDRIGroundShader groundShader;
 
 
 
     //------------------------------------------------
-    // CONTROLS
+    // HDRI CONTROLS
     //------------------------------------------------
 
     float hdriScaleX = 1.0f;
 
-
     float hdriScaleY = 0.8f;
 
-
-    float hdriZoom = 1.0f;
-
-
     float hdriHorizon = 0.0f;
-
 
     float hdriRotation = 0.0f;
 
 
+
+    //------------------------------------------------
+    // HDRI VIRTUAL CAMERA
+    // (O / L)
+    //------------------------------------------------
+
+    float captureHeight = 1.60f;
+
+
+
+    //------------------------------------------------
+    // GROUND PROJECTION
+    //------------------------------------------------
+
+    float projectionDistance = 50.0f;
 
 };

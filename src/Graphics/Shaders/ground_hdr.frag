@@ -4,30 +4,74 @@ out vec4 FragColor;
 
 in vec3 WorldPos;
 
+
 uniform sampler2D hdriMap;
 
-uniform vec3 cameraPosition;
+
+//------------------------------------------------
+// HDRI CONTROLS
+//------------------------------------------------
 
 uniform float rotation;
+
 uniform float hdriScaleX;
+
 uniform float hdriScaleY;
+
 uniform float horizonOffset;
 
+
+//------------------------------------------------
+// VIRTUAL HDRI CAMERA
+//------------------------------------------------
+
+uniform float virtualCameraHeight;
+
+
+
 const float PI = 3.14159265359;
+
+
+
+//====================================================
+// DIRECTION -> UV
+//====================================================
 
 vec2 directionToUV(
     vec3 direction
 )
 {
 
-    direction =
-        normalize(direction);
-
-    direction.x *= hdriScaleX;
-    direction.y *= hdriScaleY;
+    //------------------------------------------------
+    // NORMALIZE
+    //------------------------------------------------
 
     direction =
         normalize(direction);
+
+
+
+    //------------------------------------------------
+    // HDRI SCALE
+    //------------------------------------------------
+
+    direction.x *=
+        hdriScaleX;
+
+
+    direction.y *=
+        hdriScaleY;
+
+
+
+    direction =
+        normalize(direction);
+
+
+
+    //------------------------------------------------
+    // SPHERICAL COORDINATES
+    //------------------------------------------------
 
     float longitude =
         atan(
@@ -35,29 +79,64 @@ vec2 directionToUV(
             direction.x
         );
 
+
     float latitude =
         asin(
             direction.y
         );
 
-    longitude += rotation;
+
+
+    //------------------------------------------------
+    // ROTATION
+    //------------------------------------------------
+
+    longitude +=
+        rotation;
+
+
+
+    //------------------------------------------------
+    // EQUIRECTANGULAR UV
+    //------------------------------------------------
 
     float u =
         0.5 +
         longitude /
         (2.0 * PI);
 
+
+
     float v =
         0.5 -
         latitude /
         PI;
 
-    v += horizonOffset;
+
+
+    //------------------------------------------------
+    // HORIZON OFFSET
+    //------------------------------------------------
+
+    v +=
+        horizonOffset;
+
+
+
+    //------------------------------------------------
+    // WRAP
+    //------------------------------------------------
 
     u =
         fract(
             u
         );
+
+
+
+    //------------------------------------------------
+    // LIMIT
+    //------------------------------------------------
 
     v =
         clamp(
@@ -66,6 +145,8 @@ vec2 directionToUV(
             0.999
         );
 
+
+
     return vec2(
         u,
         v
@@ -73,76 +154,62 @@ vec2 directionToUV(
 
 }
 
+
+
+//====================================================
+// MAIN
+//====================================================
+
 void main()
 {
 
     //------------------------------------------------
-    // RAYO CAMARA -> PIXEL SUELO
+    // SAME VIRTUAL CAMERA AS DOME
     //------------------------------------------------
 
-    vec3 ray =
-        normalize(
-            WorldPos -
-            cameraPosition
+    vec3 virtualCamera =
+        vec3(
+            0.0,
+            virtualCameraHeight,
+            0.0
         );
 
-    //------------------------------------------------
-    // INTERSECCION CON ESFERA HDRI
-    //------------------------------------------------
 
-    float radius = 20.0;
-
-    vec3 oc =
-        cameraPosition;
-
-    float b =
-        dot(
-            oc,
-            ray
-        );
-
-    float c =
-        dot(
-            oc,
-            oc
-        ) -
-        radius *
-        radius;
-
-    float discriminant =
-        b * b -
-        c;
-
-    float t =
-        -b +
-        sqrt(
-            discriminant
-        );
-
-    vec3 spherePoint =
-        cameraPosition +
-        ray *
-        t;
 
     //------------------------------------------------
-    // DIRECCION HDRI EXACTA DEL DOMO
+    // WORLD DIRECTION
     //------------------------------------------------
 
     vec3 direction =
         normalize(
-            spherePoint
+            WorldPos -
+            virtualCamera
         );
+
+
+
+    //------------------------------------------------
+    // HDRI UV
+    //------------------------------------------------
 
     vec2 uv =
         directionToUV(
             direction
         );
 
+
+
+    //------------------------------------------------
+    // SAMPLE HDRI
+    //------------------------------------------------
+
     vec3 color =
         texture(
             hdriMap,
             uv
         ).rgb;
+
+
 
     FragColor =
         vec4(
