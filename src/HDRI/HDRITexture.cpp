@@ -8,7 +8,8 @@
 #include <iostream>
 #include <vector>
 
-
+#include <ImfHeader.h>
+#include <ImfChannelList.h>
 
 using namespace OPENEXR_IMF_NAMESPACE;
 using namespace IMATH_NAMESPACE;
@@ -50,6 +51,57 @@ bool HDRITexture::loadFromFile(
         RgbaInputFile file(
             path.c_str()
         );
+
+        //------------------------------------------------
+    // OPENEXR INFORMATION
+    //------------------------------------------------
+
+    const Header& header =
+        file.header();
+
+
+    std::cout
+        << "\n========== CHANNELS ==========\n";
+
+
+    for(
+        auto it = header.channels().begin();
+        it != header.channels().end();
+        ++it
+    )
+    {
+        std::cout
+            << "Channel: "
+            << it.name()
+            << std::endl;
+    }
+
+
+    std::cout
+        << "==============================\n";
+
+
+
+    std::cout
+        << "\n========== ATTRIBUTES ==========\n";
+
+
+    for(
+        auto it = header.begin();
+        it != header.end();
+        ++it
+    )
+    {
+        std::cout
+            << "Attribute: "
+            << it.name()
+            << std::endl;
+    }
+
+
+    std::cout
+        << "================================\n";
+
 
 
         Box2i dataWindow =

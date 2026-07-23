@@ -109,12 +109,15 @@ namespace DomeConstants3D
 
 
 
-    inline const glm::vec3 GROUND_COLOR =
-    {
-        0.35f,
-        0.35f,
-        0.35f
-    };
+    //------------------------------------------------
+// COLORS
+//------------------------------------------------
 
+inline const glm::vec3 GROUND_COLOR =
+{
+    1.0f,
+    0.0f,
+    0.0f
+};
 
 }

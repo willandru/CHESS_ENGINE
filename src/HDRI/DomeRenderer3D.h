@@ -1,12 +1,9 @@
 #pragma once
 
-
 #include "Environment3D.h"
-
 
 #include "DomeMesh3D.h"
 #include "GroundDiskMesh3D.h"
-
 
 #include "HDRITexture.h"
 
@@ -14,14 +11,10 @@
 #include "HDRIGroundShader.h"
 #include "Camera3D.h"
 
-
-
 class DomeRenderer3D : public Environment3D
 {
 
-
 public:
-
 
     DomeRenderer3D();
 
@@ -96,7 +89,7 @@ private:
 
 
     //------------------------------------------------
-    // CONTROLS
+    // HDRI CONTROLS
     //------------------------------------------------
 
     float hdriScaleX = 1.0f;
@@ -114,5 +107,21 @@ private:
     float hdriRotation = 0.0f;
 
 
+
+    //------------------------------------------------
+    // HDRI CAPTURE HEIGHT
+    //------------------------------------------------
+    //
+    // Altura aproximada desde la cual se tomó
+    // la fotografía HDRI.
+    //
+    // Se ajustará manualmente con:
+    //
+    //      O = subir
+    //      L = bajar
+    //
+    //------------------------------------------------
+
+    float captureHeight = 1.60f;
 
 };

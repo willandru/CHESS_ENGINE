@@ -30,14 +30,13 @@ bool DomeRenderer3D::initialize()
 
     dome.initialize();
 
-
     ground.initialize();
 
 
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/sundowner_deck_8k.exr"
+            "Assets/Environment/horn-koppe_snow_8k.exr"
         )
     )
     {
@@ -105,6 +104,8 @@ void DomeRenderer3D::update(
     float horizonSpeed = 0.5f;
 
     float rotationSpeed = 1.5f;
+
+    float captureHeightSpeed = 1.0f;
 
 
 
@@ -223,6 +224,30 @@ void DomeRenderer3D::update(
 
 
     //------------------------------------------------
+    // CAPTURE HEIGHT
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_O)
+    )
+    {
+        captureHeight +=
+            captureHeightSpeed * dt;
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_L)
+    )
+    {
+        captureHeight -=
+            captureHeightSpeed * dt;
+    }
+
+
+
+    //------------------------------------------------
     // LIMITS
     //------------------------------------------------
 
@@ -241,10 +266,15 @@ void DomeRenderer3D::update(
             4.0f
         );
 
+
+    captureHeight =
+        glm::clamp(
+            captureHeight,
+            0.10f,
+            5.00f
+        );
+
 }
-
-
-
 
 //====================================================
 // BACKGROUND
@@ -319,7 +349,9 @@ void DomeRenderer3D::renderBackground(
 
     groundShader.setHDRITextureSlot(0);
 
-    groundShader.setExposure(1.0f);
+    groundShader.setExposure(
+        1.0f
+    );
 
     groundShader.setRotation(
         hdriRotation
@@ -339,6 +371,15 @@ void DomeRenderer3D::renderBackground(
 
     groundShader.setCameraPosition(
         camera.getPosition()
+    );
+
+    //------------------------------------------------
+    // NEW
+    // HDRI CAPTURE HEIGHT
+    //------------------------------------------------
+
+    groundShader.setCaptureHeight(
+        captureHeight
     );
 
     renderer.renderObject(

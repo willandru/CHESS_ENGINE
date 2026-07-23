@@ -75,6 +75,21 @@ public:
         const glm::vec3& position
     );
 
+    //------------------------------------------------
+    // HDRI CAMERA HEIGHT
+    //------------------------------------------------
+
+    void setHDRICameraHeight(
+        float height
+    );
+
+    //------------------------------------------------
+    // CAPTURE HEIGHT
+    //------------------------------------------------
+
+    void setCaptureHeight(
+        float captureHeight
+    );
 private:
 
     static constexpr const char* VERTEX_SHADER =

@@ -9,13 +9,12 @@ ChessBoardRenderer3D::ChessBoardRenderer3D()
     // BOARD POSITION
     //------------------------------------------------
 
-    transform.setPosition(
-    {
-        0.0f,
-        SceneConstants::BOARD_HEIGHT,
-        0.0f
-    });
-
+   transform.setPosition(
+{
+    0.0f,
+    0.001f,
+    0.0f
+});
 
     transform.setRotation(
     {

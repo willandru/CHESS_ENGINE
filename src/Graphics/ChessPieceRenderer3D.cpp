@@ -146,9 +146,9 @@ Transform3D ChessPieceRenderer3D::buildTransform(
 
 
     float y =
-        SceneConstants::PIECE_HEIGHT
-        +
-        getPieceYOffset(piece);
+    SceneConstants::PIECE_HEIGHT
+    +
+    getPieceYOffset(piece);
 
 
 
@@ -447,7 +447,8 @@ glm::vec3 ChessPieceRenderer3D::getWorldPosition(
     return
     {
         x,
-        SceneConstants::PIECE_HEIGHT,
+        SceneConstants::PIECE_HEIGHT +
+        SceneConstants::SCENE_VERTICAL_OFFSET,
         z
     };
 

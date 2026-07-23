@@ -145,7 +145,6 @@ void HDRIGroundShader::setScaleY(
 
 
 
-
 //====================================================
 // HORIZON
 //====================================================
@@ -182,6 +181,45 @@ void HDRIGroundShader::setCameraPosition(
     setVec3(
         "cameraPosition",
         position
+    );
+
+}
+
+
+
+//====================================================
+// HDRI CAMERA HEIGHT
+//====================================================
+
+void HDRIGroundShader::setHDRICameraHeight(
+    float height
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "hdriCameraHeight",
+        height
+    );
+
+}
+
+//====================================================
+// CAPTURE HEIGHT
+//====================================================
+
+void HDRIGroundShader::setCaptureHeight(
+    float captureHeight
+)
+{
+
+    bind();
+
+    setFloat(
+        "captureHeight",
+        captureHeight
     );
 
 }
