@@ -51,7 +51,7 @@ void CupulaMeshBuilder::build(
     //------------------------------------------------
 
     for(uint32_t r = 0;
-        r <= radialSegments;
+        r < radialSegments;
         ++r)
     {
 
@@ -219,7 +219,7 @@ void CupulaMeshBuilder::build(
     {
 
         uint32_t next =
-            r + 1;
+        (r + 1) % radialSegments;
 
 
 

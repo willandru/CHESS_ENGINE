@@ -157,10 +157,10 @@ namespace SceneConstants
     constexpr float CAMERA_FIELD_OF_VIEW = 60.0f;
 
 
-    constexpr float CAMERA_NEAR_PLANE = 0.01f;
+    constexpr float CAMERA_NEAR_PLANE = 0.1f;
 
 
-    constexpr float CAMERA_FAR_PLANE = 100.0f;
+    constexpr float CAMERA_FAR_PLANE = 500.0f;
 
 
 
