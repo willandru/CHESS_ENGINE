@@ -1,253 +1,41 @@
 #version 330 core
 
 
+//------------------------------------------------
+// INPUT
+//------------------------------------------------
+
+in vec2 TexCoord;
+
+
+
+//------------------------------------------------
+// OUTPUT
+//------------------------------------------------
+
 out vec4 FragColor;
 
 
-in vec3 WorldPos;
 
-
+//------------------------------------------------
+// HDRI TEXTURE
+//------------------------------------------------
 
 uniform sampler2D hdriMap;
 
 
+
+//------------------------------------------------
+// CONTROLS
+//------------------------------------------------
+
 uniform float exposure;
 
+uniform vec2 uvOffset;
 
-uniform int selectedFace;
+uniform vec2 uvScale;
 
-
-
-// controles individuales
-
-uniform float faceRotationX;
-
-uniform float faceRotationY;
-
-uniform float faceZoom;
-
-uniform float faceOffsetU;
-
-uniform float faceOffsetV;
-
-
-
-const float PI = 3.14159265359;
-
-
-
-//====================================================
-// ROTATE VECTOR
-//====================================================
-
-vec3 rotateX(
-    vec3 v,
-    float angle
-)
-{
-
-    float c = cos(angle);
-
-    float s = sin(angle);
-
-
-    return vec3(
-        v.x,
-        v.y*c - v.z*s,
-        v.y*s + v.z*c
-    );
-
-}
-
-
-
-vec3 rotateY(
-    vec3 v,
-    float angle
-)
-{
-
-    float c = cos(angle);
-
-    float s = sin(angle);
-
-
-    return vec3(
-        v.x*c + v.z*s,
-        v.y,
-        -v.x*s + v.z*c
-    );
-
-}
-
-
-
-
-//====================================================
-// FACE NORMAL DIRECTION
-//====================================================
-
-vec3 getDirection()
-{
-
-    vec3 dir;
-
-
-
-    // FLOOR
-
-    if(selectedFace == 0)
-    {
-
-        dir =
-        vec3(
-            WorldPos.x,
-            -1.0,
-            WorldPos.z
-        );
-
-    }
-
-
-
-    // CEILING
-
-    else if(selectedFace == 1)
-    {
-
-        dir =
-        vec3(
-            WorldPos.x,
-            1.0,
-            WorldPos.z
-        );
-
-    }
-
-
-
-    // FRONT
-
-    else if(selectedFace == 2)
-    {
-
-        dir =
-        vec3(
-            WorldPos.x,
-            WorldPos.y,
-            1.0
-        );
-
-    }
-
-
-
-    // BACK
-
-    else if(selectedFace == 3)
-    {
-
-        dir =
-        vec3(
-            -WorldPos.x,
-            WorldPos.y,
-            -1.0
-        );
-
-    }
-
-
-
-    // LEFT
-
-    else if(selectedFace == 4)
-    {
-
-        dir =
-        vec3(
-            -1.0,
-            WorldPos.y,
-            WorldPos.z
-        );
-
-    }
-
-
-
-    // RIGHT
-
-    else
-    {
-
-        dir =
-        vec3(
-            1.0,
-            WorldPos.y,
-            WorldPos.z
-        );
-
-    }
-
-
-
-    return normalize(dir);
-
-}
-
-
-
-
-
-//====================================================
-// DIRECTION -> HDRI UV
-//====================================================
-
-vec2 directionToUV(
-    vec3 dir
-)
-{
-
-    dir =
-        normalize(dir);
-
-
-
-    float longitude =
-        atan(
-            dir.z,
-            dir.x
-        );
-
-
-
-    float latitude =
-        asin(
-            dir.y
-        );
-
-
-
-    float u =
-        0.5 +
-        longitude /
-        (2.0 * PI);
-
-
-
-    float v =
-        0.5 -
-        latitude /
-        PI;
-
-
-
-    return vec2(
-        u,
-        v
-    );
-
-}
-
+uniform float uvRotation;
 
 
 
@@ -258,63 +46,80 @@ vec2 directionToUV(
 void main()
 {
 
-
-    vec3 direction =
-        getDirection();
-
-
-
     //------------------------------------------------
-    // PER FACE ADJUSTMENT
-    //------------------------------------------------
-
-    direction =
-        rotateX(
-            direction,
-            faceRotationX
-        );
-
-
-    direction =
-        rotateY(
-            direction,
-            faceRotationY
-        );
-
-
-
-    //------------------------------------------------
-    // HDRI UV
+    // ORIGINAL UV
     //------------------------------------------------
 
     vec2 uv =
-        directionToUV(
-            direction
+        TexCoord;
+
+
+
+    //------------------------------------------------
+    // CENTER UV
+    //------------------------------------------------
+
+    uv -= vec2(0.5);
+
+
+
+    //------------------------------------------------
+    // SCALE
+    //------------------------------------------------
+
+    uv *= uvScale;
+
+
+
+    //------------------------------------------------
+    // ROTATION
+    //------------------------------------------------
+
+    float c =
+        cos(
+            uvRotation
         );
 
 
+    float s =
+        sin(
+            uvRotation
+        );
+
+
+    mat2 rotation =
+        mat2(
+            c,
+           -s,
+            s,
+            c
+        );
+
+
+    uv =
+        rotation *
+        uv;
+
+
 
     //------------------------------------------------
-    // ZOOM AROUND CENTER
+    // RESTORE UV
     //------------------------------------------------
 
-    uv -= 0.5;
-
-
-    uv *= faceZoom;
-
-
-    uv.x += faceOffsetU;
-
-    uv.y += faceOffsetV;
-
-
-    uv += 0.5;
+    uv += vec2(0.5);
 
 
 
     //------------------------------------------------
-    // SAMPLE
+    // OFFSET
+    //------------------------------------------------
+
+    uv += uvOffset;
+
+
+
+    //------------------------------------------------
+    // TEXTURE SAMPLE
     //------------------------------------------------
 
     vec3 color =
@@ -325,9 +130,17 @@ void main()
 
 
 
+    //------------------------------------------------
+    // EXPOSURE
+    //------------------------------------------------
+
     color *= exposure;
 
 
+
+    //------------------------------------------------
+    // OUTPUT
+    //------------------------------------------------
 
     FragColor =
         vec4(

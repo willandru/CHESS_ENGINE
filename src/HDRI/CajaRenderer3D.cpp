@@ -1,18 +1,14 @@
 #include "CajaRenderer3D.h"
 
 #include "CajaConstants3D.h"
-
 #include "InputKeyboard.h"
 
-#include <iostream>
-
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include <glm/common.hpp>
 
-#include <GLFW/glfw3.h>
-
-
+#include <iostream>
 
 
 
@@ -27,8 +23,6 @@ CajaRenderer3D::CajaRenderer3D()
 
 
 
-
-
 //====================================================
 // INITIALIZE
 //====================================================
@@ -37,24 +31,13 @@ bool CajaRenderer3D::initialize()
 {
 
     //------------------------------------------------
-    // CREATE GEOMETRY
+    // GEOMETRY
     //------------------------------------------------
 
-    cajaData.initialize();
+    caja.initialize();
 
 
-
-    CajaMeshBuilder::build(
-        cajaData,
-
-        {
-            CajaConstants3D::WIDTH,
-            CajaConstants3D::HEIGHT,
-            CajaConstants3D::DEPTH
-        },
-
-        CajaConstants3D::CAJA_COLOR
-    );
+    rebuildBox();
 
 
 
@@ -73,9 +56,9 @@ bool CajaRenderer3D::initialize()
 
     transform.setRotation(
     {
-        CajaConstants3D::ROT_X,
-        CajaConstants3D::ROT_Y,
-        CajaConstants3D::ROT_Z
+        0.0f,
+        0.0f,
+        0.0f
     });
 
 
@@ -111,7 +94,7 @@ bool CajaRenderer3D::initialize()
     {
 
         std::cout
-            << "[HDRI] ERROR"
+            << "[CajaRenderer3D] HDRI load failed."
             << std::endl;
 
         return false;
@@ -125,7 +108,7 @@ bool CajaRenderer3D::initialize()
     //------------------------------------------------
 
     if(
-        !cajaShader.initialize()
+        !shader.initialize()
     )
     {
 
@@ -135,8 +118,40 @@ bool CajaRenderer3D::initialize()
 
 
 
+    //------------------------------------------------
+    // FACE SETTINGS
+    //------------------------------------------------
+
+    for(
+        int i = 0;
+        i < 6;
+        i++
+    )
+    {
+
+        faceSettings[i].offset =
+        {
+            0.0f,
+            0.0f
+        };
+
+
+        faceSettings[i].scale =
+        {
+            1.0f,
+            1.0f
+        };
+
+
+        faceSettings[i].rotation =
+            0.0f;
+
+    }
+
+
+
     std::cout
-        << "[CAJA] initialized"
+        << "[CajaRenderer3D] Initialized."
         << std::endl;
 
 
@@ -147,9 +162,30 @@ bool CajaRenderer3D::initialize()
 
 
 
+//====================================================
+// REBUILD BOX
+//====================================================
+
+void CajaRenderer3D::rebuildBox()
+{
+
+    CajaMeshBuilder::build(
+        caja,
+        glm::vec3(
+            roomWidth,
+            roomHeight,
+            roomDepth
+        ),
+        CajaConstants3D::CAJA_COLOR
+    );
+
+}
 
 
 
+//====================================================
+// UPDATE
+//====================================================
 
 //====================================================
 // UPDATE
@@ -161,11 +197,17 @@ void CajaRenderer3D::update(
 )
 {
 
+    constexpr float moveSpeed =
+        1.0f;
 
-    constexpr float speed = 1.5f;
+    constexpr float scaleSpeed =
+        0.5f;
 
+    constexpr float rotationSpeed =
+        1.5f;
 
-    constexpr float zoomSpeed = 0.5f;
+    constexpr float resizeSpeed =
+        2.0f;
 
 
 
@@ -173,154 +215,306 @@ void CajaRenderer3D::update(
     // SELECT FACE
     //------------------------------------------------
 
-
     if(InputKeyboard::isKeyPressed(GLFW_KEY_1))
-        selectedFace = CajaMesh3D::Face::FLOOR;
+    {
+        selectedFace =
+            CajaMesh3D::Face::FLOOR;
+    }
 
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_2))
-        selectedFace = CajaMesh3D::Face::CEILING;
+    {
+        selectedFace =
+            CajaMesh3D::Face::CEILING;
+    }
 
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_3))
-        selectedFace = CajaMesh3D::Face::FRONT;
+    {
+        selectedFace =
+            CajaMesh3D::Face::FRONT;
+    }
 
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_4))
-        selectedFace = CajaMesh3D::Face::BACK;
+    {
+        selectedFace =
+            CajaMesh3D::Face::BACK;
+    }
 
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_5))
-        selectedFace = CajaMesh3D::Face::LEFT;
+    {
+        selectedFace =
+            CajaMesh3D::Face::LEFT;
+    }
 
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_6))
-        selectedFace = CajaMesh3D::Face::RIGHT;
+    {
+        selectedFace =
+            CajaMesh3D::Face::RIGHT;
+    }
 
 
 
+    //------------------------------------------------
+    // ROOM SIZE CONTROL
+    //------------------------------------------------
 
-    int face =
+    bool rebuild =
+        false;
+
+
+
+    if(
+        InputKeyboard::isKeyDown(GLFW_KEY_LEFT_SHIFT)
+    )
+    {
+
+        //------------------------------------------------
+        // WIDTH
+        //------------------------------------------------
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_R)
+        )
+        {
+            roomWidth +=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_F)
+        )
+        {
+            roomWidth -=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+
+
+        //------------------------------------------------
+        // HEIGHT
+        //------------------------------------------------
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_T)
+        )
+        {
+            roomHeight +=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_G)
+        )
+        {
+            roomHeight -=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+
+
+        //------------------------------------------------
+        // DEPTH
+        //------------------------------------------------
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_Y)
+        )
+        {
+            roomDepth +=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+
+        if(
+            InputKeyboard::isKeyDown(GLFW_KEY_H)
+        )
+        {
+            roomDepth -=
+                resizeSpeed * dt;
+
+            rebuild = true;
+        }
+
+    }
+
+
+
+    roomWidth =
+        glm::max(
+            roomWidth,
+            2.0f
+        );
+
+
+    roomHeight =
+        glm::max(
+            roomHeight,
+            2.0f
+        );
+
+
+    roomDepth =
+        glm::max(
+            roomDepth,
+            2.0f
+        );
+
+
+
+    if(rebuild)
+    {
+
+        CajaMeshBuilder::build(
+            caja,
+            glm::vec3(
+                roomWidth,
+                roomHeight,
+                roomDepth
+            ),
+            CajaConstants3D::CAJA_COLOR
+        );
+
+    }
+
+
+
+    //------------------------------------------------
+    // SELECT FACE SETTINGS
+    //------------------------------------------------
+
+    int index =
         static_cast<int>(
             selectedFace
         );
 
 
 
+    FaceSettings& face =
+        faceSettings[index];
+
+
 
     //------------------------------------------------
-    // ROTATION X
-    // T/G
+    // OFFSET U/V
     //------------------------------------------------
 
-    if(InputKeyboard::isKeyDown(GLFW_KEY_T))
+    if(InputKeyboard::isKeyDown(GLFW_KEY_A))
     {
-        faceRotationX[face] += speed * dt;
+        face.offset.x -=
+            moveSpeed * dt;
     }
 
 
-    if(InputKeyboard::isKeyDown(GLFW_KEY_G))
+    if(InputKeyboard::isKeyDown(GLFW_KEY_D))
     {
-        faceRotationX[face] -= speed * dt;
+        face.offset.x +=
+            moveSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_W))
+    {
+        face.offset.y +=
+            moveSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_S))
+    {
+        face.offset.y -=
+            moveSpeed * dt;
     }
 
 
 
+    //------------------------------------------------
+    // SCALE HDRI
+    //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_Q))
+    {
+        face.scale.x +=
+            scaleSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_E))
+    {
+        face.scale.x -=
+            scaleSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_Z))
+    {
+        face.scale.y +=
+            scaleSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_X))
+    {
+        face.scale.y -=
+            scaleSpeed * dt;
+    }
+
+
 
     //------------------------------------------------
-    // ROTATION Y
-    // R/F
+    // ROTATION HDRI
     //------------------------------------------------
 
     if(InputKeyboard::isKeyDown(GLFW_KEY_R))
     {
-        faceRotationY[face] += speed * dt;
+        face.rotation +=
+            rotationSpeed * dt;
     }
 
 
     if(InputKeyboard::isKeyDown(GLFW_KEY_F))
     {
-        faceRotationY[face] -= speed * dt;
+        face.rotation -=
+            rotationSpeed * dt;
     }
-
-
 
 
 
     //------------------------------------------------
-    // OFFSET U
-    // Y/H
+    // LIMITS
     //------------------------------------------------
 
-    if(InputKeyboard::isKeyDown(GLFW_KEY_Y))
-    {
-        faceOffsetU[face] += dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_H))
-    {
-        faceOffsetU[face] -= dt;
-    }
-
-
-
-
-
-    //------------------------------------------------
-    // OFFSET V
-    // U/J
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_U))
-    {
-        faceOffsetV[face] += dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_J))
-    {
-        faceOffsetV[face] -= dt;
-    }
-
-
-
-
-
-    //------------------------------------------------
-    // ZOOM
-    // O/L
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_O))
-    {
-        faceZoom[face] += zoomSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_L))
-    {
-        faceZoom[face] -= zoomSpeed * dt;
-    }
-
-
-
-    faceZoom[face] =
+    face.scale.x =
         glm::clamp(
-            faceZoom[face],
+            face.scale.x,
+            0.1f,
+            10.0f
+        );
+
+
+    face.scale.y =
+        glm::clamp(
+            face.scale.y,
             0.1f,
             10.0f
         );
 
 }
-
-
-
-
-
-
-
-
 //====================================================
 // RENDER ONE FACE
 //====================================================
@@ -340,37 +534,27 @@ void CajaRenderer3D::renderFace(
 
 
 
+    FaceSettings& settings =
+        faceSettings[index];
+
+
+
     //------------------------------------------------
-    // SEND FACE DATA
+    // HDRI UV SETTINGS
     //------------------------------------------------
 
-    cajaShader.setFace(
-        index
+    shader.setOffset(
+        settings.offset
     );
 
 
-    cajaShader.setFaceRotationX(
-        faceRotationX[index]
+    shader.setScale(
+        settings.scale
     );
 
 
-    cajaShader.setFaceRotationY(
-        faceRotationY[index]
-    );
-
-
-    cajaShader.setFaceZoom(
-        faceZoom[index]
-    );
-
-
-    cajaShader.setFaceOffsetU(
-        faceOffsetU[index]
-    );
-
-
-    cajaShader.setFaceOffsetV(
-        faceOffsetV[index]
+    shader.setRotation(
+        settings.rotation
     );
 
 
@@ -380,20 +564,15 @@ void CajaRenderer3D::renderFace(
     //------------------------------------------------
 
     renderer.renderObject(
-        cajaData.getFace(face),
+        caja.getFace(face),
         transform,
         material,
-        cajaShader,
+        shader,
         camera,
         aspectRatio
     );
 
 }
-
-
-
-
-
 
 
 
@@ -409,55 +588,122 @@ void CajaRenderer3D::renderBackground(
 )
 {
 
-    glDisable(GL_CULL_FACE);
+    //------------------------------------------------
+    // STATE
+    //------------------------------------------------
 
-    glDepthMask(GL_FALSE);
-
-    glDisable(GL_DEPTH_TEST);
-
-
-
-    cajaShader.bind();
+    glDisable(
+        GL_CULL_FACE
+    );
 
 
-
-    hdriTexture.bind(0);
-
-
-    cajaShader.setHDRITextureSlot(0);
+    glDepthMask(
+        GL_FALSE
+    );
 
 
-    cajaShader.setExposure(
+    glDisable(
+        GL_DEPTH_TEST
+    );
+
+
+
+    //------------------------------------------------
+    // HDRI
+    //------------------------------------------------
+
+    shader.bind();
+
+
+
+    hdriTexture.bind(
+        0
+    );
+
+
+    shader.setHDRITextureSlot(
+        0
+    );
+
+
+    shader.setExposure(
         exposure
     );
 
 
 
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::FLOOR);
+    //------------------------------------------------
+    // SIX FACES
+    //------------------------------------------------
 
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::CEILING);
-
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::FRONT);
-
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::BACK);
-
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::LEFT);
-
-    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::RIGHT);
-
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::FLOOR
+    );
 
 
-    glDepthMask(GL_TRUE);
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::CEILING
+    );
 
-    glEnable(GL_DEPTH_TEST);
 
-    glEnable(GL_CULL_FACE);
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::FRONT
+    );
+
+
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::BACK
+    );
+
+
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::LEFT
+    );
+
+
+    renderFace(
+        renderer,
+        camera,
+        aspectRatio,
+        CajaMesh3D::Face::RIGHT
+    );
+
+
+
+    //------------------------------------------------
+    // RESTORE
+    //------------------------------------------------
+
+    glDepthMask(
+        GL_TRUE
+    );
+
+
+    glEnable(
+        GL_DEPTH_TEST
+    );
+
+
+    glEnable(
+        GL_CULL_FACE
+    );
 
 }
-
-
-
-
 
 
 

@@ -1,48 +1,25 @@
 #pragma once
 
-
 #include "Shader3D.h"
-
-
 
 class HDRICajaShader : public Shader3D
 {
 
 public:
 
-
-    //------------------------------------------------
-    // CONSTRUCTOR / DESTRUCTOR
-    //------------------------------------------------
-
     HDRICajaShader();
-
 
     ~HDRICajaShader();
 
-
-
-    //------------------------------------------------
-    // INITIALIZATION
-    //------------------------------------------------
-
     bool initialize();
 
-
-
     //------------------------------------------------
-    // HDRI TEXTURE
+    // HDRI
     //------------------------------------------------
 
     void setHDRITextureSlot(
         int slot
     );
-
-
-
-    //------------------------------------------------
-    // EXPOSURE
-    //------------------------------------------------
 
     void setExposure(
         float exposure
@@ -51,65 +28,29 @@ public:
 
 
     //------------------------------------------------
-    // SELECT FACE
+    // UV
     //------------------------------------------------
 
-    void setFace(
-        int face
+    void setOffset(
+        const glm::vec2& offset
     );
 
-
-
-    //------------------------------------------------
-    // PER FACE ROTATION
-    //------------------------------------------------
-
-    void setFaceRotationX(
-        float value
+    void setScale(
+        const glm::vec2& scale
     );
 
-
-    void setFaceRotationY(
-        float value
-    );
-
-
-
-    //------------------------------------------------
-    // PER FACE ZOOM
-    //------------------------------------------------
-
-    void setFaceZoom(
-        float value
-    );
-
-
-
-    //------------------------------------------------
-    // PER FACE OFFSET
-    //------------------------------------------------
-
-    void setFaceOffsetU(
-        float value
-    );
-
-
-    void setFaceOffsetV(
-        float value
+    void setRotation(
+        float angle
     );
 
 
 
 private:
 
-
     static constexpr const char* VERTEX_SHADER =
         "Shaders/caja_hdr.vert";
 
-
-
     static constexpr const char* FRAGMENT_SHADER =
         "Shaders/caja_hdr.frag";
-
 
 };

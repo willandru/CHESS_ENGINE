@@ -1,26 +1,31 @@
 #pragma once
 
-
 #include "Environment3D.h"
 
 #include "CajaMesh3D.h"
 #include "CajaMeshBuilder.h"
 
-#include "Material3D.h"
 #include "Transform3D.h"
+#include "Material3D.h"
 
 #include "HDRITexture.h"
 #include "HDRICajaShader.h"
 
 #include "Camera3D.h"
+#include "Renderer3D.h"
+
+#include <glm/glm.hpp>
 
 
+
+//====================================================
+// CAJA RENDERER 3D
+//====================================================
 
 class CajaRenderer3D : public Environment3D
 {
 
 public:
-
 
     //------------------------------------------------
     // CONSTRUCTOR
@@ -71,7 +76,7 @@ private:
 
 
     //------------------------------------------------
-    // DRAW ONE FACE
+    // INTERNAL
     //------------------------------------------------
 
     void renderFace(
@@ -83,14 +88,18 @@ private:
 
 
 
+    void rebuildBox();
+
+
+
 private:
 
 
     //------------------------------------------------
-    // BOX GEOMETRY
+    // MESH
     //------------------------------------------------
 
-    CajaMesh3D cajaData;
+    CajaMesh3D caja;
 
 
 
@@ -116,98 +125,63 @@ private:
 
     HDRITexture hdriTexture;
 
-
-    HDRICajaShader cajaShader;
-
+    HDRICajaShader shader;
 
 
-    //------------------------------------------------
-    // EXPOSURE ONLY
-    //------------------------------------------------
-    // No rotation global.
-    // No zoom global.
 
     float exposure = 1.0f;
 
 
 
     //------------------------------------------------
-    // SELECTED FACE
+    // ROOM SIZE
     //------------------------------------------------
+
+    float roomWidth  = 10.0f;
+
+    float roomHeight = 5.0f;
+
+    float roomDepth  = 10.0f;
+
+
+
+    bool sizeChanged = false;
+
+
+
+    //------------------------------------------------
+    // HDRI FACE SETTINGS
+    //------------------------------------------------
+
+    struct FaceSettings
+    {
+
+        glm::vec2 offset =
+        {
+            0.0f,
+            0.0f
+        };
+
+
+        glm::vec2 scale =
+        {
+            1.0f,
+            1.0f
+        };
+
+
+        float rotation =
+            0.0f;
+
+    };
+
+
+
+    FaceSettings faceSettings[6];
+
+
 
     CajaMesh3D::Face selectedFace =
         CajaMesh3D::Face::FRONT;
-
-
-
-    //------------------------------------------------
-    // PER FACE ROTATION
-    //------------------------------------------------
-
-    float faceRotationX[6] =
-    {
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f
-    };
-
-
-
-    float faceRotationY[6] =
-    {
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f
-    };
-
-
-
-    //------------------------------------------------
-    // PER FACE ZOOM
-    //------------------------------------------------
-
-    float faceZoom[6] =
-    {
-        1.0f,
-        1.0f,
-        1.0f,
-        1.0f,
-        1.0f,
-        1.0f
-    };
-
-
-
-    //------------------------------------------------
-    // PER FACE OFFSET
-    //------------------------------------------------
-
-    float faceOffsetU[6] =
-    {
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f
-    };
-
-
-    float faceOffsetV[6] =
-    {
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f
-    };
-
 
 };
