@@ -3,7 +3,6 @@
 #include "Shader3D.h"
 
 
-
 //====================================================
 // HDRI CAJA SHADER
 //====================================================
@@ -14,7 +13,6 @@ class HDRICajaShader : public Shader3D
 public:
 
     HDRICajaShader();
-
 
 
     ~HDRICajaShader();
@@ -47,6 +45,16 @@ public:
 
     void setRotation(
         float rotation
+    );
+
+
+
+    //------------------------------------------------
+    // HDRI PROJECTION
+    //------------------------------------------------
+
+    void setHeight(
+        float height
     );
 
 

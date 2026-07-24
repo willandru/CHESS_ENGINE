@@ -1,5 +1,3 @@
-// caja_hdr.frag
-
 #version 330 core
 
 
@@ -37,6 +35,8 @@ uniform float exposure;
 
 uniform float hdriRotation;
 
+uniform float hdriHeight;
+
 
 
 //====================================================
@@ -56,19 +56,28 @@ void main()
 {
 
     //------------------------------------------------
-    // DIRECTION FROM ROOM CENTER
+    // HDRI PROJECTION CENTER
     //------------------------------------------------
+
+    vec3 hdriCenter =
+        vec3(
+            0.0,
+            hdriHeight,
+            0.0
+        );
+
+
 
     vec3 direction =
         normalize(
-            WorldPosition
+            WorldPosition -
+            hdriCenter
         );
 
 
 
     //------------------------------------------------
     // ROTATION AROUND HEIGHT AXIS
-    // (VERTICAL AXIS)
     //------------------------------------------------
 
     float angle =

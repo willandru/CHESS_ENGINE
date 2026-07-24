@@ -160,9 +160,11 @@ void CajaRenderer3D::rebuildMesh()
 
 }
 
+
 //====================================================
 // UPDATE
 //====================================================
+
 void CajaRenderer3D::update(
     Camera3D&,
     float dt
@@ -248,6 +250,25 @@ void CajaRenderer3D::update(
 
 
 
+    //------------------------------------------------
+    // HDRI PROJECTION HEIGHT
+    //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_T))
+    {
+        hdriHeight +=
+            rotationSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_G))
+    {
+        hdriHeight -=
+            rotationSpeed * dt;
+    }
+
+
+
     float amount =
         moveSpeed * dt;
 
@@ -256,7 +277,6 @@ void CajaRenderer3D::update(
     //------------------------------------------------
     // MOVE SELECTED FACE
     //------------------------------------------------
-
 
     switch(selectedFace)
     {
@@ -388,6 +408,12 @@ void CajaRenderer3D::update(
     }
 
 }
+
+
+//====================================================
+// RENDER BACKGROUND
+//====================================================
+
 //====================================================
 // RENDER BACKGROUND
 //====================================================
@@ -423,16 +449,24 @@ void CajaRenderer3D::renderBackground(
 
 
 
+    //------------------------------------------------
+    // HDRI TEXTURE
+    //------------------------------------------------
+
     hdriTexture.bind(
         0
     );
-
 
 
     hdriShader.setHDRITextureSlot(
         0
     );
 
+
+
+    //------------------------------------------------
+    // HDRI PARAMETERS
+    //------------------------------------------------
 
     hdriShader.setExposure(
         exposure
@@ -441,6 +475,11 @@ void CajaRenderer3D::renderBackground(
 
     hdriShader.setRotation(
         hdriRotation
+    );
+
+
+    hdriShader.setHeight(
+        hdriHeight
     );
 
 

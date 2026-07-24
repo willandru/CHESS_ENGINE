@@ -15,7 +15,9 @@
 #include "Renderer3D.h"
 
 #include <glm/glm.hpp>
+
 #include "CajaConstants3D.h"
+
 
 class CajaRenderer3D : public Environment3D
 {
@@ -109,8 +111,21 @@ private:
         1.0f;
 
 
+
     float hdriRotation =
         0.0f;
+
+
+
+    //------------------------------------------------
+    // HDRI PROJECTION HEIGHT
+    //------------------------------------------------
+    
+    // Altura virtual del observador HDRI
+    // Ajusta cómo cae la textura sobre el suelo
+    
+    float hdriHeight =
+        1.8f;
 
 
 

@@ -112,3 +112,22 @@ void HDRICajaShader::setRotation(
     );
 
 }
+
+//====================================================
+// HDRI HEIGHT
+//====================================================
+
+void HDRICajaShader::setHeight(
+    float height
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "hdriHeight",
+        height
+    );
+
+}
