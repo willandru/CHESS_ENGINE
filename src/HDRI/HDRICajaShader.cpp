@@ -32,8 +32,11 @@ bool HDRICajaShader::initialize()
 {
 
     return load(
+
         VERTEX_SHADER,
+
         FRAGMENT_SHADER
+
     );
 
 }
@@ -41,7 +44,7 @@ bool HDRICajaShader::initialize()
 
 
 //====================================================
-// HDRI SLOT
+// HDRI TEXTURE SLOT
 //====================================================
 
 void HDRICajaShader::setHDRITextureSlot(
@@ -51,9 +54,13 @@ void HDRICajaShader::setHDRITextureSlot(
 
     bind();
 
+
     setInt(
+
         "hdriMap",
+
         slot
+
     );
 
 }
@@ -71,49 +78,13 @@ void HDRICajaShader::setExposure(
 
     bind();
 
+
     setFloat(
+
         "exposure",
+
         exposure
-    );
 
-}
-
-
-
-//====================================================
-// OFFSET
-//====================================================
-
-void HDRICajaShader::setOffset(
-    const glm::vec2& offset
-)
-{
-
-    bind();
-
-    setVec2(
-        "uvOffset",
-        offset
-    );
-
-}
-
-
-
-//====================================================
-// SCALE
-//====================================================
-
-void HDRICajaShader::setScale(
-    const glm::vec2& scale
-)
-{
-
-    bind();
-
-    setVec2(
-        "uvScale",
-        scale
     );
 
 }
@@ -125,15 +96,19 @@ void HDRICajaShader::setScale(
 //====================================================
 
 void HDRICajaShader::setRotation(
-    float angle
+    float rotation
 )
 {
 
     bind();
 
+
     setFloat(
-        "uvRotation",
-        angle
+
+        "hdriRotation",
+
+        rotation
+
     );
 
 }

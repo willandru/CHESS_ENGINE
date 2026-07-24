@@ -1,23 +1,101 @@
 #include "CajaMeshBuilder.h"
 
 #include <vector>
+#include <cstdint>
 
 
 
 //====================================================
-// UPLOAD FACE
+// ADD QUAD
 //====================================================
 
-void CajaMeshBuilder::uploadFace(
-    Mesh3D& mesh,
-    const std::vector<Vertex3D>& vertices,
-    const std::vector<uint32_t>& indices
+void CajaMeshBuilder::addQuad(
+
+    std::vector<Vertex3D>& vertices,
+    std::vector<uint32_t>& indices,
+
+    const glm::vec3& v0,
+    const glm::vec3& v1,
+    const glm::vec3& v2,
+    const glm::vec3& v3,
+
+    const glm::vec3& normal,
+    const glm::vec3& color
+
 )
 {
 
-    mesh.upload(
-        vertices,
-        indices
+    uint32_t start =
+        static_cast<uint32_t>(
+            vertices.size()
+        );
+
+
+
+    vertices.push_back(
+    {
+        v0,
+        normal,
+        {0.0f, 0.0f},
+        color
+    });
+
+
+
+    vertices.push_back(
+    {
+        v1,
+        normal,
+        {1.0f, 0.0f},
+        color
+    });
+
+
+
+    vertices.push_back(
+    {
+        v2,
+        normal,
+        {1.0f, 1.0f},
+        color
+    });
+
+
+
+    vertices.push_back(
+    {
+        v3,
+        normal,
+        {0.0f, 1.0f},
+        color
+    });
+
+
+
+    indices.push_back(
+        start + 0
+    );
+
+    indices.push_back(
+        start + 2
+    );
+
+    indices.push_back(
+        start + 1
+    );
+
+
+
+    indices.push_back(
+        start + 0
+    );
+
+    indices.push_back(
+        start + 3
+    );
+
+    indices.push_back(
+        start + 2
     );
 
 }
@@ -29,607 +107,171 @@ void CajaMeshBuilder::uploadFace(
 //====================================================
 
 void CajaMeshBuilder::build(
+
     CajaMesh3D& caja,
-    const glm::vec3& size,
+
+    float left,
+    float right,
+
+    float front,
+    float back,
+
+    float floor,
+    float ceiling,
+
     const glm::vec3& color
+
 )
 {
 
-    float hx =
-        size.x * 0.5f;
+    std::vector<Vertex3D> vertices;
 
-    float hy =
-        size.y * 0.5f;
-
-    float hz =
-        size.z * 0.5f;
+    std::vector<uint32_t> indices;
 
 
 
-    buildFloor(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
+    //------------------------------------------------
+    // FLOOR
+    //------------------------------------------------
 
+    addQuad(
 
-
-    buildCeiling(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
-
-
-
-    buildFront(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
-
-
-
-    buildBack(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
-
-
-
-    buildLeft(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
-
-
-
-    buildRight(
-        caja,
-        hx,
-        hy,
-        hz,
-        color
-    );
-
-}
-
-//====================================================
-// BUILD FLOOR
-//====================================================
-
-void CajaMeshBuilder::buildFloor(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            {-hx, -hy,  hz},
-            {0.0f, 1.0f, 0.0f},
-            {0.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
-
-        {
-            { hx, -hy,  hz},
-            {0.0f, 1.0f, 0.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            { hx, -hy, -hz},
-            {0.0f, 1.0f, 0.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            {-hx, -hy, -hz},
-            {0.0f, 1.0f, 0.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::FLOOR
-        ),
         vertices,
-        indices
+        indices,
+
+        { left,  floor, front },
+        { right, floor, front },
+        { right, floor, back },
+        { left,  floor, back },
+
+        { 0.0f, 1.0f, 0.0f },
+
+        color
+
     );
 
-}
-
-//====================================================
-// BUILD CEILING
-//====================================================
-
-void CajaMeshBuilder::buildCeiling(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            {-hx, hy, -hz},
-            {0.0f, -1.0f, 0.0f},
-            {0.0f, 0.0f},
-            color
-        },
 
 
+    //------------------------------------------------
+    // CEILING
+    //------------------------------------------------
 
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
+    addQuad(
 
-        {
-            { hx, hy, -hz},
-            {0.0f, -1.0f, 0.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            { hx, hy,  hz},
-            {0.0f, -1.0f, 0.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            {-hx, hy,  hz},
-            {0.0f, -1.0f, 0.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::CEILING
-        ),
         vertices,
-        indices
+        indices,
+
+        { left,  ceiling, back },
+        { right, ceiling, back },
+        { right, ceiling, front },
+        { left,  ceiling, front },
+
+        { 0.0f, -1.0f, 0.0f },
+
+        color
+
     );
 
-}
-
-//====================================================
-// BUILD FRONT
-//====================================================
-
-void CajaMeshBuilder::buildFront(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            {-hx, -hy, hz},
-            {0.0f, 0.0f, -1.0f},
-            {0.0f, 0.0f},
-            color
-        },
 
 
+    //------------------------------------------------
+    // FRONT
+    //------------------------------------------------
 
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
+    addQuad(
 
-        {
-            { hx, -hy, hz},
-            {0.0f, 0.0f, -1.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            { hx,  hy, hz},
-            {0.0f, 0.0f, -1.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            {-hx,  hy, hz},
-            {0.0f, 0.0f, -1.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::FRONT
-        ),
         vertices,
-        indices
+        indices,
+
+        { left, floor, front },
+        { right, floor, front },
+        { right, ceiling, front },
+        { left, ceiling, front },
+
+        { 0.0f, 0.0f, -1.0f },
+
+        color
+
     );
 
-}
-
-//====================================================
-// BUILD BACK
-//====================================================
-
-void CajaMeshBuilder::buildBack(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            { hx, -hy, -hz},
-            {0.0f, 0.0f, 1.0f},
-            {0.0f, 0.0f},
-            color
-        },
 
 
+    //------------------------------------------------
+    // BACK
+    //------------------------------------------------
 
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
+    addQuad(
 
-        {
-            {-hx, -hy, -hz},
-            {0.0f, 0.0f, 1.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            {-hx,  hy, -hz},
-            {0.0f, 0.0f, 1.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            { hx,  hy, -hz},
-            {0.0f, 0.0f, 1.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::BACK
-        ),
         vertices,
-        indices
+        indices,
+
+        { right, floor, back },
+        { left, floor, back },
+        { left, ceiling, back },
+        { right, ceiling, back },
+
+        { 0.0f, 0.0f, 1.0f },
+
+        color
+
     );
 
-}
-
-//====================================================
-// BUILD LEFT
-//====================================================
-
-void CajaMeshBuilder::buildLeft(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            {-hx, -hy, -hz},
-            {1.0f, 0.0f, 0.0f},
-            {0.0f, 0.0f},
-            color
-        },
 
 
+    //------------------------------------------------
+    // LEFT
+    //------------------------------------------------
 
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
+    addQuad(
 
-        {
-            {-hx, -hy,  hz},
-            {1.0f, 0.0f, 0.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            {-hx,  hy,  hz},
-            {1.0f, 0.0f, 0.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            {-hx,  hy, -hz},
-            {1.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::LEFT
-        ),
         vertices,
-        indices
+        indices,
+
+        { left, floor, back },
+        { left, floor, front },
+        { left, ceiling, front },
+        { left, ceiling, back },
+
+        { 1.0f, 0.0f, 0.0f },
+
+        color
+
     );
 
-}
-
-//====================================================
-// BUILD RIGHT
-//====================================================
-
-void CajaMeshBuilder::buildRight(
-    CajaMesh3D& caja,
-    float hx,
-    float hy,
-    float hz,
-    const glm::vec3& color
-)
-{
-
-    std::vector<Vertex3D> vertices =
-    {
-
-        //------------------------------------------------
-        // Bottom Left
-        //------------------------------------------------
-
-        {
-            { hx, -hy,  hz},
-            {-1.0f, 0.0f, 0.0f},
-            {0.0f, 0.0f},
-            color
-        },
 
 
+    //------------------------------------------------
+    // RIGHT
+    //------------------------------------------------
 
-        //------------------------------------------------
-        // Bottom Right
-        //------------------------------------------------
+    addQuad(
 
-        {
-            { hx, -hy, -hz},
-            {-1.0f, 0.0f, 0.0f},
-            {1.0f, 0.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Right
-        //------------------------------------------------
-
-        {
-            { hx,  hy, -hz},
-            {-1.0f, 0.0f, 0.0f},
-            {1.0f, 1.0f},
-            color
-        },
-
-
-
-        //------------------------------------------------
-        // Top Left
-        //------------------------------------------------
-
-        {
-            { hx,  hy,  hz},
-            {-1.0f, 0.0f, 0.0f},
-            {0.0f, 1.0f},
-            color
-        }
-
-    };
-
-
-
-    std::vector<uint32_t> indices =
-    {
-        0, 2, 1,
-        0, 3, 2
-    };
-
-
-
-    uploadFace(
-        caja.getFace(
-            CajaMesh3D::Face::RIGHT
-        ),
         vertices,
+        indices,
+
+        { right, floor, front },
+        { right, floor, back },
+        { right, ceiling, back },
+        { right, ceiling, front },
+
+        { -1.0f, 0.0f, 0.0f },
+
+        color
+
+    );
+
+
+
+    //------------------------------------------------
+    // UPLOAD
+    //------------------------------------------------
+
+    caja.getMesh().upload(
+
+        vertices,
+
         indices
+
     );
 
 }

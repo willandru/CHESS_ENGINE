@@ -1,3 +1,5 @@
+// CajaRenderer3D.h
+
 #pragma once
 
 #include "Environment3D.h"
@@ -26,10 +28,6 @@ class CajaRenderer3D : public Environment3D
 {
 
 public:
-
-    //------------------------------------------------
-    // CONSTRUCTOR
-    //------------------------------------------------
 
     CajaRenderer3D();
 
@@ -74,26 +72,15 @@ public:
 
 private:
 
-
     //------------------------------------------------
     // INTERNAL
     //------------------------------------------------
 
-    void renderFace(
-        Renderer3D& renderer,
-        Camera3D& camera,
-        float aspectRatio,
-        CajaMesh3D::Face face
-    );
-
-
-
-    void rebuildBox();
+    void rebuildMesh();
 
 
 
 private:
-
 
     //------------------------------------------------
     // MESH
@@ -125,63 +112,45 @@ private:
 
     HDRITexture hdriTexture;
 
-    HDRICajaShader shader;
+    HDRICajaShader hdriShader;
 
 
 
-    float exposure = 1.0f;
+    float exposure =
+        1.0f;
 
 
 
-    //------------------------------------------------
-    // ROOM SIZE
-    //------------------------------------------------
-
-    float roomWidth  = 10.0f;
-
-    float roomHeight = 5.0f;
-
-    float roomDepth  = 10.0f;
-
-
-
-    bool sizeChanged = false;
+    float hdriRotation =
+        0.0f;
 
 
 
     //------------------------------------------------
-    // HDRI FACE SETTINGS
+    // GEOMETRY LIMITS
     //------------------------------------------------
 
-    struct FaceSettings
-    {
-
-        glm::vec2 offset =
-        {
-            0.0f,
-            0.0f
-        };
+    float left =
+        -6.0f;
 
 
-        glm::vec2 scale =
-        {
-            1.0f,
-            1.0f
-        };
+    float right =
+         6.0f;
 
 
-        float rotation =
-            0.0f;
-
-    };
+    float front =
+         6.0f;
 
 
+    float back =
+        -6.0f;
 
-    FaceSettings faceSettings[6];
+
+    float floor =
+        -2.0f;
 
 
-
-    CajaMesh3D::Face selectedFace =
-        CajaMesh3D::Face::FRONT;
+    float ceiling =
+         2.0f;
 
 };

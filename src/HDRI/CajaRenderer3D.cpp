@@ -1,12 +1,14 @@
+// CajaRenderer3D.cpp
+// PARTE 1
+
 #include "CajaRenderer3D.h"
 
 #include "CajaConstants3D.h"
+
 #include "InputKeyboard.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-#include <glm/common.hpp>
 
 #include <iostream>
 
@@ -31,13 +33,14 @@ bool CajaRenderer3D::initialize()
 {
 
     //------------------------------------------------
-    // GEOMETRY
+    // MESH
     //------------------------------------------------
 
     caja.initialize();
 
 
-    rebuildBox();
+
+    rebuildMesh();
 
 
 
@@ -46,11 +49,8 @@ bool CajaRenderer3D::initialize()
     //------------------------------------------------
 
     transform.setPosition(
-    {
-        CajaConstants3D::CENTER_X,
-        CajaConstants3D::CENTER_Y,
-        CajaConstants3D::CENTER_Z
-    });
+        CajaConstants3D::CENTER
+    );
 
 
 
@@ -77,7 +77,7 @@ bool CajaRenderer3D::initialize()
     //------------------------------------------------
 
     material.setColor(
-        CajaConstants3D::CAJA_COLOR
+        CajaConstants3D::COLOR
     );
 
 
@@ -85,6 +85,16 @@ bool CajaRenderer3D::initialize()
     //------------------------------------------------
     // HDRI
     //------------------------------------------------
+
+    exposure =
+        CajaConstants3D::HDRI_EXPOSURE;
+
+
+
+    hdriRotation =
+        CajaConstants3D::HDRI_ROTATION;
+
+
 
     if(
         !hdriTexture.loadFromFile(
@@ -97,6 +107,7 @@ bool CajaRenderer3D::initialize()
             << "[CajaRenderer3D] HDRI load failed."
             << std::endl;
 
+
         return false;
 
     }
@@ -108,7 +119,7 @@ bool CajaRenderer3D::initialize()
     //------------------------------------------------
 
     if(
-        !shader.initialize()
+        !hdriShader.initialize()
     )
     {
 
@@ -118,74 +129,36 @@ bool CajaRenderer3D::initialize()
 
 
 
-    //------------------------------------------------
-    // FACE SETTINGS
-    //------------------------------------------------
-
-    for(
-        int i = 0;
-        i < 6;
-        i++
-    )
-    {
-
-        faceSettings[i].offset =
-        {
-            0.0f,
-            0.0f
-        };
-
-
-        faceSettings[i].scale =
-        {
-            1.0f,
-            1.0f
-        };
-
-
-        faceSettings[i].rotation =
-            0.0f;
-
-    }
-
-
-
-    std::cout
-        << "[CajaRenderer3D] Initialized."
-        << std::endl;
-
-
-
     return true;
 
 }
 
 
-
 //====================================================
-// REBUILD BOX
+// REBUILD MESH
 //====================================================
 
-void CajaRenderer3D::rebuildBox()
+void CajaRenderer3D::rebuildMesh()
 {
 
     CajaMeshBuilder::build(
+
         caja,
-        glm::vec3(
-            roomWidth,
-            roomHeight,
-            roomDepth
-        ),
-        CajaConstants3D::CAJA_COLOR
+
+        left,
+        right,
+
+        front,
+        back,
+
+        floor,
+        ceiling,
+
+        CajaConstants3D::COLOR
+
     );
 
 }
-
-
-
-//====================================================
-// UPDATE
-//====================================================
 
 //====================================================
 // UPDATE
@@ -198,386 +171,173 @@ void CajaRenderer3D::update(
 {
 
     constexpr float moveSpeed =
-        1.0f;
+        2.0f;
 
-    constexpr float scaleSpeed =
-        0.5f;
 
     constexpr float rotationSpeed =
         1.5f;
 
-    constexpr float resizeSpeed =
-        2.0f;
 
-
-
-    //------------------------------------------------
-    // SELECT FACE
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_1))
-    {
-        selectedFace =
-            CajaMesh3D::Face::FLOOR;
-    }
-
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_2))
-    {
-        selectedFace =
-            CajaMesh3D::Face::CEILING;
-    }
-
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_3))
-    {
-        selectedFace =
-            CajaMesh3D::Face::FRONT;
-    }
-
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_4))
-    {
-        selectedFace =
-            CajaMesh3D::Face::BACK;
-    }
-
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_5))
-    {
-        selectedFace =
-            CajaMesh3D::Face::LEFT;
-    }
-
-
-    if(InputKeyboard::isKeyPressed(GLFW_KEY_6))
-    {
-        selectedFace =
-            CajaMesh3D::Face::RIGHT;
-    }
-
-
-
-    //------------------------------------------------
-    // ROOM SIZE CONTROL
-    //------------------------------------------------
 
     bool rebuild =
         false;
 
 
 
+    //------------------------------------------------
+    // HDRI ROTATION
+    //------------------------------------------------
+
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_LEFT_SHIFT)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_R
+        )
     )
     {
 
-        //------------------------------------------------
-        // WIDTH
-        //------------------------------------------------
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_R)
-        )
-        {
-            roomWidth +=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
-
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_F)
-        )
-        {
-            roomWidth -=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
-
-
-
-        //------------------------------------------------
-        // HEIGHT
-        //------------------------------------------------
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_T)
-        )
-        {
-            roomHeight +=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
-
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_G)
-        )
-        {
-            roomHeight -=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
-
-
-
-        //------------------------------------------------
-        // DEPTH
-        //------------------------------------------------
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_Y)
-        )
-        {
-            roomDepth +=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
-
-
-        if(
-            InputKeyboard::isKeyDown(GLFW_KEY_H)
-        )
-        {
-            roomDepth -=
-                resizeSpeed * dt;
-
-            rebuild = true;
-        }
+        hdriRotation +=
+            rotationSpeed * dt;
 
     }
 
 
 
-    roomWidth =
-        glm::max(
-            roomWidth,
-            2.0f
-        );
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_F
+        )
+    )
+    {
+
+        hdriRotation -=
+            rotationSpeed * dt;
+
+    }
 
 
-    roomHeight =
-        glm::max(
-            roomHeight,
-            2.0f
-        );
+
+    //------------------------------------------------
+    // MOVE ROOM FACES
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_A
+        )
+    )
+    {
+
+        left -=
+            moveSpeed * dt;
 
 
-    roomDepth =
-        glm::max(
-            roomDepth,
-            2.0f
-        );
+        rebuild = true;
+
+    }
 
 
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_D
+        )
+    )
+    {
+
+        right +=
+            moveSpeed * dt;
+
+
+        rebuild = true;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_W
+        )
+    )
+    {
+
+        front +=
+            moveSpeed * dt;
+
+
+        rebuild = true;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_S
+        )
+    )
+    {
+
+        back -=
+            moveSpeed * dt;
+
+
+        rebuild = true;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_Q
+        )
+    )
+    {
+
+        ceiling +=
+            moveSpeed * dt;
+
+
+        rebuild = true;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_E
+        )
+    )
+    {
+
+        floor -=
+            moveSpeed * dt;
+
+
+        rebuild = true;
+
+    }
+
+
+
+    //------------------------------------------------
+    // APPLY CHANGES
+    //------------------------------------------------
 
     if(rebuild)
     {
 
-        CajaMeshBuilder::build(
-            caja,
-            glm::vec3(
-                roomWidth,
-                roomHeight,
-                roomDepth
-            ),
-            CajaConstants3D::CAJA_COLOR
-        );
+        rebuildMesh();
 
     }
-
-
-
-    //------------------------------------------------
-    // SELECT FACE SETTINGS
-    //------------------------------------------------
-
-    int index =
-        static_cast<int>(
-            selectedFace
-        );
-
-
-
-    FaceSettings& face =
-        faceSettings[index];
-
-
-
-    //------------------------------------------------
-    // OFFSET U/V
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_A))
-    {
-        face.offset.x -=
-            moveSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_D))
-    {
-        face.offset.x +=
-            moveSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_W))
-    {
-        face.offset.y +=
-            moveSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_S))
-    {
-        face.offset.y -=
-            moveSpeed * dt;
-    }
-
-
-
-    //------------------------------------------------
-    // SCALE HDRI
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_Q))
-    {
-        face.scale.x +=
-            scaleSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_E))
-    {
-        face.scale.x -=
-            scaleSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_Z))
-    {
-        face.scale.y +=
-            scaleSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_X))
-    {
-        face.scale.y -=
-            scaleSpeed * dt;
-    }
-
-
-
-    //------------------------------------------------
-    // ROTATION HDRI
-    //------------------------------------------------
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_R))
-    {
-        face.rotation +=
-            rotationSpeed * dt;
-    }
-
-
-    if(InputKeyboard::isKeyDown(GLFW_KEY_F))
-    {
-        face.rotation -=
-            rotationSpeed * dt;
-    }
-
-
-
-    //------------------------------------------------
-    // LIMITS
-    //------------------------------------------------
-
-    face.scale.x =
-        glm::clamp(
-            face.scale.x,
-            0.1f,
-            10.0f
-        );
-
-
-    face.scale.y =
-        glm::clamp(
-            face.scale.y,
-            0.1f,
-            10.0f
-        );
-
-}
-//====================================================
-// RENDER ONE FACE
-//====================================================
-
-void CajaRenderer3D::renderFace(
-    Renderer3D& renderer,
-    Camera3D& camera,
-    float aspectRatio,
-    CajaMesh3D::Face face
-)
-{
-
-    int index =
-        static_cast<int>(
-            face
-        );
-
-
-
-    FaceSettings& settings =
-        faceSettings[index];
-
-
-
-    //------------------------------------------------
-    // HDRI UV SETTINGS
-    //------------------------------------------------
-
-    shader.setOffset(
-        settings.offset
-    );
-
-
-    shader.setScale(
-        settings.scale
-    );
-
-
-    shader.setRotation(
-        settings.rotation
-    );
-
-
-
-    //------------------------------------------------
-    // DRAW
-    //------------------------------------------------
-
-    renderer.renderObject(
-        caja.getFace(face),
-        transform,
-        material,
-        shader,
-        camera,
-        aspectRatio
-    );
 
 }
 
 
-
 //====================================================
-// BACKGROUND
+// RENDER BACKGROUND
 //====================================================
 
 void CajaRenderer3D::renderBackground(
@@ -597,22 +357,17 @@ void CajaRenderer3D::renderBackground(
     );
 
 
-    glDepthMask(
-        GL_FALSE
-    );
-
-
     glDisable(
-        GL_DEPTH_TEST
+        GL_BLEND
     );
 
 
 
     //------------------------------------------------
-    // HDRI
+    // SHADER
     //------------------------------------------------
 
-    shader.bind();
+    hdriShader.bind();
 
 
 
@@ -621,66 +376,41 @@ void CajaRenderer3D::renderBackground(
     );
 
 
-    shader.setHDRITextureSlot(
+
+    hdriShader.setHDRITextureSlot(
         0
     );
 
 
-    shader.setExposure(
+    hdriShader.setExposure(
         exposure
     );
 
 
+    hdriShader.setRotation(
+        hdriRotation
+    );
+
+
 
     //------------------------------------------------
-    // SIX FACES
+    // DRAW
     //------------------------------------------------
 
-    renderFace(
-        renderer,
+    renderer.renderObject(
+
+        caja.getMesh(),
+
+        transform,
+
+        material,
+
+        hdriShader,
+
         camera,
-        aspectRatio,
-        CajaMesh3D::Face::FLOOR
-    );
 
+        aspectRatio
 
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::CEILING
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::FRONT
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::BACK
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::LEFT
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::RIGHT
     );
 
 
@@ -689,16 +419,6 @@ void CajaRenderer3D::renderBackground(
     // RESTORE
     //------------------------------------------------
 
-    glDepthMask(
-        GL_TRUE
-    );
-
-
-    glEnable(
-        GL_DEPTH_TEST
-    );
-
-
     glEnable(
         GL_CULL_FACE
     );
@@ -706,9 +426,8 @@ void CajaRenderer3D::renderBackground(
 }
 
 
-
 //====================================================
-// OBJECTS
+// RENDER OBJECTS
 //====================================================
 
 void CajaRenderer3D::renderObjects(
@@ -718,5 +437,11 @@ void CajaRenderer3D::renderObjects(
     float
 )
 {
+
+    // La Caja3D únicamente representa
+    // el entorno HDRI.
+    //
+    // Los objetos de la escena se renderizan
+    // desde sus propios renderers.
 
 }

@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
+
 
 
 //====================================================
@@ -16,12 +18,21 @@ class CajaMeshBuilder
 public:
 
     //------------------------------------------------
-    // BUILD COMPLETE ROOM
+    // BUILD
     //------------------------------------------------
 
     static void build(
         CajaMesh3D& caja,
-        const glm::vec3& size,
+
+        float left,
+        float right,
+
+        float front,
+        float back,
+
+        float floor,
+        float ceiling,
+
         const glm::vec3& color
     );
 
@@ -30,77 +41,22 @@ public:
 private:
 
     //------------------------------------------------
-    // BUILD ONE FACE
+    // HELPERS
     //------------------------------------------------
 
-    static void buildFloor(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
+    static void addQuad(
+
+        std::vector<Vertex3D>& vertices,
+        std::vector<uint32_t>& indices,
+
+        const glm::vec3& v0,
+        const glm::vec3& v1,
+        const glm::vec3& v2,
+        const glm::vec3& v3,
+
+        const glm::vec3& normal,
         const glm::vec3& color
-    );
 
-
-
-    static void buildCeiling(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
-        const glm::vec3& color
-    );
-
-
-
-    static void buildFront(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
-        const glm::vec3& color
-    );
-
-
-
-    static void buildBack(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
-        const glm::vec3& color
-    );
-
-
-
-    static void buildLeft(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
-        const glm::vec3& color
-    );
-
-
-
-    static void buildRight(
-        CajaMesh3D& caja,
-        float hx,
-        float hy,
-        float hz,
-        const glm::vec3& color
-    );
-
-
-
-    //------------------------------------------------
-    // UPLOAD
-    //------------------------------------------------
-
-    static void uploadFace(
-        Mesh3D& mesh,
-        const std::vector<Vertex3D>& vertices,
-        const std::vector<uint32_t>& indices
     );
 
 };

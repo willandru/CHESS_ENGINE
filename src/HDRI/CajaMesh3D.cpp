@@ -1,7 +1,5 @@
 #include "CajaMesh3D.h"
 
-#include <stdexcept>
-
 
 
 //====================================================
@@ -23,96 +21,31 @@ void CajaMesh3D::initialize()
 {
 
     // Mesh3D no requiere inicialización explícita.
-    // Cada cara será cargada por CajaMeshBuilder.
 
 }
 
 
 
 //====================================================
-// GET FACE
+// GET MESH
 //====================================================
 
-Mesh3D& CajaMesh3D::getFace(
-    Face face
-)
+Mesh3D& CajaMesh3D::getMesh()
 {
 
-    switch(face)
-    {
-
-        case Face::FLOOR:
-            return floor;
-
-
-        case Face::CEILING:
-            return ceiling;
-
-
-        case Face::FRONT:
-            return front;
-
-
-        case Face::BACK:
-            return back;
-
-
-        case Face::LEFT:
-            return left;
-
-
-        case Face::RIGHT:
-            return right;
-
-    }
-
-    throw std::runtime_error(
-        "CajaMesh3D::getFace() invalid face."
-    );
+    return mesh;
 
 }
 
 
 
 //====================================================
-// GET FACE CONST
+// GET MESH CONST
 //====================================================
 
-const Mesh3D& CajaMesh3D::getFace(
-    Face face
-) const
+const Mesh3D& CajaMesh3D::getMesh() const
 {
 
-    switch(face)
-    {
-
-        case Face::FLOOR:
-            return floor;
-
-
-        case Face::CEILING:
-            return ceiling;
-
-
-        case Face::FRONT:
-            return front;
-
-
-        case Face::BACK:
-            return back;
-
-
-        case Face::LEFT:
-            return left;
-
-
-        case Face::RIGHT:
-            return right;
-
-    }
-
-    throw std::runtime_error(
-        "CajaMesh3D::getFace() invalid face."
-    );
+    return mesh;
 
 }
