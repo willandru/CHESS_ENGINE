@@ -36,15 +36,22 @@ bool CupulaRenderer3D::initialize()
     // CREATE PROFILE
     //------------------------------------------------
 
-    cupulaData.initialize();
+    //------------------------------------------------
+    // CREATE PROFILE
+    //------------------------------------------------
+
+    cupulaData.initialize(
+        CupulaConstants3D::RADIUS
+    );
 
 
 
     //------------------------------------------------
-    // BUILD REVOLUTION MESH
+    // BUILD MESH
     //------------------------------------------------
 
     CupulaMeshBuilder::build(
+
         cupulaMesh,
 
         cupulaData.getProfile(),
@@ -52,6 +59,7 @@ bool CupulaRenderer3D::initialize()
         CupulaConstants3D::RADIAL_SEGMENTS,
 
         CupulaConstants3D::CUPULA_COLOR
+
     );
 
 
@@ -80,9 +88,9 @@ bool CupulaRenderer3D::initialize()
 
     transform.setScale(
     {
-        1.0f,
-        1.0f,
-        1.0f
+        cupulaScale,
+        cupulaScale,
+        cupulaScale
     });
 
 
@@ -160,10 +168,6 @@ void CupulaRenderer3D::update(
         1.5f;
 
 
-    constexpr float scaleSpeed =
-        0.4f;
-
-
     constexpr float horizonSpeed =
         0.5f;
 
@@ -172,9 +176,13 @@ void CupulaRenderer3D::update(
         1.0f;
 
 
+    constexpr float scaleSpeed =
+        0.5f;
+
+
 
     //------------------------------------------------
-    // ROTATION
+    // HDRI ROTATION
     //------------------------------------------------
 
     if(
@@ -200,70 +208,6 @@ void CupulaRenderer3D::update(
 
         hdriRotation -=
             rotationSpeed * dt;
-
-    }
-
-
-
-    //------------------------------------------------
-    // SCALE X
-    //------------------------------------------------
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_U
-        )
-    )
-    {
-
-        hdriScaleX -=
-            scaleSpeed * dt;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_J
-        )
-    )
-    {
-
-        hdriScaleX +=
-            scaleSpeed * dt;
-
-    }
-
-
-
-    //------------------------------------------------
-    // SCALE Y
-    //------------------------------------------------
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_Y
-        )
-    )
-    {
-
-        hdriScaleY -=
-            scaleSpeed * dt;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_H
-        )
-    )
-    {
-
-        hdriScaleY +=
-            scaleSpeed * dt;
 
     }
 
@@ -334,33 +278,78 @@ void CupulaRenderer3D::update(
 
 
     //------------------------------------------------
-    // LIMITS
+    // CUPULA RADIUS / SIZE
     //------------------------------------------------
 
-    hdriScaleX =
-        glm::clamp(
-            hdriScaleX,
-            0.25f,
-            4.0f
-        );
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_X
+        )
+    )
+    {
+
+        cupulaScale +=
+            scaleSpeed * dt;
+
+    }
 
 
 
-    hdriScaleY =
-        glm::clamp(
-            hdriScaleY,
-            0.25f,
-            4.0f
-        );
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_Z
+        )
+    )
+    {
+
+        cupulaScale -=
+            scaleSpeed * dt;
+
+    }
 
 
+
+    //------------------------------------------------
+    // LIMITS
+    //------------------------------------------------
 
     captureHeight =
         glm::clamp(
             captureHeight,
             0.10f,
-            5.00f
+            10.0f
         );
+
+
+
+    hdriHorizon =
+        glm::clamp(
+            hdriHorizon,
+            -1.0f,
+            1.0f
+        );
+
+
+
+    cupulaScale =
+        glm::clamp(
+            cupulaScale,
+            0.1f,
+            10.0f
+        );
+
+
+
+    //------------------------------------------------
+    // APPLY SCALE
+    //------------------------------------------------
+
+    transform.setScale(
+    {
+        cupulaScale,
+        cupulaScale,
+        cupulaScale
+    });
 
 }
 
@@ -377,10 +366,6 @@ void CupulaRenderer3D::renderBackground(
     float aspectRatio
 )
 {
-
-    //------------------------------------------------
-    // INSIDE ENVIRONMENT
-    //------------------------------------------------
 
     glDisable(
         GL_CULL_FACE
@@ -399,7 +384,7 @@ void CupulaRenderer3D::renderBackground(
 
 
     //------------------------------------------------
-    // HDRI SHADER
+    // SHADER
     //------------------------------------------------
 
     cupulaShader.bind();
@@ -407,7 +392,7 @@ void CupulaRenderer3D::renderBackground(
 
 
     //------------------------------------------------
-    // HDRI TEXTURE
+    // TEXTURE
     //------------------------------------------------
 
     hdriTexture.bind(
@@ -435,42 +420,45 @@ void CupulaRenderer3D::renderBackground(
     );
 
 
-    cupulaShader.setScaleX(
-        hdriScaleX
-    );
-
-
-    cupulaShader.setScaleY(
-        hdriScaleY
-    );
-
-
     cupulaShader.setHorizon(
         hdriHorizon
     );
 
-
-    //------------------------------------------------
-    // CAPTURE HEIGHT
-    //------------------------------------------------
 
     cupulaShader.setCaptureHeight(
         captureHeight
     );
 
 
+    //------------------------------------------------
+    // UNICO RADIO
+    //------------------------------------------------
+
+    cupulaShader.setRadius(
+        CupulaConstants3D::RADIUS *
+        cupulaScale
+    );
+
+
 
     //------------------------------------------------
-    // DRAW COMPLETE CUPULA
+    // DRAW
     //------------------------------------------------
 
     renderer.renderObject(
+
         cupulaMesh,
+
         transform,
+
         material,
+
         cupulaShader,
+
         camera,
+
         aspectRatio
+
     );
 
 

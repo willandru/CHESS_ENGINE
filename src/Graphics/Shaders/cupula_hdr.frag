@@ -1,30 +1,52 @@
 #version 330 core
 
 
+//------------------------------------------------
+// OUTPUT
+//------------------------------------------------
+
 out vec4 FragColor;
 
+
+
+//------------------------------------------------
+// INPUT
+//------------------------------------------------
 
 in vec3 WorldPos;
 
 
 
+//------------------------------------------------
+// HDRI
+//------------------------------------------------
+
 uniform sampler2D hdriMap;
 
 
+
+//------------------------------------------------
+// PARAMETERS
+//------------------------------------------------
+
 uniform float rotation;
-
-uniform float hdriScaleX;
-
-uniform float hdriScaleY;
-
-uniform float horizonOffset;
-
 
 uniform float exposure;
 
 
-// Altura de la cámara donde fue capturada la HDRI
+// Radio de la esfera HDRI virtual
+
+uniform float domeRadius;
+
+
+// Altura de captura
+
 uniform float captureHeight;
+
+
+// Ajuste vertical del horizonte
+
+uniform float horizonOffset;
 
 
 
@@ -34,29 +56,13 @@ const float PI =
 
 
 //====================================================
-// DIRECTION TO EQUIRECTANGULAR UV
+// DIRECTION TO UV
 //====================================================
 
 vec2 directionToUV(
     vec3 direction
 )
 {
-
-    direction =
-        normalize(
-            direction
-        );
-
-
-
-    //------------------------------------------------
-    // HDRI SCALE
-    //------------------------------------------------
-
-    direction.x *= hdriScaleX;
-
-    direction.y *= hdriScaleY;
-
 
     direction =
         normalize(
@@ -78,12 +84,17 @@ vec2 directionToUV(
 
     float latitude =
         asin(
-            direction.y
+            clamp(
+                direction.y,
+                -1.0,
+                1.0
+            )
         );
 
 
 
-    longitude += rotation;
+    longitude +=
+        rotation;
 
 
 
@@ -105,7 +116,8 @@ vec2 directionToUV(
 
 
 
-    v += horizonOffset;
+    v +=
+        horizonOffset;
 
 
 
@@ -137,14 +149,14 @@ vec2 directionToUV(
 
 
 //====================================================
-// HDRI CAPTURE PROJECTION
+// PROJECT FROM CAPTURE CAMERA
 //====================================================
 
 vec3 calculateHDRIDirection()
 {
 
     //------------------------------------------------
-    // HDRI CAMERA POSITION
+    // VIRTUAL CAMERA POSITION
     //------------------------------------------------
 
     vec3 captureCamera =
@@ -157,7 +169,7 @@ vec3 calculateHDRIDirection()
 
 
     //------------------------------------------------
-    // RAY FROM CAPTURE CAMERA TO SURFACE
+    // RAY
     //------------------------------------------------
 
     vec3 ray =
@@ -169,15 +181,10 @@ vec3 calculateHDRIDirection()
 
 
     //------------------------------------------------
-    // HDRI SPHERE
+    // SPHERE INTERSECTION
     //------------------------------------------------
 
-    const float radius =
-        20.0;
-
-
-
-    vec3 domeCenter =
+    vec3 sphereCenter =
         vec3(
             0.0,
             0.0,
@@ -188,7 +195,7 @@ vec3 calculateHDRIDirection()
 
     vec3 oc =
         captureCamera -
-        domeCenter;
+        sphereCenter;
 
 
 
@@ -205,8 +212,8 @@ vec3 calculateHDRIDirection()
             oc
         )
         -
-        radius *
-        radius;
+        domeRadius *
+        domeRadius;
 
 
 
@@ -235,7 +242,7 @@ vec3 calculateHDRIDirection()
 
 
 
-    vec3 spherePoint =
+    vec3 hitPoint =
         captureCamera +
         ray *
         t;
@@ -243,12 +250,12 @@ vec3 calculateHDRIDirection()
 
 
     //------------------------------------------------
-    // TRUE HDRI DIRECTION
+    // TRUE SPHERE DIRECTION
     //------------------------------------------------
 
     return normalize(
-        spherePoint -
-        domeCenter
+        hitPoint -
+        sphereCenter
     );
 
 }
@@ -283,7 +290,7 @@ void main()
 
 
     //------------------------------------------------
-    // SAMPLE HDRI
+    // SAMPLE
     //------------------------------------------------
 
     vec3 color =
@@ -294,7 +301,8 @@ void main()
 
 
 
-    color *= exposure;
+    color *=
+        exposure;
 
 
 

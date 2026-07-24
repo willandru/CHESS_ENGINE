@@ -10,6 +10,7 @@ class CupulaMesh3D
 
 public:
 
+
     //------------------------------------------------
     // CONSTRUCTOR
     //------------------------------------------------
@@ -19,10 +20,12 @@ public:
 
 
     //------------------------------------------------
-    // INITIALIZE 2D PROFILE
+    // INITIALIZE PROFILE
     //------------------------------------------------
 
-    void initialize();
+    void initialize(
+        float radius
+    );
 
 
 
@@ -37,6 +40,7 @@ public:
 
 private:
 
+
     //------------------------------------------------
     // REVOLUTION PROFILE
     //
@@ -46,5 +50,6 @@ private:
     //------------------------------------------------
 
     std::vector<glm::vec2> profile;
+
 
 };

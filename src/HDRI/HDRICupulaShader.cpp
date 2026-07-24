@@ -32,8 +32,11 @@ bool HDRICupulaShader::initialize()
 {
 
     return load(
+
         VERTEX_SHADER,
+
         FRAGMENT_SHADER
+
     );
 
 }
@@ -53,8 +56,11 @@ void HDRICupulaShader::setHDRITextureSlot(
 
 
     setInt(
+
         "hdriMap",
+
         slot
+
     );
 
 }
@@ -74,8 +80,11 @@ void HDRICupulaShader::setExposure(
 
 
     setFloat(
+
         "exposure",
+
         exposure
+
     );
 
 }
@@ -95,50 +104,11 @@ void HDRICupulaShader::setRotation(
 
 
     setFloat(
+
         "rotation",
+
         rotation
-    );
 
-}
-
-
-
-//====================================================
-// SCALE X
-//====================================================
-
-void HDRICupulaShader::setScaleX(
-    float scaleX
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriScaleX",
-        scaleX
-    );
-
-}
-
-
-
-//====================================================
-// SCALE Y
-//====================================================
-
-void HDRICupulaShader::setScaleY(
-    float scaleY
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "hdriScaleY",
-        scaleY
     );
 
 }
@@ -158,8 +128,11 @@ void HDRICupulaShader::setHorizon(
 
 
     setFloat(
+
         "horizonOffset",
+
         horizon
+
     );
 
 }
@@ -179,8 +152,35 @@ void HDRICupulaShader::setCaptureHeight(
 
 
     setFloat(
+
         "captureHeight",
+
         height
+
+    );
+
+}
+
+
+
+//====================================================
+// HDRI SPHERE RADIUS
+//====================================================
+
+void HDRICupulaShader::setRadius(
+    float radius
+)
+{
+
+    bind();
+
+
+    setFloat(
+
+        "domeRadius",
+
+        radius
+
     );
 
 }

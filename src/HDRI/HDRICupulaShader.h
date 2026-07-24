@@ -60,21 +60,6 @@ public:
 
 
     //------------------------------------------------
-    // SCALE
-    //------------------------------------------------
-
-    void setScaleX(
-        float scaleX
-    );
-
-
-    void setScaleY(
-        float scaleY
-    );
-
-
-
-    //------------------------------------------------
     // HORIZON
     //------------------------------------------------
 
@@ -94,11 +79,22 @@ public:
 
 
 
+    //------------------------------------------------
+    // HDRI SPHERE RADIUS
+    //------------------------------------------------
+
+    void setRadius(
+        float radius
+    );
+
+
+
 private:
 
 
     static constexpr const char* VERTEX_SHADER =
         "Shaders/cupula_hdr.vert";
+
 
 
     static constexpr const char* FRAGMENT_SHADER =

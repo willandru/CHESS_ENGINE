@@ -14,6 +14,8 @@
 
 #include "Camera3D.h"
 
+#include "CupulaConstants3D.h"
+
 
 
 class CupulaRenderer3D : public Environment3D
@@ -112,27 +114,52 @@ private:
     // HDRI CONTROLS
     //------------------------------------------------
 
-    float hdriRotation = 0.0f;
+
+    // Rotación horizontal HDRI
+
+    float hdriRotation =
+        CupulaConstants3D::HDRI_ROTATION;
 
 
-    float hdriScaleX = 1.0f;
+
+    // Movimiento vertical HDRI
+
+    float hdriHorizon =
+        0.0f;
 
 
-    float hdriScaleY = 1.0f;
 
+    // Exposición HDR
 
-    float hdriHorizon = 0.0f;
-
-
-    float exposure = 1.0f;
+    float exposure =
+        CupulaConstants3D::HDRI_EXPOSURE;
 
 
 
     //------------------------------------------------
-    // HDRI CAPTURE SETTINGS
+    // HDRI CAPTURE
     //------------------------------------------------
 
-    float captureHeight = 1.0f;
+
+    // Altura cámara virtual HDRI
+
+    float captureHeight =
+        CupulaConstants3D::HDRI_CAPTURE_HEIGHT;
+
+
+
+    //------------------------------------------------
+    // CUPULA SIZE CONTROL
+    //------------------------------------------------
+    //
+    // Este controla el radio efectivo visible.
+    //
+    // X aumenta
+    // Z disminuye
+    //
+
+    float cupulaScale =
+        1.0f;
 
 
 };

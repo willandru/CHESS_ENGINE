@@ -7,6 +7,7 @@
 namespace CupulaConstants3D
 {
 
+
     //------------------------------------------------
     // MATHEMATICS
     //------------------------------------------------
@@ -20,16 +21,13 @@ namespace CupulaConstants3D
     // ENVIRONMENT DIMENSIONS
     //------------------------------------------------
 
-    // Radio único del entorno
-    // usado por suelo y cúpula
-
+    // Radio base de la geometría
     constexpr float RADIUS =
         30.0f;
 
 
 
-    // Radio de la unión curva
-    // entre plano y pared/cúpula
+    // Radio transición suelo-pared
 
     constexpr float CURVE_RADIUS =
         0.3f;
@@ -42,7 +40,6 @@ namespace CupulaConstants3D
 
     constexpr uint32_t CURVE_SEGMENTS =
         32;
-
 
 
     constexpr uint32_t DOME_SEGMENTS =
@@ -90,6 +87,32 @@ namespace CupulaConstants3D
 
 
     //------------------------------------------------
+    // HDRI SETTINGS
+    //------------------------------------------------
+
+    constexpr float HDRI_EXPOSURE =
+        1.0f;
+
+
+    constexpr float HDRI_ROTATION =
+        0.0f;
+
+
+
+    //------------------------------------------------
+    // HDRI PROJECTION
+    //------------------------------------------------
+
+    constexpr float HDRI_RADIUS =
+        RADIUS;
+
+
+    constexpr float HDRI_CAPTURE_HEIGHT =
+        1.0f;
+
+
+
+    //------------------------------------------------
     // COLOR
     //------------------------------------------------
 
@@ -99,5 +122,6 @@ namespace CupulaConstants3D
         1.0f,
         1.0f
     };
+
 
 }

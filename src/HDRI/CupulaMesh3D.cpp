@@ -20,7 +20,9 @@ CupulaMesh3D::CupulaMesh3D()
 // INITIALIZE PROFILE
 //====================================================
 
-void CupulaMesh3D::initialize()
+void CupulaMesh3D::initialize(
+    float radius
+)
 {
 
     profile.clear();
@@ -28,7 +30,7 @@ void CupulaMesh3D::initialize()
 
 
     const float R =
-        CupulaConstants3D::RADIUS;
+        radius;
 
 
 
