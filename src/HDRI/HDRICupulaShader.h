@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "Shader3D.h"
@@ -10,6 +9,10 @@ class HDRICupulaShader : public Shader3D
 
 public:
 
+
+    //------------------------------------------------
+    // CONSTRUCTOR / DESTRUCTOR
+    //------------------------------------------------
 
     HDRICupulaShader();
 
@@ -77,6 +80,16 @@ public:
 
     void setHorizon(
         float horizon
+    );
+
+
+
+    //------------------------------------------------
+    // HDRI CAPTURE HEIGHT
+    //------------------------------------------------
+
+    void setCaptureHeight(
+        float height
     );
 
 

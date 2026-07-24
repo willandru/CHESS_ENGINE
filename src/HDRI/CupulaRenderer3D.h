@@ -15,6 +15,7 @@
 #include "Camera3D.h"
 
 
+
 class CupulaRenderer3D : public Environment3D
 {
 
@@ -124,5 +125,14 @@ private:
 
 
     float exposure = 1.0f;
+
+
+
+    //------------------------------------------------
+    // HDRI CAPTURE SETTINGS
+    //------------------------------------------------
+
+    float captureHeight = 1.0f;
+
 
 };

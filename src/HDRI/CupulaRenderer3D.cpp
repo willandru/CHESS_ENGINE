@@ -13,6 +13,7 @@
 #include <glm/common.hpp>
 
 
+
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -155,11 +156,20 @@ void CupulaRenderer3D::update(
 )
 {
 
-    constexpr float rotationSpeed = 1.5f;
+    constexpr float rotationSpeed =
+        1.5f;
 
-    constexpr float scaleSpeed = 0.4f;
 
-    constexpr float horizonSpeed = 0.5f;
+    constexpr float scaleSpeed =
+        0.4f;
+
+
+    constexpr float horizonSpeed =
+        0.5f;
+
+
+    constexpr float captureHeightSpeed =
+        1.0f;
 
 
 
@@ -178,6 +188,7 @@ void CupulaRenderer3D::update(
             rotationSpeed * dt;
 
     }
+
 
 
     if(
@@ -291,6 +302,38 @@ void CupulaRenderer3D::update(
 
 
     //------------------------------------------------
+    // CAPTURE HEIGHT
+    //------------------------------------------------
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_O
+        )
+    )
+    {
+
+        captureHeight +=
+            captureHeightSpeed * dt;
+
+    }
+
+
+
+    if(
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_L
+        )
+    )
+    {
+
+        captureHeight -=
+            captureHeightSpeed * dt;
+
+    }
+
+
+
+    //------------------------------------------------
     // LIMITS
     //------------------------------------------------
 
@@ -302,11 +345,21 @@ void CupulaRenderer3D::update(
         );
 
 
+
     hdriScaleY =
         glm::clamp(
             hdriScaleY,
             0.25f,
             4.0f
+        );
+
+
+
+    captureHeight =
+        glm::clamp(
+            captureHeight,
+            0.10f,
+            5.00f
         );
 
 }
@@ -397,6 +450,15 @@ void CupulaRenderer3D::renderBackground(
     );
 
 
+    //------------------------------------------------
+    // CAPTURE HEIGHT
+    //------------------------------------------------
+
+    cupulaShader.setCaptureHeight(
+        captureHeight
+    );
+
+
 
     //------------------------------------------------
     // DRAW COMPLETE CUPULA
@@ -448,4 +510,3 @@ void CupulaRenderer3D::renderObjects(
 {
 
 }
-

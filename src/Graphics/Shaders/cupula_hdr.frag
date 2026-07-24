@@ -23,6 +23,10 @@ uniform float horizonOffset;
 uniform float exposure;
 
 
+// Altura de la cámara donde fue capturada la HDRI
+uniform float captureHeight;
+
+
 
 const float PI =
     3.14159265359;
@@ -54,7 +58,6 @@ vec2 directionToUV(
     direction.y *= hdriScaleY;
 
 
-
     direction =
         normalize(
             direction
@@ -73,7 +76,6 @@ vec2 directionToUV(
         );
 
 
-
     float latitude =
         asin(
             direction.y
@@ -86,7 +88,7 @@ vec2 directionToUV(
 
 
     //------------------------------------------------
-    // EQUIRECTANGULAR MAPPING
+    // EQUIRECTANGULAR
     //------------------------------------------------
 
     float u =
@@ -125,10 +127,128 @@ vec2 directionToUV(
         );
 
 
-
     return vec2(
         u,
         v
+    );
+
+}
+
+
+
+//====================================================
+// HDRI CAPTURE PROJECTION
+//====================================================
+
+vec3 calculateHDRIDirection()
+{
+
+    //------------------------------------------------
+    // HDRI CAMERA POSITION
+    //------------------------------------------------
+
+    vec3 captureCamera =
+        vec3(
+            0.0,
+            captureHeight,
+            0.0
+        );
+
+
+
+    //------------------------------------------------
+    // RAY FROM CAPTURE CAMERA TO SURFACE
+    //------------------------------------------------
+
+    vec3 ray =
+        normalize(
+            WorldPos -
+            captureCamera
+        );
+
+
+
+    //------------------------------------------------
+    // HDRI SPHERE
+    //------------------------------------------------
+
+    const float radius =
+        20.0;
+
+
+
+    vec3 domeCenter =
+        vec3(
+            0.0,
+            0.0,
+            0.0
+        );
+
+
+
+    vec3 oc =
+        captureCamera -
+        domeCenter;
+
+
+
+    float b =
+        dot(
+            oc,
+            ray
+        );
+
+
+    float c =
+        dot(
+            oc,
+            oc
+        )
+        -
+        radius *
+        radius;
+
+
+
+    float discriminant =
+        b * b -
+        c;
+
+
+
+    if(discriminant < 0.0)
+    {
+
+        return normalize(
+            WorldPos
+        );
+
+    }
+
+
+
+    float t =
+        -b +
+        sqrt(
+            discriminant
+        );
+
+
+
+    vec3 spherePoint =
+        captureCamera +
+        ray *
+        t;
+
+
+
+    //------------------------------------------------
+    // TRUE HDRI DIRECTION
+    //------------------------------------------------
+
+    return normalize(
+        spherePoint -
+        domeCenter
     );
 
 }
@@ -143,15 +263,17 @@ void main()
 {
 
     //------------------------------------------------
-    // VIEW DIRECTION FROM CUPULA CENTER
+    // HDRI DIRECTION
     //------------------------------------------------
 
     vec3 direction =
-        normalize(
-            WorldPos
-        );
+        calculateHDRIDirection();
 
 
+
+    //------------------------------------------------
+    // UV
+    //------------------------------------------------
 
     vec2 uv =
         directionToUV(
@@ -159,6 +281,10 @@ void main()
         );
 
 
+
+    //------------------------------------------------
+    // SAMPLE HDRI
+    //------------------------------------------------
 
     vec3 color =
         texture(

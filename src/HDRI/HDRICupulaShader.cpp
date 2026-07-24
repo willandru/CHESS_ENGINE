@@ -1,6 +1,7 @@
 #include "HDRICupulaShader.h"
 
 
+
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -159,6 +160,27 @@ void HDRICupulaShader::setHorizon(
     setFloat(
         "horizonOffset",
         horizon
+    );
+
+}
+
+
+
+//====================================================
+// HDRI CAPTURE HEIGHT
+//====================================================
+
+void HDRICupulaShader::setCaptureHeight(
+    float height
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "captureHeight",
+        height
     );
 
 }
