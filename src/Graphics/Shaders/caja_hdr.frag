@@ -87,9 +87,26 @@ void main()
         );
 
 
-
     angle +=
         hdriRotation;
+
+
+    //----------------------------------------
+    // WRAP ROTATION
+    //----------------------------------------
+
+    if(angle > PI)
+    {
+        angle -=
+            2.0 * PI;
+    }
+
+
+    if(angle < -PI)
+    {
+        angle +=
+            2.0 * PI;
+    }
 
 
 

@@ -108,24 +108,24 @@ private:
 
 
     float exposure =
-        1.0f;
+        CajaConstants3D::HDRI_EXPOSURE;
 
 
 
     float hdriRotation =
-        0.0f;
+        CajaConstants3D::HDRI_ROTATION;
 
 
 
     //------------------------------------------------
     // HDRI PROJECTION HEIGHT
     //------------------------------------------------
-    
+
     // Altura virtual del observador HDRI
     // Ajusta cómo cae la textura sobre el suelo
-    
+
     float hdriHeight =
-        1.8f;
+        CajaConstants3D::HDRI_HEIGHT;
 
 
 
@@ -134,19 +134,19 @@ private:
     //------------------------------------------------
 
     float left =
-        -6.0f;
+        CajaConstants3D::LEFT;
 
 
     float right =
-         6.0f;
+        CajaConstants3D::RIGHT;
 
 
     float front =
-         6.0f;
+        CajaConstants3D::FRONT;
 
 
     float back =
-        -6.0f;
+        CajaConstants3D::BACK;
 
 
     float floor =
