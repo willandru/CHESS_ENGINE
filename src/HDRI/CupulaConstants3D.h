@@ -24,7 +24,7 @@ namespace CupulaConstants3D
     // usado por suelo y cúpula
 
     constexpr float RADIUS =
-        20.0f;
+        30.0f;
 
 
 
@@ -32,7 +32,7 @@ namespace CupulaConstants3D
     // entre plano y pared/cúpula
 
     constexpr float CURVE_RADIUS =
-        1.0f;
+        0.3f;
 
 
 
