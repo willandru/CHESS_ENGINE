@@ -98,7 +98,7 @@ bool CajaRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/pine_attic_8k.exr"
+            "Assets/Environment/indoor/wrestling_gym_8k.exr"
         )
     )
     {
@@ -414,10 +414,6 @@ void CajaRenderer3D::update(
 // RENDER BACKGROUND
 //====================================================
 
-//====================================================
-// RENDER BACKGROUND
-//====================================================
-
 void CajaRenderer3D::renderBackground(
     Renderer3D& renderer,
     Shader3D&,
@@ -515,6 +511,7 @@ void CajaRenderer3D::renderBackground(
     );
 
 }
+
 
 
 //====================================================

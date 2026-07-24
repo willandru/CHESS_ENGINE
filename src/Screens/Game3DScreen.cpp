@@ -45,7 +45,7 @@ void Game3DScreen::onEnter()
 
 
     sceneRenderer.setEnvironment(
-        std::make_unique<CupulaRenderer3D>()
+        std::make_unique<CajaRenderer3D>()
     );
 
 

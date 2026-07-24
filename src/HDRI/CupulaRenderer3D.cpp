@@ -111,7 +111,7 @@ bool CupulaRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/horn-koppe_snow_8k.exr"
+            "Assets/Environment/outdoor/alps_field_8k.exr"
         )
     )
     {
