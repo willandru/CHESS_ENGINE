@@ -24,7 +24,7 @@ namespace CupulaConstants3D
     // usado por suelo y cúpula
 
     constexpr float RADIUS =
-        200.0f;
+        20.0f;
 
 
 

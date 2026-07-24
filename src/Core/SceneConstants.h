@@ -182,8 +182,7 @@ namespace SceneConstants
 
 
     constexpr float CAMERA_TARGET_Y =
-        BOARD_HEIGHT +
-        SCENE_VERTICAL_OFFSET;
+        BOARD_HEIGHT;
 
 
 
