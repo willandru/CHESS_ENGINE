@@ -1,5 +1,3 @@
-// CajaRenderer3D.h
-
 #pragma once
 
 #include "Environment3D.h"
@@ -17,12 +15,7 @@
 #include "Renderer3D.h"
 
 #include <glm/glm.hpp>
-
-
-
-//====================================================
-// CAJA RENDERER 3D
-//====================================================
+#include "CajaConstants3D.h"
 
 class CajaRenderer3D : public Environment3D
 {
@@ -32,13 +25,7 @@ public:
     CajaRenderer3D();
 
 
-
-    //------------------------------------------------
-    // LIFECYCLE
-    //------------------------------------------------
-
     bool initialize() override;
-
 
 
     void update(
@@ -47,10 +34,6 @@ public:
     ) override;
 
 
-
-    //------------------------------------------------
-    // RENDER
-    //------------------------------------------------
 
     void renderBackground(
         Renderer3D& renderer,
@@ -72,15 +55,21 @@ public:
 
 private:
 
-    //------------------------------------------------
-    // INTERNAL
-    //------------------------------------------------
-
     void rebuildMesh();
 
 
 
 private:
+
+
+    //------------------------------------------------
+    // SELECTED FACE
+    //------------------------------------------------
+
+    CajaMesh3D::Face selectedFace =
+        CajaMesh3D::Face::LEFT;
+
+
 
     //------------------------------------------------
     // MESH
@@ -120,7 +109,6 @@ private:
         1.0f;
 
 
-
     float hdriRotation =
         0.0f;
 
@@ -147,10 +135,10 @@ private:
 
 
     float floor =
-        -2.0f;
+        CajaConstants3D::FLOOR;
 
 
     float ceiling =
-         2.0f;
+        CajaConstants3D::CEILING;
 
 };

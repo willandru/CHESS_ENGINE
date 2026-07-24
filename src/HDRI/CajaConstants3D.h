@@ -22,7 +22,7 @@ namespace CajaConstants3D
         -6.0f;
 
     constexpr float FLOOR =
-        -2.0f;
+        0.0f;
 
     constexpr float CEILING =
          2.0f;

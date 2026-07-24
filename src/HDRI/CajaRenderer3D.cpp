@@ -163,7 +163,6 @@ void CajaRenderer3D::rebuildMesh()
 //====================================================
 // UPDATE
 //====================================================
-
 void CajaRenderer3D::update(
     Camera3D&,
     float dt
@@ -178,9 +177,55 @@ void CajaRenderer3D::update(
         1.5f;
 
 
-
     bool rebuild =
         false;
+
+
+
+    //------------------------------------------------
+    // SELECT FACE
+    //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_1))
+    {
+        selectedFace =
+            CajaMesh3D::Face::LEFT;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_2))
+    {
+        selectedFace =
+            CajaMesh3D::Face::RIGHT;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_3))
+    {
+        selectedFace =
+            CajaMesh3D::Face::FRONT;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_4))
+    {
+        selectedFace =
+            CajaMesh3D::Face::BACK;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_5))
+    {
+        selectedFace =
+            CajaMesh3D::Face::FLOOR;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_6))
+    {
+        selectedFace =
+            CajaMesh3D::Face::CEILING;
+    }
 
 
 
@@ -188,154 +233,161 @@ void CajaRenderer3D::update(
     // HDRI ROTATION
     //------------------------------------------------
 
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_R
-        )
-    )
+    if(InputKeyboard::isKeyDown(GLFW_KEY_R))
     {
-
         hdriRotation +=
             rotationSpeed * dt;
-
     }
 
 
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_F
-        )
-    )
+    if(InputKeyboard::isKeyDown(GLFW_KEY_F))
     {
-
         hdriRotation -=
             rotationSpeed * dt;
+    }
+
+
+
+    float amount =
+        moveSpeed * dt;
+
+
+
+    //------------------------------------------------
+    // MOVE SELECTED FACE
+    //------------------------------------------------
+
+
+    switch(selectedFace)
+    {
+
+
+    case CajaMesh3D::Face::LEFT:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_A))
+        {
+            left -= amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_D))
+        {
+            left += amount;
+            rebuild = true;
+        }
+
+        break;
+
+
+
+    case CajaMesh3D::Face::RIGHT:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_A))
+        {
+            right -= amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_D))
+        {
+            right += amount;
+            rebuild = true;
+        }
+
+        break;
+
+
+
+    case CajaMesh3D::Face::FRONT:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_W))
+        {
+            front += amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_S))
+        {
+            front -= amount;
+            rebuild = true;
+        }
+
+        break;
+
+
+
+    case CajaMesh3D::Face::BACK:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_W))
+        {
+            back += amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_S))
+        {
+            back -= amount;
+            rebuild = true;
+        }
+
+        break;
+
+
+
+    case CajaMesh3D::Face::FLOOR:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_Q))
+        {
+            floor += amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_E))
+        {
+            floor -= amount;
+            rebuild = true;
+        }
+
+        break;
+
+
+
+    case CajaMesh3D::Face::CEILING:
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_Q))
+        {
+            ceiling += amount;
+            rebuild = true;
+        }
+
+
+        if(InputKeyboard::isKeyDown(GLFW_KEY_E))
+        {
+            ceiling -= amount;
+            rebuild = true;
+        }
+
+        break;
 
     }
 
 
 
     //------------------------------------------------
-    // MOVE ROOM FACES
-    //------------------------------------------------
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_A
-        )
-    )
-    {
-
-        left -=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_D
-        )
-    )
-    {
-
-        right +=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_W
-        )
-    )
-    {
-
-        front +=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_S
-        )
-    )
-    {
-
-        back -=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_Q
-        )
-    )
-    {
-
-        ceiling +=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_E
-        )
-    )
-    {
-
-        floor -=
-            moveSpeed * dt;
-
-
-        rebuild = true;
-
-    }
-
-
-
-    //------------------------------------------------
-    // APPLY CHANGES
+    // APPLY
     //------------------------------------------------
 
     if(rebuild)
     {
-
         rebuildMesh();
-
     }
 
 }
-
-
 //====================================================
 // RENDER BACKGROUND
 //====================================================
