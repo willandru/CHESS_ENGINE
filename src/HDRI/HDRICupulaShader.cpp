@@ -1,7 +1,6 @@
 #include "HDRICupulaShader.h"
 
 
-
 //====================================================
 // CONSTRUCTOR
 //====================================================
@@ -25,7 +24,7 @@ HDRICupulaShader::~HDRICupulaShader()
 
 
 //====================================================
-// INITIALIZATION
+// INITIALIZE
 //====================================================
 
 bool HDRICupulaShader::initialize()
@@ -41,7 +40,7 @@ bool HDRICupulaShader::initialize()
 
 
 //====================================================
-// TEXTURE SLOT
+// HDRI TEXTURE SLOT
 //====================================================
 
 void HDRICupulaShader::setHDRITextureSlot(

@@ -1,12 +1,8 @@
 #include "CupulaMesh3D.h"
 
-
-#include "CupulaMeshBuilder.h"
 #include "CupulaConstants3D.h"
 
-
-#include <iostream>
-
+#include <cmath>
 
 
 //====================================================
@@ -21,233 +17,158 @@ CupulaMesh3D::CupulaMesh3D()
 
 
 //====================================================
-// INITIALIZATION
+// INITIALIZE PROFILE
 //====================================================
 
 void CupulaMesh3D::initialize()
 {
 
-    color =
-        CupulaConstants3D::CUPULA_COLOR;
+    profile.clear();
 
 
 
-    CupulaMeshBuilder::build(
-        mesh,
+    const float R =
+        CupulaConstants3D::RADIUS;
 
-        CupulaConstants3D::CUPULA_RADIUS,
 
-        CupulaConstants3D::GROUND_RADIUS,
 
-        CupulaConstants3D::CURVE_RADIUS,
+    const float C =
+        CupulaConstants3D::CURVE_RADIUS;
 
-        CupulaConstants3D::RADIAL_SEGMENTS,
 
-        CupulaConstants3D::HEIGHT_SEGMENTS,
 
-        color
+    //------------------------------------------------
+    // FLOOR CENTER
+    //------------------------------------------------
+
+    profile.emplace_back(
+        0.0f,
+        0.0f
     );
 
 
 
-    material.setColor(
-        color
+    //------------------------------------------------
+    // FLOOR EDGE
+    //------------------------------------------------
+
+    profile.emplace_back(
+        R - C,
+        0.0f
     );
 
 
 
-    transform.setPosition(
+    //------------------------------------------------
+    // CURVED TRANSITION
+    //------------------------------------------------
+
+    for(uint32_t i = 1;
+        i <= CupulaConstants3D::CURVE_SEGMENTS;
+        ++i)
     {
-        CupulaConstants3D::CENTER_X,
-        CupulaConstants3D::CENTER_Y,
-        CupulaConstants3D::CENTER_Z
-    });
+
+        float t =
+            static_cast<float>(i) /
+            static_cast<float>(
+                CupulaConstants3D::CURVE_SEGMENTS
+            );
 
 
 
-    transform.setRotation(
-    {
-        CupulaConstants3D::ROT_X,
-        CupulaConstants3D::ROT_Y,
-        CupulaConstants3D::ROT_Z
-    });
+        float angle =
+            t *
+            CupulaConstants3D::PI *
+            0.5f;
 
 
 
-    transform.setScale(
-    {
-        1.0f,
-        1.0f,
-        1.0f
-    });
+        float x =
+            (R - C) +
+            C *
+            std::sin(angle);
 
 
 
-    std::cout
-        << "[CUPULA] Initialized "
-        << "Radius="
-        << CupulaConstants3D::CUPULA_RADIUS
-        << std::endl;
-
-}
-
+        float y =
+            C *
+            (
+                1.0f -
+                std::cos(angle)
+            );
 
 
-//====================================================
-// TEXTURE
-//====================================================
 
-bool CupulaMesh3D::loadTexture(
-    const std::string& path
-)
-{
+        profile.emplace_back(
+            x,
+            y
+        );
 
-    if(
-        !texture.loadFromFile(path)
-    )
-    {
-        return false;
     }
 
 
 
-    material.setTexture(
-        &texture
-    );
+    //------------------------------------------------
+    // DOME
+    //------------------------------------------------
 
-
-    return true;
-
-}
-
-
-
-//====================================================
-// TRANSFORM
-//====================================================
-
-void CupulaMesh3D::setPosition(
-    const glm::vec3& position
-)
-{
-
-    transform.setPosition(
-        position
-    );
-
-}
+    float centerY =
+        C;
 
 
 
-void CupulaMesh3D::setRotation(
-    const glm::vec3& rotation
-)
-{
+    for(uint32_t i = 1;
+        i <= CupulaConstants3D::DOME_SEGMENTS;
+        ++i)
+    {
 
-    transform.setRotation(
-        rotation
-    );
-
-}
-
-
-
-void CupulaMesh3D::setScale(
-    const glm::vec3& scale
-)
-{
-
-    transform.setScale(
-        scale
-    );
-
-}
+        float t =
+            static_cast<float>(i) /
+            static_cast<float>(
+                CupulaConstants3D::DOME_SEGMENTS
+            );
 
 
 
-const Transform3D&
-CupulaMesh3D::getTransform() const
-{
+        float angle =
+            t *
+            CupulaConstants3D::PI *
+            0.5f;
 
-    return transform;
+
+
+        float x =
+            R *
+            std::cos(angle);
+
+
+
+        float y =
+            centerY +
+            R *
+            std::sin(angle);
+
+
+
+        profile.emplace_back(
+            x,
+            y
+        );
+
+    }
 
 }
 
 
 
 //====================================================
-// APPEARANCE
+// GET PROFILE
 //====================================================
 
-void CupulaMesh3D::setColor(
-    const glm::vec3& color
-)
+const std::vector<glm::vec2>&
+CupulaMesh3D::getProfile() const
 {
 
-    this->color = color;
-
-
-    material.setColor(
-        color
-    );
-
-}
-
-
-
-const glm::vec3&
-CupulaMesh3D::getColor() const
-{
-
-    return color;
-
-}
-
-
-
-//====================================================
-// ACCESS
-//====================================================
-
-const Mesh3D&
-CupulaMesh3D::getMesh() const
-{
-
-    return mesh;
-
-}
-
-
-
-const Material3D&
-CupulaMesh3D::getMaterial() const
-{
-
-    return material;
-
-}
-
-
-
-//====================================================
-// RENDER
-//====================================================
-
-void CupulaMesh3D::render(
-    const Renderer3D& renderer,
-    const Shader3D& shader,
-    const Camera3D& camera,
-    float aspectRatio
-) const
-{
-
-    renderer.renderObject(
-        mesh,
-        transform,
-        material,
-        shader,
-        camera,
-        aspectRatio
-    );
+    return profile;
 
 }

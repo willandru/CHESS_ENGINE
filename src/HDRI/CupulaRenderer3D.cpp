@@ -1,17 +1,16 @@
 #include "CupulaRenderer3D.h"
 
+#include "CupulaConstants3D.h"
+
+#include "CupulaMeshBuilder.h"
 
 #include "InputKeyboard.h"
 
-
 #include <iostream>
-
 
 #include <glad/glad.h>
 
-
 #include <glm/common.hpp>
-
 
 
 //====================================================
@@ -26,15 +25,80 @@ CupulaRenderer3D::CupulaRenderer3D()
 
 
 //====================================================
-// INITIALIZATION
+// INITIALIZE
 //====================================================
 
 bool CupulaRenderer3D::initialize()
 {
 
-    cupula.initialize();
+    //------------------------------------------------
+    // CREATE PROFILE
+    //------------------------------------------------
+
+    cupulaData.initialize();
 
 
+
+    //------------------------------------------------
+    // BUILD REVOLUTION MESH
+    //------------------------------------------------
+
+    CupulaMeshBuilder::build(
+        cupulaMesh,
+
+        cupulaData.getProfile(),
+
+        CupulaConstants3D::RADIAL_SEGMENTS,
+
+        CupulaConstants3D::CUPULA_COLOR
+    );
+
+
+
+    //------------------------------------------------
+    // TRANSFORM
+    //------------------------------------------------
+
+    transform.setPosition(
+    {
+        CupulaConstants3D::CENTER_X,
+        CupulaConstants3D::CENTER_Y,
+        CupulaConstants3D::CENTER_Z
+    });
+
+
+
+    transform.setRotation(
+    {
+        CupulaConstants3D::ROT_X,
+        CupulaConstants3D::ROT_Y,
+        CupulaConstants3D::ROT_Z
+    });
+
+
+
+    transform.setScale(
+    {
+        1.0f,
+        1.0f,
+        1.0f
+    });
+
+
+
+    //------------------------------------------------
+    // MATERIAL
+    //------------------------------------------------
+
+    material.setColor(
+        CupulaConstants3D::CUPULA_COLOR
+    );
+
+
+
+    //------------------------------------------------
+    // HDRI
+    //------------------------------------------------
 
     if(
         !hdriTexture.loadFromFile(
@@ -53,6 +117,10 @@ bool CupulaRenderer3D::initialize()
     }
 
 
+
+    //------------------------------------------------
+    // SHADER
+    //------------------------------------------------
 
     if(
         !cupulaShader.initialize()
@@ -82,25 +150,27 @@ bool CupulaRenderer3D::initialize()
 //====================================================
 
 void CupulaRenderer3D::update(
-    Camera3D& camera,
+    Camera3D&,
     float dt
 )
 {
 
-    float rotationSpeed = 1.5f;
+    constexpr float rotationSpeed = 1.5f;
 
-    float scaleSpeed = 0.4f;
+    constexpr float scaleSpeed = 0.4f;
 
-    float horizonSpeed = 0.5f;
+    constexpr float horizonSpeed = 0.5f;
 
 
 
     //------------------------------------------------
-    // HDRI ROTATION
+    // ROTATION
     //------------------------------------------------
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_R)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_R
+        )
     )
     {
 
@@ -110,9 +180,10 @@ void CupulaRenderer3D::update(
     }
 
 
-
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_F)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_F
+        )
     )
     {
 
@@ -128,7 +199,9 @@ void CupulaRenderer3D::update(
     //------------------------------------------------
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_U)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_U
+        )
     )
     {
 
@@ -140,7 +213,9 @@ void CupulaRenderer3D::update(
 
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_J)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_J
+        )
     )
     {
 
@@ -156,7 +231,9 @@ void CupulaRenderer3D::update(
     //------------------------------------------------
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_Y)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_Y
+        )
     )
     {
 
@@ -168,7 +245,9 @@ void CupulaRenderer3D::update(
 
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_H)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_H
+        )
     )
     {
 
@@ -184,7 +263,9 @@ void CupulaRenderer3D::update(
     //------------------------------------------------
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_T)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_T
+        )
     )
     {
 
@@ -196,7 +277,9 @@ void CupulaRenderer3D::update(
 
 
     if(
-        InputKeyboard::isKeyDown(GLFW_KEY_G)
+        InputKeyboard::isKeyDown(
+            GLFW_KEY_G
+        )
     )
     {
 
@@ -217,7 +300,6 @@ void CupulaRenderer3D::update(
             0.25f,
             4.0f
         );
-
 
 
     hdriScaleY =
@@ -244,11 +326,16 @@ void CupulaRenderer3D::renderBackground(
 {
 
     //------------------------------------------------
-    // ENVIRONMENT SETTINGS
+    // INSIDE ENVIRONMENT
     //------------------------------------------------
 
     glDisable(
         GL_CULL_FACE
+    );
+
+
+    glDepthMask(
+        GL_FALSE
     );
 
 
@@ -258,12 +345,21 @@ void CupulaRenderer3D::renderBackground(
 
 
 
+    //------------------------------------------------
+    // HDRI SHADER
+    //------------------------------------------------
+
     cupulaShader.bind();
 
 
 
-    hdriTexture.bind(0);
+    //------------------------------------------------
+    // HDRI TEXTURE
+    //------------------------------------------------
 
+    hdriTexture.bind(
+        0
+    );
 
 
     cupulaShader.setHDRITextureSlot(
@@ -272,10 +368,13 @@ void CupulaRenderer3D::renderBackground(
 
 
 
+    //------------------------------------------------
+    // PARAMETERS
+    //------------------------------------------------
+
     cupulaShader.setExposure(
         exposure
     );
-
 
 
     cupulaShader.setRotation(
@@ -283,17 +382,14 @@ void CupulaRenderer3D::renderBackground(
     );
 
 
-
     cupulaShader.setScaleX(
         hdriScaleX
     );
 
 
-
     cupulaShader.setScaleY(
         hdriScaleY
     );
-
 
 
     cupulaShader.setHorizon(
@@ -307,9 +403,9 @@ void CupulaRenderer3D::renderBackground(
     //------------------------------------------------
 
     renderer.renderObject(
-        cupula.getMesh(),
-        cupula.getTransform(),
-        cupula.getMaterial(),
+        cupulaMesh,
+        transform,
+        material,
         cupulaShader,
         camera,
         aspectRatio
@@ -317,8 +413,22 @@ void CupulaRenderer3D::renderBackground(
 
 
 
+    //------------------------------------------------
+    // RESTORE
+    //------------------------------------------------
+
+    glDepthMask(
+        GL_TRUE
+    );
+
+
     glEnable(
         GL_DEPTH_TEST
+    );
+
+
+    glEnable(
+        GL_CULL_FACE
     );
 
 }
@@ -338,3 +448,4 @@ void CupulaRenderer3D::renderObjects(
 {
 
 }
+

@@ -1,10 +1,13 @@
 #pragma once
 
-
 #include "Environment3D.h"
 
-
 #include "CupulaMesh3D.h"
+#include "CupulaMeshBuilder.h"
+
+#include "Mesh3D.h"
+#include "Material3D.h"
+#include "Transform3D.h"
 
 #include "HDRITexture.h"
 #include "HDRICupulaShader.h"
@@ -12,12 +15,15 @@
 #include "Camera3D.h"
 
 
-
 class CupulaRenderer3D : public Environment3D
 {
 
 public:
 
+
+    //------------------------------------------------
+    // CONSTRUCTOR
+    //------------------------------------------------
 
     CupulaRenderer3D();
 
@@ -39,7 +45,7 @@ public:
 
 
     //------------------------------------------------
-    // BACKGROUND
+    // RENDER
     //------------------------------------------------
 
     void renderBackground(
@@ -50,10 +56,6 @@ public:
     ) override;
 
 
-
-    //------------------------------------------------
-    // OBJECTS
-    //------------------------------------------------
 
     void renderObjects(
         Renderer3D& renderer,
@@ -68,10 +70,29 @@ private:
 
 
     //------------------------------------------------
-    // GEOMETRY
+    // PROFILE DATA
     //------------------------------------------------
 
-    CupulaMesh3D cupula;
+    CupulaMesh3D cupulaData;
+
+
+
+    //------------------------------------------------
+    // GENERATED GPU MESH
+    //------------------------------------------------
+
+    Mesh3D cupulaMesh;
+
+
+
+    //------------------------------------------------
+    // MATERIAL / TRANSFORM
+    //------------------------------------------------
+
+    Material3D material;
+
+
+    Transform3D transform;
 
 
 
@@ -87,8 +108,11 @@ private:
 
 
     //------------------------------------------------
-    // CONTROLS
+    // HDRI CONTROLS
     //------------------------------------------------
+
+    float hdriRotation = 0.0f;
+
 
     float hdriScaleX = 1.0f;
 
@@ -96,13 +120,9 @@ private:
     float hdriScaleY = 1.0f;
 
 
-    float hdriRotation = 0.0f;
-
-
     float hdriHorizon = 0.0f;
 
 
     float exposure = 1.0f;
-
 
 };

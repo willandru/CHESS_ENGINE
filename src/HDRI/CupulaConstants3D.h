@@ -1,13 +1,14 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <cstdint>
 
 
 namespace CupulaConstants3D
 {
 
     //------------------------------------------------
-    // MATHEMATICAL CONSTANTS
+    // MATHEMATICS
     //------------------------------------------------
 
     constexpr float PI =
@@ -16,74 +17,75 @@ namespace CupulaConstants3D
 
 
     //------------------------------------------------
-    // MAIN RADIUS
-    //------------------------------------------------
-    //
-    // Radio global de la cúpula.
-    // Es el mismo sistema radial para:
-    // suelo + transición + cielo.
-    //
+    // ENVIRONMENT DIMENSIONS
     //------------------------------------------------
 
-    constexpr float CUPULA_RADIUS = 100.0f;
+    // Radio único del entorno
+    // usado por suelo y cúpula
+
+    constexpr float RADIUS =
+        10.0f;
 
 
 
-    //------------------------------------------------
-    // GROUND AREA
-    //------------------------------------------------
-    //
-    // Radio del plano donde estará el tablero.
-    //
-    //------------------------------------------------
+    // Radio de la unión curva
+    // entre plano y pared/cúpula
 
-    constexpr float GROUND_RADIUS = 10.0f;
+    constexpr float CURVE_RADIUS =
+        1.0f;
 
 
 
     //------------------------------------------------
-    // CURVE TRANSITION
-    //------------------------------------------------
-    //
-    // Zona curva que une suelo y cielo.
-    //
+    // PROFILE TESSELLATION
     //------------------------------------------------
 
-    constexpr float CURVE_RADIUS = 20.0f;
+    constexpr uint32_t CURVE_SEGMENTS =
+        32;
 
 
 
-    //------------------------------------------------
-    // TESSELLATION
-    //------------------------------------------------
-
-    constexpr uint32_t RADIAL_SEGMENTS = 128;
-
-    constexpr uint32_t HEIGHT_SEGMENTS = 64;
+    constexpr uint32_t DOME_SEGMENTS =
+        128;
 
 
 
     //------------------------------------------------
-    // POSITION
+    // REVOLUTION TESSELLATION
     //------------------------------------------------
 
-    constexpr float CENTER_X = 0.0f;
-
-    constexpr float CENTER_Y = 0.0f;
-
-    constexpr float CENTER_Z = 0.0f;
+    constexpr uint32_t RADIAL_SEGMENTS =
+        256;
 
 
 
     //------------------------------------------------
-    // ROTATION
+    // TRANSFORM
     //------------------------------------------------
 
-    constexpr float ROT_X = 0.0f;
+    constexpr float CENTER_X =
+        0.0f;
 
-    constexpr float ROT_Y = 0.0f;
 
-    constexpr float ROT_Z = 0.0f;
+    constexpr float CENTER_Y =
+        0.0f;
+
+
+    constexpr float CENTER_Z =
+        0.0f;
+
+
+
+    constexpr float ROT_X =
+        0.0f;
+
+
+    constexpr float ROT_Y =
+        0.0f;
+
+
+    constexpr float ROT_Z =
+        0.0f;
 
 
 

@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+#include <vector>
 #include <cstdint>
 
 
@@ -14,24 +15,16 @@ public:
 
 
     //------------------------------------------------
-    // BUILD COMPLETE CUPULA
-    //------------------------------------------------
-    //
-    // Genera:
-    //
-    //  - suelo plano
-    //  - transición curva
-    //  - hemisferio
-    //
+    // BUILD REVOLUTION MESH
     //------------------------------------------------
 
     static void build(
         Mesh3D& mesh,
-        float cupulaRadius,
-        float groundRadius,
-        float curveRadius,
+
+        const std::vector<glm::vec2>& profile,
+
         uint32_t radialSegments,
-        uint32_t heightSegments,
+
         const glm::vec3& color
     );
 

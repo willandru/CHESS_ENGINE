@@ -1,5 +1,5 @@
-#pragma once
 
+#pragma once
 
 #include "Shader3D.h"
 
@@ -27,7 +27,7 @@ public:
 
 
     //------------------------------------------------
-    // HDRI TEXTURE
+    // HDRI TEXTURE SLOT
     //------------------------------------------------
 
     void setHDRITextureSlot(
@@ -72,7 +72,7 @@ public:
 
 
     //------------------------------------------------
-    // HORIZON OFFSET
+    // HORIZON
     //------------------------------------------------
 
     void setHorizon(
@@ -90,6 +90,5 @@ private:
 
     static constexpr const char* FRAGMENT_SHADER =
         "Shaders/cupula_hdr.frag";
-
 
 };

@@ -1,25 +1,37 @@
 #include "CupulaMeshBuilder.h"
 
-#include "CupulaConstants3D.h"
+#include <glm/gtc/constants.hpp>
 
-#include <vector>
 #include <cmath>
+#include <vector>
+
 
 
 //====================================================
-// BUILD COMPLETE CUPULA
+// BUILD
 //====================================================
 
 void CupulaMeshBuilder::build(
     Mesh3D& mesh,
-    float cupulaRadius,
-    float groundRadius,
-    float curveRadius,
+
+    const std::vector<glm::vec2>& profile,
+
     uint32_t radialSegments,
-    uint32_t heightSegments,
+
     const glm::vec3& color
 )
 {
+
+    if(profile.size() < 2)
+    {
+        return;
+    }
+
+
+
+    //------------------------------------------------
+    // BUFFERS
+    //------------------------------------------------
 
     std::vector<Vertex3D> vertices;
 
@@ -27,51 +39,51 @@ void CupulaMeshBuilder::build(
 
 
 
+    const uint32_t profileSize =
+        static_cast<uint32_t>(
+            profile.size()
+        );
+
+
+
     //------------------------------------------------
-    // STORE RINGS
+    // VERTICES
     //------------------------------------------------
 
-    uint32_t rings = 0;
-
-
-
-    //------------------------------------------------
-    // FUNCTION ADD RING
-    //------------------------------------------------
-
-    auto addRing =
-    [&](float radius, float height)
+    for(uint32_t r = 0;
+        r <= radialSegments;
+        ++r)
     {
 
-        for(
-            uint32_t i = 0;
-            i <= radialSegments;
-            ++i
-        )
+        float u =
+            static_cast<float>(r) /
+            static_cast<float>(radialSegments);
+
+
+
+        float angle =
+            glm::two_pi<float>() *
+            u;
+
+
+
+        float cs =
+            std::cos(angle);
+
+
+
+        float sn =
+            std::sin(angle);
+
+
+
+        for(uint32_t i = 0;
+            i < profileSize;
+            ++i)
         {
 
-            float u =
-                static_cast<float>(i)
-                /
-                static_cast<float>(radialSegments);
-
-
-
-            float theta =
-                u *
-                2.0f *
-                CupulaConstants3D::PI;
-
-
-
-            float x =
-                radius *
-                std::cos(theta);
-
-
-            float z =
-                radius *
-                std::sin(theta);
+            glm::vec2 point =
+                profile[i];
 
 
 
@@ -79,31 +91,108 @@ void CupulaMeshBuilder::build(
 
 
 
+            //------------------------------------------------
+            // POSITION
+            //------------------------------------------------
+
             vertex.position =
             {
-                x,
-                height,
-                z
+                point.x * cs,
+                point.y,
+                point.x * sn
             };
 
 
 
-            // Interior de la cúpula
-            vertex.normal =
+            //------------------------------------------------
+            // PROFILE TANGENT
+            //------------------------------------------------
+
+            glm::vec2 tangent;
+
+
+            if(i == 0)
             {
-                -std::cos(theta),
-                0.0f,
-                -std::sin(theta)
+
+                tangent =
+                    profile[1] -
+                    profile[0];
+
+            }
+            else if(i == profileSize - 1)
+            {
+
+                tangent =
+                    profile[i] -
+                    profile[i-1];
+
+            }
+            else
+            {
+
+                tangent =
+                    profile[i+1] -
+                    profile[i-1];
+
+            }
+
+
+
+            tangent =
+                glm::normalize(
+                    tangent
+                );
+
+
+
+            //------------------------------------------------
+            // NORMAL
+            //------------------------------------------------
+
+            glm::vec2 normal2D =
+            {
+                -tangent.y,
+                 tangent.x
             };
 
 
+
+            glm::vec3 normal =
+            {
+                normal2D.x * cs,
+                normal2D.y,
+                normal2D.x * sn
+            };
+
+
+
+            // interior surface
+            vertex.normal =
+                glm::normalize(
+                    -normal
+                );
+
+
+
+            //------------------------------------------------
+            // UV
+            //------------------------------------------------
 
             vertex.texCoord =
             {
                 u,
-                0.0f
+
+                static_cast<float>(i) /
+                static_cast<float>(
+                    profileSize - 1
+                )
             };
 
+
+
+            //------------------------------------------------
+            // COLOR
+            //------------------------------------------------
 
             vertex.color =
                 color;
@@ -116,131 +205,6 @@ void CupulaMeshBuilder::build(
 
         }
 
-
-        rings++;
-
-    };
-
-
-
-    //------------------------------------------------
-    // 1) GROUND PLANE
-    //------------------------------------------------
-
-    addRing(
-        0.0f,
-        0.0f
-    );
-
-
-    addRing(
-        groundRadius,
-        0.0f
-    );
-
-
-
-    //------------------------------------------------
-    // 2) CURVED TRANSITION
-    //------------------------------------------------
-    //
-    // Cuarto de esfera
-    //
-    //------------------------------------------------
-
-    for(
-        uint32_t i = 1;
-        i <= heightSegments;
-        ++i
-    )
-    {
-
-        float t =
-            static_cast<float>(i)
-            /
-            static_cast<float>(heightSegments);
-
-
-
-        float angle =
-            t *
-            (
-                CupulaConstants3D::PI * 0.5f
-            );
-
-
-
-        float radius =
-            groundRadius
-            +
-            curveRadius *
-            std::sin(angle);
-
-
-
-        float height =
-            curveRadius *
-            (
-                1.0f -
-                std::cos(angle)
-            );
-
-
-
-        addRing(
-            radius,
-            height
-        );
-
-    }
-
-
-
-    //------------------------------------------------
-    // 3) HEMISPHERE
-    //------------------------------------------------
-
-    for(
-        uint32_t i = 1;
-        i <= heightSegments;
-        ++i
-    )
-    {
-
-        float t =
-            static_cast<float>(i)
-            /
-            static_cast<float>(heightSegments);
-
-
-
-        float phi =
-            t *
-            (
-                CupulaConstants3D::PI * 0.5f
-            );
-
-
-
-        float radius =
-            cupulaRadius *
-            std::sin(phi);
-
-
-
-        float height =
-            curveRadius
-            +
-            cupulaRadius *
-            std::cos(phi);
-
-
-
-        addRing(
-            radius,
-            height
-        );
-
     }
 
 
@@ -249,66 +213,50 @@ void CupulaMeshBuilder::build(
     // INDICES
     //------------------------------------------------
 
-    uint32_t ringSize =
-        radialSegments + 1;
-
-
-
-    for(
-        uint32_t r = 0;
-        r < rings - 1;
-        ++r
-    )
+    for(uint32_t r = 0;
+        r < radialSegments;
+        ++r)
     {
 
-        for(
-            uint32_t i = 0;
-            i < radialSegments;
-            ++i
-        )
+        uint32_t next =
+            r + 1;
+
+
+
+        for(uint32_t i = 0;
+            i < profileSize - 1;
+            ++i)
         {
 
-            uint32_t current =
-                r *
-                ringSize
-                +
-                i;
+            uint32_t a =
+                r * profileSize + i;
 
 
-            uint32_t next =
-                current
-                +
-                ringSize;
+            uint32_t b =
+                next * profileSize + i;
 
 
+            uint32_t c =
+                next * profileSize + i + 1;
 
-            // invertido porque estamos dentro
 
-            indices.push_back(
-                current
-            );
-
-            indices.push_back(
-                current + 1
-            );
-
-            indices.push_back(
-                next
-            );
+            uint32_t d =
+                r * profileSize + i + 1;
 
 
 
-            indices.push_back(
-                current + 1
-            );
+            //------------------------------------------------
+            // INSIDE WINDING
+            //------------------------------------------------
 
-            indices.push_back(
-                next + 1
-            );
+            indices.push_back(a);
+            indices.push_back(c);
+            indices.push_back(b);
 
-            indices.push_back(
-                next
-            );
+
+            indices.push_back(a);
+            indices.push_back(d);
+            indices.push_back(c);
 
         }
 

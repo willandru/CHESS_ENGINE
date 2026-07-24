@@ -11,7 +11,6 @@ in vec3 WorldPos;
 uniform sampler2D hdriMap;
 
 
-
 uniform float rotation;
 
 uniform float hdriScaleX;
@@ -31,7 +30,7 @@ const float PI =
 
 
 //====================================================
-// DIRECTION -> EQUIRECTANGULAR UV
+// DIRECTION TO EQUIRECTANGULAR UV
 //====================================================
 
 vec2 directionToUV(
@@ -87,7 +86,7 @@ vec2 directionToUV(
 
 
     //------------------------------------------------
-    // EQUIRECTANGULAR
+    // EQUIRECTANGULAR MAPPING
     //------------------------------------------------
 
     float u =
@@ -118,7 +117,6 @@ vec2 directionToUV(
         );
 
 
-
     v =
         clamp(
             v,
@@ -145,7 +143,7 @@ void main()
 {
 
     //------------------------------------------------
-    // DIRECCION DESDE CENTRO DE CUPULA
+    // VIEW DIRECTION FROM CUPULA CENTER
     //------------------------------------------------
 
     vec3 direction =
