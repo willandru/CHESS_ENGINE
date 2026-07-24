@@ -83,69 +83,6 @@ void HDRICajaShader::setExposure(
 
 
 //====================================================
-// ROTATION
-//====================================================
-
-void HDRICajaShader::setRotation(
-    float rotation
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "rotation",
-        rotation
-    );
-
-}
-
-
-
-//====================================================
-// TEXTURE ROTATION
-//====================================================
-
-void HDRICajaShader::setTextureRotation(
-    float rotation
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "textureRotation",
-        rotation
-    );
-
-}
-
-
-
-//====================================================
-// TEXTURE ZOOM
-//====================================================
-
-void HDRICajaShader::setTextureZoom(
-    float zoom
-)
-{
-
-    bind();
-
-
-    setFloat(
-        "textureZoom",
-        zoom
-    );
-
-}
-
-
-
-//====================================================
 // SELECTED FACE
 //====================================================
 
@@ -160,6 +97,111 @@ void HDRICajaShader::setFace(
     setInt(
         "selectedFace",
         face
+    );
+
+}
+
+
+
+//====================================================
+// FACE ROTATION X
+//====================================================
+
+void HDRICajaShader::setFaceRotationX(
+    float value
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "faceRotationX",
+        value
+    );
+
+}
+
+
+
+//====================================================
+// FACE ROTATION Y
+//====================================================
+
+void HDRICajaShader::setFaceRotationY(
+    float value
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "faceRotationY",
+        value
+    );
+
+}
+
+
+
+//====================================================
+// FACE ZOOM
+//====================================================
+
+void HDRICajaShader::setFaceZoom(
+    float value
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "faceZoom",
+        value
+    );
+
+}
+
+
+
+//====================================================
+// FACE OFFSET U
+//====================================================
+
+void HDRICajaShader::setFaceOffsetU(
+    float value
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "faceOffsetU",
+        value
+    );
+
+}
+
+
+
+//====================================================
+// FACE OFFSET V
+//====================================================
+
+void HDRICajaShader::setFaceOffsetV(
+    float value
+)
+{
+
+    bind();
+
+
+    setFloat(
+        "faceOffsetV",
+        value
     );
 
 }

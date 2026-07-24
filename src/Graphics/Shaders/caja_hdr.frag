@@ -11,15 +11,6 @@ in vec3 WorldPos;
 uniform sampler2D hdriMap;
 
 
-uniform float rotation;
-
-
-uniform float textureRotation;
-
-
-uniform float textureZoom;
-
-
 uniform float exposure;
 
 
@@ -27,30 +18,88 @@ uniform int selectedFace;
 
 
 
-const float PI =
-    3.14159265359;
+// controles individuales
+
+uniform float faceRotationX;
+
+uniform float faceRotationY;
+
+uniform float faceZoom;
+
+uniform float faceOffsetU;
+
+uniform float faceOffsetV;
+
+
+
+const float PI = 3.14159265359;
 
 
 
 //====================================================
-// GET FACE DIRECTION
+// ROTATE VECTOR
 //====================================================
 
-vec3 getFaceDirection()
+vec3 rotateX(
+    vec3 v,
+    float angle
+)
 {
 
-    vec3 direction;
+    float c = cos(angle);
+
+    float s = sin(angle);
+
+
+    return vec3(
+        v.x,
+        v.y*c - v.z*s,
+        v.y*s + v.z*c
+    );
+
+}
 
 
 
-    //------------------------------------------------
+vec3 rotateY(
+    vec3 v,
+    float angle
+)
+{
+
+    float c = cos(angle);
+
+    float s = sin(angle);
+
+
+    return vec3(
+        v.x*c + v.z*s,
+        v.y,
+        -v.x*s + v.z*c
+    );
+
+}
+
+
+
+
+//====================================================
+// FACE NORMAL DIRECTION
+//====================================================
+
+vec3 getDirection()
+{
+
+    vec3 dir;
+
+
+
     // FLOOR
-    //------------------------------------------------
 
     if(selectedFace == 0)
     {
 
-        direction =
+        dir =
         vec3(
             WorldPos.x,
             -1.0,
@@ -61,14 +110,12 @@ vec3 getFaceDirection()
 
 
 
-    //------------------------------------------------
     // CEILING
-    //------------------------------------------------
 
     else if(selectedFace == 1)
     {
 
-        direction =
+        dir =
         vec3(
             WorldPos.x,
             1.0,
@@ -79,14 +126,12 @@ vec3 getFaceDirection()
 
 
 
-    //------------------------------------------------
-    // FRONT (+Z)
-    //------------------------------------------------
+    // FRONT
 
     else if(selectedFace == 2)
     {
 
-        direction =
+        dir =
         vec3(
             WorldPos.x,
             WorldPos.y,
@@ -97,14 +142,12 @@ vec3 getFaceDirection()
 
 
 
-    //------------------------------------------------
-    // BACK (-Z)
-    //------------------------------------------------
+    // BACK
 
     else if(selectedFace == 3)
     {
 
-        direction =
+        dir =
         vec3(
             -WorldPos.x,
             WorldPos.y,
@@ -115,32 +158,28 @@ vec3 getFaceDirection()
 
 
 
-    //------------------------------------------------
-    // LEFT (-X)
-    //------------------------------------------------
+    // LEFT
 
     else if(selectedFace == 4)
     {
 
-        direction =
+        dir =
         vec3(
             -1.0,
             WorldPos.y,
-            -WorldPos.z
+            WorldPos.z
         );
 
     }
 
 
 
-    //------------------------------------------------
-    // RIGHT (+X)
-    //------------------------------------------------
+    // RIGHT
 
     else
     {
 
-        direction =
+        dir =
         vec3(
             1.0,
             WorldPos.y,
@@ -151,7 +190,7 @@ vec3 getFaceDirection()
 
 
 
-    return normalize(direction);
+    return normalize(dir);
 
 }
 
@@ -160,48 +199,33 @@ vec3 getFaceDirection()
 
 
 //====================================================
-// DIRECTION TO HDRI UV
+// DIRECTION -> HDRI UV
 //====================================================
 
 vec2 directionToUV(
-    vec3 direction
+    vec3 dir
 )
 {
 
-    direction =
-        normalize(
-            direction
-        );
+    dir =
+        normalize(dir);
 
 
-
-    //------------------------------------------------
-    // GLOBAL ROTATION
-    //------------------------------------------------
 
     float longitude =
         atan(
-            direction.z,
-            direction.x
+            dir.z,
+            dir.x
         );
 
 
 
     float latitude =
         asin(
-            direction.y
+            dir.y
         );
 
 
-
-    longitude +=
-        rotation;
-
-
-
-    //------------------------------------------------
-    // EQUIRECTANGULAR
-    //------------------------------------------------
 
     float u =
         0.5 +
@@ -217,84 +241,12 @@ vec2 directionToUV(
 
 
 
-    vec2 uv =
-    {
+    return vec2(
         u,
         v
-    };
-
-
-
-    //------------------------------------------------
-    // FACE TEXTURE ROTATION
-    //------------------------------------------------
-
-    uv -= 0.5;
-
-
-
-    float cs =
-        cos(
-            textureRotation
-        );
-
-
-    float sn =
-        sin(
-            textureRotation
-        );
-
-
-
-    uv =
-        mat2(
-            cs,
-            -sn,
-            sn,
-            cs
-        )
-        *
-        uv;
-
-
-
-    //------------------------------------------------
-    // FACE TEXTURE ZOOM
-    //------------------------------------------------
-
-    uv *=
-        textureZoom;
-
-
-
-    uv +=
-        0.5;
-
-
-
-    //------------------------------------------------
-    // WRAP
-    //------------------------------------------------
-
-    uv.x =
-        fract(
-            uv.x
-        );
-
-
-    uv.y =
-        clamp(
-            uv.y,
-            0.001,
-            0.999
-        );
-
-
-
-    return uv;
+    );
 
 }
-
 
 
 
@@ -306,12 +258,28 @@ vec2 directionToUV(
 void main()
 {
 
-    //------------------------------------------------
-    // FACE PROJECTION
-    //------------------------------------------------
 
     vec3 direction =
-        getFaceDirection();
+        getDirection();
+
+
+
+    //------------------------------------------------
+    // PER FACE ADJUSTMENT
+    //------------------------------------------------
+
+    direction =
+        rotateX(
+            direction,
+            faceRotationX
+        );
+
+
+    direction =
+        rotateY(
+            direction,
+            faceRotationY
+        );
 
 
 
@@ -327,6 +295,25 @@ void main()
 
 
     //------------------------------------------------
+    // ZOOM AROUND CENTER
+    //------------------------------------------------
+
+    uv -= 0.5;
+
+
+    uv *= faceZoom;
+
+
+    uv.x += faceOffsetU;
+
+    uv.y += faceOffsetV;
+
+
+    uv += 0.5;
+
+
+
+    //------------------------------------------------
     // SAMPLE
     //------------------------------------------------
 
@@ -338,8 +325,7 @@ void main()
 
 
 
-    color *=
-        exposure;
+    color *= exposure;
 
 
 

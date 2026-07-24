@@ -6,7 +6,6 @@
 #include "CajaMesh3D.h"
 #include "CajaMeshBuilder.h"
 
-#include "Mesh3D.h"
 #include "Material3D.h"
 #include "Transform3D.h"
 
@@ -14,9 +13,6 @@
 #include "HDRICajaShader.h"
 
 #include "Camera3D.h"
-
-
-#include <array>
 
 
 
@@ -39,6 +35,7 @@ public:
     //------------------------------------------------
 
     bool initialize() override;
+
 
 
     void update(
@@ -74,7 +71,7 @@ private:
 
 
     //------------------------------------------------
-    // RENDER INDIVIDUAL FACE
+    // DRAW ONE FACE
     //------------------------------------------------
 
     void renderFace(
@@ -86,8 +83,11 @@ private:
 
 
 
+private:
+
+
     //------------------------------------------------
-    // BOX DATA
+    // BOX GEOMETRY
     //------------------------------------------------
 
     CajaMesh3D cajaData;
@@ -95,12 +95,18 @@ private:
 
 
     //------------------------------------------------
-    // MATERIAL / TRANSFORM
+    // TRANSFORM
+    //------------------------------------------------
+
+    Transform3D transform;
+
+
+
+    //------------------------------------------------
+    // MATERIAL
     //------------------------------------------------
 
     Material3D material;
-
-    Transform3D transform;
 
 
 
@@ -116,11 +122,10 @@ private:
 
 
     //------------------------------------------------
-    // HDRI SETTINGS
+    // EXPOSURE ONLY
     //------------------------------------------------
-
-    float hdriRotation = 0.0f;
-
+    // No rotation global.
+    // No zoom global.
 
     float exposure = 1.0f;
 
@@ -131,15 +136,15 @@ private:
     //------------------------------------------------
 
     CajaMesh3D::Face selectedFace =
-        CajaMesh3D::Face::FLOOR;
+        CajaMesh3D::Face::FRONT;
 
 
 
     //------------------------------------------------
-    // PER FACE CONTROLS
+    // PER FACE ROTATION
     //------------------------------------------------
 
-    std::array<float,6> faceRotation =
+    float faceRotationX[6] =
     {
         0.0f,
         0.0f,
@@ -150,7 +155,24 @@ private:
     };
 
 
-    std::array<float,6> faceZoom =
+
+    float faceRotationY[6] =
+    {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f
+    };
+
+
+
+    //------------------------------------------------
+    // PER FACE ZOOM
+    //------------------------------------------------
+
+    float faceZoom[6] =
     {
         1.0f,
         1.0f,
@@ -158,6 +180,33 @@ private:
         1.0f,
         1.0f,
         1.0f
+    };
+
+
+
+    //------------------------------------------------
+    // PER FACE OFFSET
+    //------------------------------------------------
+
+    float faceOffsetU[6] =
+    {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f
+    };
+
+
+    float faceOffsetV[6] =
+    {
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f,
+        0.0f
     };
 
 

@@ -10,6 +10,10 @@
 
 #include <glm/common.hpp>
 
+#include <GLFW/glfw3.h>
+
+
+
 
 
 //====================================================
@@ -23,6 +27,8 @@ CajaRenderer3D::CajaRenderer3D()
 
 
 
+
+
 //====================================================
 // INITIALIZE
 //====================================================
@@ -31,16 +37,12 @@ bool CajaRenderer3D::initialize()
 {
 
     //------------------------------------------------
-    // CREATE BOX
+    // CREATE GEOMETRY
     //------------------------------------------------
 
     cajaData.initialize();
 
 
-
-    //------------------------------------------------
-    // BUILD BOX FACES
-    //------------------------------------------------
 
     CajaMeshBuilder::build(
         cajaData,
@@ -103,15 +105,14 @@ bool CajaRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/horn-koppe_snow_8k.exr"
+            "Assets/Environment/pine_attic_8k.exr"
         )
     )
     {
 
         std::cout
-            << "[HDRI] ERROR loading EXR"
+            << "[HDRI] ERROR"
             << std::endl;
-
 
         return false;
 
@@ -134,20 +135,8 @@ bool CajaRenderer3D::initialize()
 
 
 
-    //------------------------------------------------
-    // DEFAULT VALUES
-    //------------------------------------------------
-
-    for(int i = 0; i < 6; i++)
-    {
-        faceRotation[i] = 0.0f;
-        faceZoom[i] = 1.0f;
-    }
-
-
-
     std::cout
-        << "[CAJA] Environment initialized"
+        << "[CAJA] initialized"
         << std::endl;
 
 
@@ -155,6 +144,8 @@ bool CajaRenderer3D::initialize()
     return true;
 
 }
+
+
 
 
 
@@ -170,15 +161,18 @@ void CajaRenderer3D::update(
 )
 {
 
-    constexpr float rotationSpeed = 1.5f;
+
+    constexpr float speed = 1.5f;
+
 
     constexpr float zoomSpeed = 0.5f;
 
 
 
     //------------------------------------------------
-    // FACE SELECTION
+    // SELECT FACE
     //------------------------------------------------
+
 
     if(InputKeyboard::isKeyPressed(GLFW_KEY_1))
         selectedFace = CajaMesh3D::Face::FLOOR;
@@ -205,6 +199,7 @@ void CajaRenderer3D::update(
 
 
 
+
     int face =
         static_cast<int>(
             selectedFace
@@ -212,53 +207,109 @@ void CajaRenderer3D::update(
 
 
 
+
     //------------------------------------------------
-    // ROTATE TEXTURE
+    // ROTATION X
+    // T/G
     //------------------------------------------------
 
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_R
-        )
-    )
+    if(InputKeyboard::isKeyDown(GLFW_KEY_T))
     {
+        faceRotationX[face] += speed * dt;
+    }
 
-        faceRotation[face] +=
-            rotationSpeed *
-            dt;
 
+    if(InputKeyboard::isKeyDown(GLFW_KEY_G))
+    {
+        faceRotationX[face] -= speed * dt;
     }
 
 
 
+
     //------------------------------------------------
-    // ZOOM TEXTURE
+    // ROTATION Y
+    // R/F
     //------------------------------------------------
 
-    if(
-        InputKeyboard::isKeyDown(
-            GLFW_KEY_T
-        )
-    )
+    if(InputKeyboard::isKeyDown(GLFW_KEY_R))
     {
+        faceRotationY[face] += speed * dt;
+    }
 
-        faceZoom[face] +=
-            zoomSpeed *
-            dt;
 
+    if(InputKeyboard::isKeyDown(GLFW_KEY_F))
+    {
+        faceRotationY[face] -= speed * dt;
     }
 
 
 
+
+
     //------------------------------------------------
-    // LIMIT
+    // OFFSET U
+    // Y/H
     //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_Y))
+    {
+        faceOffsetU[face] += dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_H))
+    {
+        faceOffsetU[face] -= dt;
+    }
+
+
+
+
+
+    //------------------------------------------------
+    // OFFSET V
+    // U/J
+    //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_U))
+    {
+        faceOffsetV[face] += dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_J))
+    {
+        faceOffsetV[face] -= dt;
+    }
+
+
+
+
+
+    //------------------------------------------------
+    // ZOOM
+    // O/L
+    //------------------------------------------------
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_O))
+    {
+        faceZoom[face] += zoomSpeed * dt;
+    }
+
+
+    if(InputKeyboard::isKeyDown(GLFW_KEY_L))
+    {
+        faceZoom[face] -= zoomSpeed * dt;
+    }
+
+
 
     faceZoom[face] =
         glm::clamp(
             faceZoom[face],
-            0.25f,
-            5.0f
+            0.1f,
+            10.0f
         );
 
 }
@@ -267,8 +318,11 @@ void CajaRenderer3D::update(
 
 
 
+
+
+
 //====================================================
-// RENDER SINGLE FACE
+// RENDER ONE FACE
 //====================================================
 
 void CajaRenderer3D::renderFace(
@@ -287,7 +341,7 @@ void CajaRenderer3D::renderFace(
 
 
     //------------------------------------------------
-    // FACE SETTINGS
+    // SEND FACE DATA
     //------------------------------------------------
 
     cajaShader.setFace(
@@ -295,13 +349,28 @@ void CajaRenderer3D::renderFace(
     );
 
 
-    cajaShader.setTextureRotation(
-        faceRotation[index]
+    cajaShader.setFaceRotationX(
+        faceRotationX[index]
     );
 
 
-    cajaShader.setTextureZoom(
+    cajaShader.setFaceRotationY(
+        faceRotationY[index]
+    );
+
+
+    cajaShader.setFaceZoom(
         faceZoom[index]
+    );
+
+
+    cajaShader.setFaceOffsetU(
+        faceOffsetU[index]
+    );
+
+
+    cajaShader.setFaceOffsetV(
+        faceOffsetV[index]
     );
 
 
@@ -326,6 +395,8 @@ void CajaRenderer3D::renderFace(
 
 
 
+
+
 //====================================================
 // BACKGROUND
 //====================================================
@@ -338,42 +409,22 @@ void CajaRenderer3D::renderBackground(
 )
 {
 
-    glDisable(
-        GL_CULL_FACE
-    );
+    glDisable(GL_CULL_FACE);
+
+    glDepthMask(GL_FALSE);
+
+    glDisable(GL_DEPTH_TEST);
 
 
-    glDepthMask(
-        GL_FALSE
-    );
-
-
-    glDisable(
-        GL_DEPTH_TEST
-    );
-
-
-
-    //------------------------------------------------
-    // SHADER
-    //------------------------------------------------
 
     cajaShader.bind();
 
 
 
-    //------------------------------------------------
-    // HDRI
-    //------------------------------------------------
-
-    hdriTexture.bind(
-        0
-    );
+    hdriTexture.bind(0);
 
 
-    cajaShader.setHDRITextureSlot(
-        0
-    );
+    cajaShader.setHDRITextureSlot(0);
 
 
     cajaShader.setExposure(
@@ -381,84 +432,30 @@ void CajaRenderer3D::renderBackground(
     );
 
 
-    cajaShader.setRotation(
-        hdriRotation
-    );
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::FLOOR);
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::CEILING);
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::FRONT);
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::BACK);
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::LEFT);
+
+    renderFace(renderer,camera,aspectRatio,CajaMesh3D::Face::RIGHT);
 
 
 
-    //------------------------------------------------
-    // DRAW EACH FACE
-    //------------------------------------------------
+    glDepthMask(GL_TRUE);
 
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::FLOOR
-    );
+    glEnable(GL_DEPTH_TEST);
 
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::CEILING
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::FRONT
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::BACK
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::LEFT
-    );
-
-
-    renderFace(
-        renderer,
-        camera,
-        aspectRatio,
-        CajaMesh3D::Face::RIGHT
-    );
-
-
-
-    //------------------------------------------------
-    // RESTORE
-    //------------------------------------------------
-
-    glDepthMask(
-        GL_TRUE
-    );
-
-
-    glEnable(
-        GL_DEPTH_TEST
-    );
-
-
-    glEnable(
-        GL_CULL_FACE
-    );
+    glEnable(GL_CULL_FACE);
 
 }
+
+
 
 
 

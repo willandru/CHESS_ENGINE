@@ -1,5 +1,6 @@
 #pragma once
 
+
 #include "Shader3D.h"
 
 
@@ -30,7 +31,7 @@ public:
 
 
     //------------------------------------------------
-    // HDRI TEXTURE SLOT
+    // HDRI TEXTURE
     //------------------------------------------------
 
     void setHDRITextureSlot(
@@ -50,37 +51,51 @@ public:
 
 
     //------------------------------------------------
-    // ROTATION
-    //------------------------------------------------
-
-    void setRotation(
-        float rotation
-    );
-
-
-
-    //------------------------------------------------
-    // TEXTURE TRANSFORM
-    //------------------------------------------------
-
-    void setTextureRotation(
-        float rotation
-    );
-
-
-
-    void setTextureZoom(
-        float zoom
-    );
-
-
-
-    //------------------------------------------------
-    // SELECTED FACE
+    // SELECT FACE
     //------------------------------------------------
 
     void setFace(
         int face
+    );
+
+
+
+    //------------------------------------------------
+    // PER FACE ROTATION
+    //------------------------------------------------
+
+    void setFaceRotationX(
+        float value
+    );
+
+
+    void setFaceRotationY(
+        float value
+    );
+
+
+
+    //------------------------------------------------
+    // PER FACE ZOOM
+    //------------------------------------------------
+
+    void setFaceZoom(
+        float value
+    );
+
+
+
+    //------------------------------------------------
+    // PER FACE OFFSET
+    //------------------------------------------------
+
+    void setFaceOffsetU(
+        float value
+    );
+
+
+    void setFaceOffsetV(
+        float value
     );
 
 
@@ -92,7 +107,9 @@ private:
         "Shaders/caja_hdr.vert";
 
 
+
     static constexpr const char* FRAGMENT_SHADER =
         "Shaders/caja_hdr.frag";
+
 
 };
