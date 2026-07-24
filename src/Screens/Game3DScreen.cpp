@@ -5,6 +5,7 @@
 #include "InputConsole.h"
 #include "Window.h"
 #include "CupulaRenderer3D.h"
+#include "CajaRenderer3D.h"
 
 #include <glad/glad.h>
 
@@ -44,7 +45,7 @@ void Game3DScreen::onEnter()
 
 
     sceneRenderer.setEnvironment(
-        std::make_unique<CupulaRenderer3D>()
+        std::make_unique<CajaRenderer3D>()
     );
 
 
