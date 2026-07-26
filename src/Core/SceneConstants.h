@@ -23,7 +23,7 @@ namespace SceneConstants
     // 0.0  = tablero en el suelo
     // 0.5  = tablero elevado 50 cm
     //
-    constexpr float CHESS_SCENE_HEIGHT = 0.55f;
+    constexpr float CHESS_SCENE_HEIGHT = 0.60f;
 
 
 
