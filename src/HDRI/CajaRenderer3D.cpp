@@ -38,8 +38,6 @@ bool CajaRenderer3D::initialize()
 
     caja.initialize();
 
-
-
     rebuildMesh();
 
 
@@ -53,14 +51,12 @@ bool CajaRenderer3D::initialize()
     );
 
 
-
     transform.setRotation(
     {
         0.0f,
         0.0f,
         0.0f
     });
-
 
 
     transform.setScale(
@@ -90,10 +86,8 @@ bool CajaRenderer3D::initialize()
         CajaConstants3D::HDRI_EXPOSURE;
 
 
-
     hdriRotation =
         CajaConstants3D::HDRI_ROTATION;
-
 
 
     if(
@@ -106,7 +100,6 @@ bool CajaRenderer3D::initialize()
         std::cout
             << "[CajaRenderer3D] HDRI load failed."
             << std::endl;
-
 
         return false;
 
@@ -122,17 +115,48 @@ bool CajaRenderer3D::initialize()
         !hdriShader.initialize()
     )
     {
-
         return false;
-
     }
+
+
+
+    //------------------------------------------------
+    // TABLE
+    //------------------------------------------------
+
+    if(
+        !table.load()
+    )
+    {
+        return false;
+    }
+
+
+    table.setPosition({
+        0.0f,
+        0.0f,
+        0.0f
+    });
+
+
+    table.setRotation({
+        0.0f,
+        0.0f,
+        0.0f
+    });
+
+
+    table.setScale({
+        1.0f,
+        1.0f,
+        1.0f
+    });
 
 
 
     return true;
 
 }
-
 
 //====================================================
 // REBUILD MESH
@@ -519,17 +543,31 @@ void CajaRenderer3D::renderBackground(
 //====================================================
 
 void CajaRenderer3D::renderObjects(
-    Renderer3D&,
-    Shader3D&,
-    Camera3D&,
-    float
+    Renderer3D& renderer,
+    Shader3D& shader,
+    Camera3D& camera,
+    float aspectRatio
 )
 {
 
-    // La Caja3D únicamente representa
-    // el entorno HDRI.
-    //
-    // Los objetos de la escena se renderizan
-    // desde sus propios renderers.
+    //------------------------------------------------
+    // TABLE
+    //------------------------------------------------
+
+    renderer.renderObject(
+
+        table.getMesh(),
+
+        table.getTransform(),
+
+        table.getMaterial(),
+
+        shader,
+
+        camera,
+
+        aspectRatio
+
+    );
 
 }

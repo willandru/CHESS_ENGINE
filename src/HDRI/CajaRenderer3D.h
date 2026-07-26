@@ -17,7 +17,7 @@
 #include <glm/glm.hpp>
 
 #include "CajaConstants3D.h"
-
+#include "Table3D.h"
 
 class CajaRenderer3D : public Environment3D
 {
@@ -78,6 +78,12 @@ private:
     //------------------------------------------------
 
     CajaMesh3D caja;
+
+    //------------------------------------------------
+    // OBJECTS
+    //------------------------------------------------
+
+    Table3D table;
 
 
 
