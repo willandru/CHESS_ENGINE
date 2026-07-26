@@ -14,27 +14,12 @@ bool Table3D::load()
 {
 
     //------------------------------------------------
-    // LOAD MODEL
+    // LOAD GLB MODEL
     //------------------------------------------------
 
     if(
-        !loadModel(
-            "Assets/Environment/basic_room_table.gltf"
-        )
-    )
-    {
-        return false;
-    }
-
-
-
-    //------------------------------------------------
-    // LOAD TEXTURE
-    //------------------------------------------------
-
-    if(
-        !loadTexture(
-            "Assets/Environment/oka_texture2.png"
+        !loadGLB(
+            "Assets/Environment/Table2.glb"
         )
     )
     {
@@ -53,11 +38,13 @@ bool Table3D::load()
         0.0f
     });
 
+
     setRotation({
         0.0f,
         0.0f,
         0.0f
     });
+
 
     setScale({
         1.0f,
@@ -80,4 +67,5 @@ bool Table3D::load()
 
 
     return true;
+
 }

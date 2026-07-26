@@ -16,13 +16,12 @@
 
 #include "CupulaConstants3D.h"
 
-
+#include "Table3D.h"
 
 class CupulaRenderer3D : public Environment3D
 {
 
 public:
-
 
     //------------------------------------------------
     // CONSTRUCTOR
@@ -94,7 +93,6 @@ private:
 
     Material3D material;
 
-
     Transform3D transform;
 
 
@@ -105,8 +103,15 @@ private:
 
     HDRITexture hdriTexture;
 
-
     HDRICupulaShader cupulaShader;
+
+
+
+    //------------------------------------------------
+    // OBJECTS
+    //------------------------------------------------
+
+    Table3D table;
 
 
 
@@ -114,22 +119,11 @@ private:
     // HDRI CONTROLS
     //------------------------------------------------
 
-
-    // Rotación horizontal HDRI
-
     float hdriRotation =
         CupulaConstants3D::HDRI_ROTATION;
 
-
-
-    // Movimiento vertical HDRI
-
     float hdriHorizon =
         0.0f;
-
-
-
-    // Exposición HDR
 
     float exposure =
         CupulaConstants3D::HDRI_EXPOSURE;
@@ -140,9 +134,6 @@ private:
     // HDRI CAPTURE
     //------------------------------------------------
 
-
-    // Altura cámara virtual HDRI
-
     float captureHeight =
         CupulaConstants3D::HDRI_CAPTURE_HEIGHT;
 
@@ -151,15 +142,8 @@ private:
     //------------------------------------------------
     // CUPULA SIZE CONTROL
     //------------------------------------------------
-    //
-    // Este controla el radio efectivo visible.
-    //
-    // X aumenta
-    // Z disminuye
-    //
 
     float cupulaScale =
         1.0f;
-
 
 };

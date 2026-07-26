@@ -36,10 +36,6 @@ bool CupulaRenderer3D::initialize()
     // CREATE PROFILE
     //------------------------------------------------
 
-    //------------------------------------------------
-    // CREATE PROFILE
-    //------------------------------------------------
-
     cupulaData.initialize(
         CupulaConstants3D::RADIUS
     );
@@ -120,7 +116,6 @@ bool CupulaRenderer3D::initialize()
             << "[HDRI] ERROR loading EXR"
             << std::endl;
 
-
         return false;
 
     }
@@ -139,6 +134,27 @@ bool CupulaRenderer3D::initialize()
         return false;
 
     }
+
+
+
+    //------------------------------------------------
+    // TABLE
+    //------------------------------------------------
+
+    if(
+        !table.load()
+    )
+    {
+        return false;
+    }
+
+
+
+    table.setPosition({
+        0.0f,
+        0.0f,
+        0.0f
+    });
 
 
 
@@ -167,14 +183,11 @@ void CupulaRenderer3D::update(
     constexpr float rotationSpeed =
         1.5f;
 
-
     constexpr float horizonSpeed =
         0.5f;
 
-
     constexpr float captureHeightSpeed =
         1.0f;
-
 
     constexpr float scaleSpeed =
         0.5f;
@@ -371,11 +384,9 @@ void CupulaRenderer3D::renderBackground(
         GL_CULL_FACE
     );
 
-
     glDepthMask(
         GL_FALSE
     );
-
 
     glDisable(
         GL_DEPTH_TEST
@@ -399,7 +410,6 @@ void CupulaRenderer3D::renderBackground(
         0
     );
 
-
     cupulaShader.setHDRITextureSlot(
         0
     );
@@ -414,20 +424,18 @@ void CupulaRenderer3D::renderBackground(
         exposure
     );
 
-
     cupulaShader.setRotation(
         hdriRotation
     );
-
 
     cupulaShader.setHorizon(
         hdriHorizon
     );
 
-
     cupulaShader.setCaptureHeight(
         captureHeight
     );
+
 
 
     //------------------------------------------------
@@ -471,11 +479,9 @@ void CupulaRenderer3D::renderBackground(
         GL_TRUE
     );
 
-
     glEnable(
         GL_DEPTH_TEST
     );
-
 
     glEnable(
         GL_CULL_FACE
@@ -490,11 +496,24 @@ void CupulaRenderer3D::renderBackground(
 //====================================================
 
 void CupulaRenderer3D::renderObjects(
-    Renderer3D&,
-    Shader3D&,
-    Camera3D&,
-    float
+    Renderer3D& renderer,
+    Shader3D& shader,
+    Camera3D& camera,
+    float aspectRatio
 )
 {
+
+    //------------------------------------------------
+    // TABLE
+    //------------------------------------------------
+
+    renderer.renderObject(
+        table.getMesh(),
+        table.getTransform(),
+        table.getMaterial(),
+        shader,
+        camera,
+        aspectRatio
+    );
 
 }

@@ -98,7 +98,7 @@ bool CajaRenderer3D::initialize()
 
     if(
         !hdriTexture.loadFromFile(
-            "Assets/Environment/indoor/wrestling_gym_8k.exr"
+            "Assets/Environment/indoor/abandoned_bakery_8k_aaa.exr"
         )
     )
     {
